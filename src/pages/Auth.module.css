@@ -1,0 +1,224 @@
+/* ===== Auth Container ===== */
+.authContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eef2ff, white, #f5f3ff);
+  padding: 1rem;
+}
+
+.authFormWrapper {
+  max-width: 28rem;
+  width: 100%;
+}
+
+/* ===== Auth Header ===== */
+.authHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.authIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+  margin-bottom: 1rem;
+}
+
+.authIcon svg {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: white;
+}
+
+.authTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.authSubtitle {
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* ===== Auth Card ===== */
+.authCard {
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+  padding: 2rem;
+}
+
+.authCardTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Form ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.formRequired {
+  color: #ef4444;
+}
+
+.formInputWrapper {
+  position: relative;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  padding-left: 2.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.formInputIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #cbd5e1;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.formSelect {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.formSelect:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.formCheckboxGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.formCheckboxLabel {
+  display: flex;
+  align-items: center;
+}
+
+.formCheckbox {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  accent-color: #6366f1;
+}
+
+.formLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.formLink:hover {
+  color: #4338ca;
+}
+
+/* ===== Error Message ===== */
+.errorMessage {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+/* ===== Button ===== */
+.btnSubmit {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+}
+
+.btnSubmit:hover {
+  background: linear-gradient(to right, #4338ca, #6d28d9);
+  box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.3);
+}
+
+/* ===== Auth Footer ===== */
+.authFooter {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.authFooterText {
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.authFooterLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.authFooterLink:hover {
+  color: #4338ca;
+}

@@ -1,0 +1,495 @@
+/* ===== Dashboard Container ===== */
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+/* ===== Dashboard Header ===== */
+.dashboardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.dashboardTitle h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.dashboardTitle p {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* ===== Edit Button ===== */
+.btnEdit {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnEditDefault {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btnEditDefault:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btnEditActive {
+  background-color: #1e293b;
+  color: white;
+}
+
+.btnEditActive:hover {
+  background-color: #0f172a;
+}
+
+.btnEditIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* ===== Widget Editor ===== */
+.widgetEditor {
+  background-color: #1e293b;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.widgetEditorTitle {
+  color: white;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.widgetEditorTitle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.widgetEditorButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.widgetBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid;
+  background-color: #475569;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.widgetBtn:hover {
+  background-color: #334155;
+}
+
+.widgetBtnActive {
+  background-color: #6366f1;
+  border-color: #818cf8;
+  color: white;
+}
+
+/* ===== Empty State ===== */
+.emptyState {
+  text-align: center;
+  padding: 5rem 1.5rem;
+  background-color: white;
+  border-radius: 1.5rem;
+  border: 1px dashed #cbd5e1;
+}
+
+.emptyStateIcon {
+  width: 3rem;
+  height: 3rem;
+  color: #cbd5e1;
+  margin: 0 auto 0.75rem;
+}
+
+.emptyStateText {
+  color: #94a3b8;
+}
+
+/* ===== Grid Layout ===== */
+.widgetGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .widgetGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .widgetGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.widgetItem {
+  position: relative;
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.cardEditing {
+  border-style: dashed;
+  border-color: #94a3b8;
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.cardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(15, 23, 42, 0.025);
+}
+
+.cardHeaderTitle {
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.cardHeaderTitle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.cardHeaderLink {
+  font-size: 0.75rem;
+  color: #4f46e5;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cardHeaderLink:hover {
+  color: #4338ca;
+}
+
+.cardContent {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardContentNoPadding {
+  padding: 0;
+}
+
+/* ===== Close Button ===== */
+.btnClose {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  z-index: 10;
+}
+
+.btnCloseIcon {
+  width: 2rem;
+  height: 2rem;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-size: 1.25rem;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnCloseIcon:hover {
+  background-color: #dc2626;
+}
+
+/* ===== Timetable Widget ===== */
+.timetableList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.timetableItem {
+  display: flex;
+  align-items: flex-start;
+}
+
+.timetableBody {
+  flex: 1;
+}
+
+.timetableDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: #6366f1;
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+}
+
+.timetableItemTitle {
+  font-weight: 500;
+  color: #0f172a;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.timetableItemMeta {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.timetableItemMetaIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.timetableItemMetaSeparator {
+  margin: 0 0.5rem;
+}
+
+/* ===== Scholarship Widget ===== */
+.scholarshipList {
+  list-style: none;
+  border-top: 1px solid #f1f5f9;
+}
+
+.scholarshipItem {
+  padding: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.scholarshipItem:last-child {
+  border-bottom: none;
+}
+
+.scholarshipItem:hover {
+  background-color: #f1f5f9;
+}
+
+.scholarshipItemMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.scholarshipMatchRate {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #d97706;
+  background-color: #fffbeb;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.scholarshipDDay {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+  background-color: #f1f5f9;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.scholarshipItemTitle {
+  font-weight: 500;
+  color: #0f172a;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scholarshipItemOrg {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ===== Schedule Widget ===== */
+.scheduleList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.scheduleItem {
+  display: flex;
+  align-items: center;
+}
+
+.scheduleDateBadge {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background-color: #f0fdf4;
+  border: 1px solid #dcfce7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #047857;
+  flex-shrink: 0;
+  margin-right: 1rem;
+}
+
+.scheduleDateMonth {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.scheduleDateDay {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scheduleItemTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.scheduleItemType {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.125rem;
+}
+
+/* ===== Diary Widget ===== */
+.diaryCard {
+  background-color: rgba(244, 63, 94, 0.05);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(244, 63, 94, 0.1);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.diaryEmoji {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.75rem;
+  opacity: 0.1;
+  font-size: 2rem;
+  z-index: 0;
+}
+
+.diaryContent {
+  position: relative;
+  z-index: 1;
+}
+
+.diaryTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.diaryText {
+  font-size: 0.75rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.diaryDate {
+  margin-top: 1rem;
+  font-size: 0.625rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.diaryEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+}
+
+.diaryEmptyIcon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.diaryEmptyText {
+  font-size: 0.75rem;
+}
