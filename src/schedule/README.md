@@ -1,35 +1,98 @@
 # Schedule Module
 
-이 모듈은 FullCalendar 라이브러리를 사용하여 구현된 일정 관리 시스템의 UI 부분입니다.
-
-## 설치 및 준비 사항
-
-이 프로젝트에서 사용된 FullCalendar 관련 라이브러리들을 설치해야 합니다. 터미널에서 아래 명령어를 실행하세요.
-
-```bash
-npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction
-```
-
-## 구성 요소
-
-현재 `src/schedule` 폴더는 다음과 같은 구조로 이루어져 있습니다:
-
-```text
-src/schedule/
-├── README.md           # 모듈 설명 문서
-└── components/         # 일정 관련 UI 컴포넌트
-    ├── Calendar.jsx    # 메인 달력 컴포넌트
-    └── Calendar.css    # 달력 전용 스타일시트
-```
-
-- **Calendar.jsx**: FullCalendar를 활용한 메인 달력 컴포넌트입니다. 월별 보기가 기본으로 설정되어 있으며, 컴팩트한 레이아웃을 위해 높이와 비율이 최적화되어 있습니다.
-- **Calendar.css**: 달력 컴포넌트 전용 스타일시트입니다. 프로젝트의 테마 컬러(`--accent`, `--border` 등)를 반영하고 있으며, 토요일(파란색)과 일요일(빨간색) 색상 구분이 적용되어 있습니다.
-
-## 레이아웃 설명
-
-현재 메인 페이지(`App.jsx`)는 2단 그리드 레이아웃으로 구성되어 있습니다:
-- **왼쪽 (1.5fr)**: `Calendar` 컴포넌트가 배치되어 있습니다.
-- **오른쪽 (1fr)**: 현재는 비어있는 상태이며, 향후 다른 컴포넌트(일정 상세, 메모 등)를 추가할 수 있는 공간입니다.
+이 모듈은 FullCalendar 라이브러리를 사용하여 구현된 일정 관리 UI 구조입니다.
 
 ---
-*참고: 현재는 UI 중심의 프로토타입 단계이며, 데이터베이스 연동 및 이벤트 핸들링 로직은 제외되어 있습니다.*
+
+## 📦 설치 및 준비 사항
+
+이 프로젝트에서 사용된 FullCalendar 관련 라이브러리들을 설치해야 합니다.
+
+npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction
+
+---
+
+## 📁 구성 요소
+
+현재 src/schedule 폴더 구조:
+
+src/schedule/
+├── README.md
+└── components/
+    ├── Calendar.jsx      # 메인 달력 컴포넌트
+    ├── Calendar.css      # 달력 스타일
+    ├── TodoList.jsx      # 할 일 리스트 UI
+    ├── TodoList.css      # TodoList 스타일
+    └── EventModal.jsx    # 모달 컴포넌트 (UI만 존재)
+
+---
+
+## 🧩 컴포넌트 설명
+
+### Calendar.jsx
+FullCalendar 기반의 달력 컴포넌트입니다.
+
+- 월별 달력 UI 구현
+- 기본 헤더 및 스타일 설정
+- 이벤트 기능은 아직 미구현
+
+---
+
+### TodoList.jsx
+할 일 리스트를 표시하는 컴포넌트입니다.
+
+- 정적 리스트 UI 구현
+- 체크/추가/삭제 기능은 미구현
+- 데이터 연동 없음
+
+---
+
+### EventModal.jsx
+날짜 선택 시 사용할 모달 컴포넌트입니다.
+
+- 모달 UI만 구현됨
+- 열기/닫기 및 데이터 연동 기능 미구현
+
+---
+
+## 🖥️ 레이아웃 설명
+
+메인 페이지(App.jsx)는 2단 Grid 구조입니다:
+
+- 왼쪽 (1.5fr)
+  → Calendar 컴포넌트
+
+- 오른쪽 (1fr)
+  → TodoList 컴포넌트
+
+EventModal은 현재 UI만 존재하며 실제 동작은 연결되지 않은 상태입니다.
+
+---
+
+## 🚀 현재 상태
+
+현재 프로젝트는 다음 단계입니다:
+
+- UI 구성 완료
+- 컴포넌트 분리 완료
+- 레이아웃(Grid) 구성 완료
+
+👉 **UI만 완성된 초기 상태**
+
+---
+
+## 🔜 다음 개발 계획
+
+- 캘린더 날짜 클릭 이벤트 구현
+- EventModal open/close 기능 구현
+- Todo 데이터 상태 관리 추가
+- 날짜별 Todo 연결
+- Todo 추가 / 삭제 기능 구현
+- 상태 관리 구조 개선 (useState 기반 → 확장 예정)
+
+---
+
+## 📌 참고
+
+이 프로젝트는 UI 기반으로 먼저 구조를 잡고  
+이후 인터랙션 및 데이터 로직을 단계적으로 추가하는 방식으로 개발됩니다.
