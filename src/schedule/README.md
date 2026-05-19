@@ -16,6 +16,7 @@ npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction
 
 현재 src/schedule 폴더 구조:
 
+```text
 src/schedule/
 ├── README.md
 └── components/
@@ -24,6 +25,7 @@ src/schedule/
     ├── TodoList.jsx      # 할 일 리스트 UI
     ├── TodoList.css      # TodoList 스타일
     └── EventModal.jsx    # 모달 컴포넌트 (UI만 존재)
+```
 
 ---
 
