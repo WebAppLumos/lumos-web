@@ -70,7 +70,35 @@
   }
 }
 
-#next-steps {
+.main-content-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto 32px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.calendar-section {
+  width: 100%;
+}
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .main-content-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+}
+
+.counter {
   display: flex;
   border-top: 1px solid var(--border);
   text-align: left;
