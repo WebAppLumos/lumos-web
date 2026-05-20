@@ -1,16 +1,42 @@
-# React + Vite
+# Lumos Web - Schedule Management
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Lumos Web은 React와 Vite를 기반으로 한 개인 일정 관리 애플리케이션입니다.
 
-Currently, two official plugins are available:
+## 🛠️ 기술 스택
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend**: React 19, Vite
+- **Libraries**: FullCalendar, React-Modal
+- **Styling**: Vanilla CSS
 
-## React Compiler
+## 📋 주요 기능
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **월별 캘린더**: FullCalendar를 이용한 직관적인 일정 확인
+- **인터랙티브 모달**: 날짜 클릭 시 상세 정보를 확인하거나 일정을 추가할 수 있는 모달 팝업
+- **투두 리스트**: 선택된 날짜의 할 일 목록 확인 및 관리 (개발 중)
 
-## Expanding the ESLint configuration
+## 🚀 시작하기
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 설치
+
+```bash
+npm install
+```
+
+### 실행
+
+```bash
+npm run dev
+```
+
+## 📂 프로젝트 구조
+
+```text
+src/
+├── schedule/          # 일정 관리 모듈 (핵심 로직)
+│   ├── components/    # UI 컴포넌트
+│   ├── hooks/         # 커스텀 훅 (상태 관리)
+│   └── Schedule.jsx   # 모달/캘린더 통합 컨테이너
+└── App.jsx            # 메인 엔트리
+```
+
+자세한 내용은 [src/schedule/README.md](./src/schedule/README.md)를 참고하세요.

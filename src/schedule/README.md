@@ -1,100 +1,94 @@
 # Schedule Module
 
-이 모듈은 FullCalendar 라이브러리를 사용하여 구현된 일정 관리 UI 구조입니다.
+이 모듈은 FullCalendar 라이브러리를 사용하여 구현된 일정 관리 UI 및 인터랙션 구조입니다.
 
 ---
 
 ## 📦 설치 및 준비 사항
 
-이 프로젝트에서 사용된 FullCalendar 관련 라이브러리들을 설치해야 합니다.
+이 프로젝트에서 사용된 주요 라이브러리들입니다.
 
-npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction
+```bash
+npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction react-modal
+```
 
 ---
 
 ## 📁 구성 요소
 
-현재 src/schedule 폴더 구조:
+현재 `src/schedule` 폴더 구조:
 
 ```text
 src/schedule/
 ├── README.md
-└── components/
-    ├── Calendar.jsx      # 메인 달력 컴포넌트
-    ├── Calendar.css      # 달력 스타일
-    ├── TodoList.jsx      # 할 일 리스트 UI
-    ├── TodoList.css      # TodoList 스타일
-    └── EventModal.jsx    # 모달 컴포넌트 (UI만 존재)
+├── Schedule.jsx        # 메인 컨테이너 컴포넌트
+├── components/
+│   ├── Calendar.jsx    # 메인 달력 컴포넌트
+│   ├── Calendar.css    # 달력 스타일
+│   ├── Todolist.jsx    # 할 일 리스트 UI
+│   ├── Todolist.css    # Todolist 스타일
+│   ├── EventModal.jsx  # 모달 컴포넌트
+│   └── EventModal.css  # 모달 스타일
+└── hooks/
+    └── useSchedule.js  # 캘린더 상태 관리 커스텀 훅
 ```
 
 ---
 
-## 🧩 컴포넌트 설명
+## 🧩 기능 설명
 
-### Calendar.jsx
-FullCalendar 기반의 달력 컴포넌트입니다.
+### Schedule.jsx
+- 전체 레이아웃을 관리하며 `useSchedule` 훅을 통해 상태를 제어합니다.
 
-- 월별 달력 UI 구현
-- 기본 헤더 및 스타일 설정
-- 이벤트 기능은 아직 미구현
+### hooks/useSchedule.js
+- 모달의 열림/닫힘 상태를 관리합니다.
+- 선택된 날짜(`selectedDate`)를 추적합니다.
 
----
+### components/Calendar.jsx
+- FullCalendar 기반의 달력 컴포넌트입니다.
+- 날짜 클릭 시 `openModal` 함수를 호출하여 모달을 띄웁니다.
 
-### TodoList.jsx
-할 일 리스트를 표시하는 컴포넌트입니다.
+### components/EventModal.jsx
+- `react-modal`을 사용한 팝업창입니다.
+- 선택된 날짜를 표시하며, 제목과 내용을 입력받을 수 있는 확장성을 고려하여 설계되었습니다.
 
-- 정적 리스트 UI 구현
-- 체크/추가/삭제 기능은 미구현
-- 데이터 연동 없음
-
----
-
-### EventModal.jsx
-날짜 선택 시 사용할 모달 컴포넌트입니다.
-
-- 모달 UI만 구현됨
-- 열기/닫기 및 데이터 연동 기능 미구현
+### components/Todolist.jsx
+- 선택된 날짜에 따른 할 일 리스트를 표시하는 UI입니다.
 
 ---
 
 ## 🖥️ 레이아웃 설명
 
-메인 페이지(App.jsx)는 2단 Grid 구조입니다:
+메인 페이지는 2단 Grid 구조입니다:
 
-- 왼쪽 (1.5fr)
-  → Calendar 컴포넌트
-
-- 오른쪽 (1fr)
-  → TodoList 컴포넌트
-
-EventModal은 현재 UI만 존재하며 실제 동작은 연결되지 않은 상태입니다.
+- 왼쪽 (1.5fr): `Calendar` 컴포넌트
+- 오른쪽 (1fr): `Todolist` 컴포넌트
+- 중앙: `EventModal` (조건부 렌더링)
 
 ---
 
 ## 🚀 현재 상태
 
-현재 프로젝트는 다음 단계입니다:
+- [x] UI 구성 및 컴포넌트 분리 완료
+- [x] 레이아웃(Grid) 구성 완료
+- [x] `useSchedule` 커스텀 훅 구현 (상태 관리)
+- [x] 캘린더 날짜 클릭 시 모달 열기 기능 구현
+- [x] 모달 내 선택 날짜 표시 기능 구현
 
-- UI 구성 완료
-- 컴포넌트 분리 완료
-- 레이아웃(Grid) 구성 완료
-
-👉 **UI만 완성된 초기 상태**
+👉 **기본 인터랙션이 구현된 개발 중기 상태**
 
 ---
 
 ## 🔜 다음 개발 계획
 
-- 캘린더 날짜 클릭 이벤트 구현
-- EventModal open/close 기능 구현
-- Todo 데이터 상태 관리 추가
-- 날짜별 Todo 연결
-- Todo 추가 / 삭제 기능 구현
-- 상태 관리 구조 개선 (useState 기반 → 확장 예정)
+- EventModal 내 제목/내용 입력 필드 추가
+- Todo 데이터 상태 관리 추가 (저장 기능)
+- 날짜별 Todo 데이터 필터링 및 연동
+- Todo 추가 / 삭제 / 완료 기능 구현
+- UI 디테일 개선 (애니메이션 등)
 
 ---
 
 ## 📌 참고
 
-이 프로젝트는 UI 기반으로 먼저 구조를 잡고  
-이후 인터랙션 및 데이터 로직을 단계적으로 추가하는 방식으로 개발됩니다.
+이 프로젝트는 UI 기반으로 먼저 구조를 잡고 이후 인터랙션 및 데이터 로직을 단계적으로 추가하는 방식으로 개발됩니다.

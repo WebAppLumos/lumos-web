@@ -1,14 +1,23 @@
-function EventModal() {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <h2 className="modal-title">일정 상세</h2>
+import ReactModal from 'react-modal';
+import './EventModal.css';
 
-        <div className="modal-content">
-          <p>내용 들어갈 자리</p>
-        </div>
-      </div>
-    </div>
+ReactModal.setAppElement('#root');
+
+function EventModal({ modalOpen, closeModal, date }) {
+  return (
+    <ReactModal
+      isOpen={modalOpen}
+      onRequestClose={closeModal}
+      shouldCloseOnOverlayClick={true}
+      className="modal-container"
+      overlayClassName="modal-overlay"
+    >
+      <p>선택 날짜: {date}</p>
+
+      <button onClick={closeModal}>
+        닫기
+      </button>
+    </ReactModal>
   );
 }
 
