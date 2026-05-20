@@ -22,10 +22,6 @@ function TodoList() {
     );
   }
 
-  function removeHandle() {
-    setTextArray(textArray.filter((item) => item.done === false));
-  }
-
   const allMission = textArray.length;
   const completedMission = textArray.filter((item) => item.done === true).length;
   const progress = allMission === 0 ? 0 : Math.round((completedMission / allMission) * 100);
@@ -59,10 +55,6 @@ function TodoList() {
           </li>
         ))}
       </ul>
-
-      <button className="remove-btn" onClick={removeHandle}>
-        완료한 미션 삭제
-      </button>
     </div>
   );
 }

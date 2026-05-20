@@ -70,32 +70,74 @@
 /* ================= MAIN GRID ================= */
 .main-content-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 24px;
-
+  grid-template-columns: 1.6fr 1fr;
+  gap: 32px;
   width: 100%;
-  max-width: 1120px;
-
-  margin: auto;
-  padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
   box-sizing: border-box;
+  text-align: left;
 }
 
 .calendar-section {
-  width: 100%;
+  background: var(--card-bg);
+  padding: 24px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
 
 .side-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+}
+
+/* Custom Calendar Overrides */
+.fc {
+  --fc-border-color: #f3f4f6;
+  --fc-button-bg-color: var(--accent);
+  --fc-button-border-color: var(--accent);
+  --fc-button-hover-bg-color: var(--accent-hover);
+  --fc-button-active-bg-color: var(--accent-hover);
+  --fc-event-bg-color: var(--accent);
+  --fc-event-border-color: var(--accent);
+  --fc-today-bg-color: var(--accent-light);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.fc .fc-col-header-cell-cushion {
+  padding: 12px 4px;
+  font-weight: 600;
+  color: #6b7280;
+  text-decoration: none;
+}
+
+.fc-daygrid-day-number {
+  padding: 8px !important;
+  color: #374151;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.fc .fc-button {
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
   .main-content-grid {
     grid-template-columns: 1fr;
-    padding: 0 16px;
+    padding: 0;
+    gap: 24px;
   }
 }
 
