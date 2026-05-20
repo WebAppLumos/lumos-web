@@ -7,6 +7,10 @@ function Schedule() {
   const {
     selectedDate,
     modalOpen,
+    ledgerItems,
+    addLedgerItem,
+    deleteLedgerItem,
+    updateLedgerItem,
     openModal,
     closeModal,
   } = useSchedule();
@@ -26,6 +30,10 @@ function Schedule() {
         modalOpen={modalOpen}
         closeModal={closeModal}
         date={selectedDate}
+        ledgerItems={ledgerItems}
+        addLedgerItem={addLedgerItem}
+        deleteLedgerItem={deleteLedgerItem}
+        updateLedgerItem={updateLedgerItem}
       />
     </div>
   );
