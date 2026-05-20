@@ -6,7 +6,7 @@ export default function useSchedule() {
   const [ledgerItems, setLedgerItems] = useState([]);
 
   function addLedgerItem(newItem) {
-    setLedgerItems((prev) => [...prev, { ...newItem, ledger_ID: Date.now() }]);
+    setLedgerItems((prev) => [...prev, { ...newItem, ledger_ID: Date.now(), done: false }]);
   }
 
   function deleteLedgerItem(id) {

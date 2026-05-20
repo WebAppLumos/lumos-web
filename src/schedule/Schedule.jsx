@@ -23,7 +23,7 @@ function Schedule() {
       </div>
 
       <div className="side-section">
-        <TodoList selectedDate={selectedDate} />
+        <TodoList />
       </div>
 
       <EventModal
