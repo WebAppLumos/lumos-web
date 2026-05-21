@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
-import {
-  DAYS,
-  TIME_SLOTS,
-  mockCourses,
-  mockSemesters,
-  mockTimetableEntries,
-  mockTimetables,
-} from '../../lib/mock-data'
+
+import { DAYS, TIME_SLOTS, mockCourses, mockSemesters, 
+  mockTimetableEntries, mockTimetables, } from '../../lib/mock-data'
+
+import TimetableCourseList from './components/TimetableCourseList'
+import TimetableControls from './components/TimetableControls'
+import TimetableGrid from './components/TimetableGrid'
+import TimetableHeader from './components/TimetableHeader'
+import TimetableTabs from './components/TimetableTabs'
+
 import './Timetable.css'
 
 // Time을 숫자로 변환 (예: "09:00" -> 9, "13:30" -> 13.5)
@@ -28,216 +30,108 @@ export default function Timetable() {
   )
   const [timetableId, setTimetableId] = useState(mockTimetables[0].id) // 시간표 ID 가져오기
   const [view, setView] = useState('info') // view 설정 (수업 정보, 노트, 난이도)
+  const [entries, setEntries] = useState(mockTimetableEntries) // 시간표-수업 매핑
+  const [selectedCourseId, setSelectedCourseId] = useState('') // 추가할 수업 ID
 
-  // 현재 시간표에 배치된 수업 목록 계산
+  // 현재 선택된 학기/시간표에 표시할 수업만 추려냄
   const coursesOnBoard = useMemo(() => {
-    const ids = mockTimetableEntries
+    const ids = entries
       .filter((e) => e.timetableId === timetableId)
       .map((e) => e.courseId)
     return mockCourses.filter(
       (c) => c.semesterId === semesterId && ids.includes(c.id),
     )
-  }, [semesterId, timetableId])
+  }, [entries, semesterId, timetableId])
 
-  // view data
+  // 현재 시간표에 아직 추가되지 않은 수업 목록
+  const availableCourses = useMemo(() => {
+    const ids = entries
+      .filter((e) => e.timetableId === timetableId)
+      .map((e) => e.courseId)
+    return mockCourses.filter(
+      (c) => c.semesterId === semesterId && !ids.includes(c.id),
+    )
+  }, [entries, semesterId, timetableId])
+
+  // 화면 표시용 선택 데이터
   const semester = mockSemesters.find((s) => s.id === semesterId)
   const timetable = mockTimetables.find((t) => t.id === timetableId)
   const semTimetables = mockTimetables.filter((t) => t.semesterId === semesterId)
+  const selectedAvailableCourseId = availableCourses.some((c) => c.id === selectedCourseId)
+    ? selectedCourseId
+    : availableCourses[0]?.id ?? ''
+
+  // 학기를 바꾸면 해당 학기의 첫 번째 시간표를 자동 선택
+  const onChangeSemester = (e) => {
+    setSemesterId(e.target.value)
+    const first = mockTimetables.find((t) => t.semesterId === e.target.value)
+    if (first) setTimetableId(first.id)
+  }
+
+  // 사용자가 선택한 수업을 현재 시간표에 추가
+  const onAddCourse = () => {
+    const course = availableCourses.find((c) => c.id === selectedAvailableCourseId)
+    if (!course) {
+      window.alert('추가할 수업이 없습니다.')
+      return
+    }
+
+    setEntries([
+      ...entries,
+      {
+        timetableId,
+        courseId: course.id,
+      },
+    ])
+  }
+
+  // 선택한 수업을 현재 시간표에서 제거
+  const onDeleteCourse = (courseId) => {
+    setEntries(entries.filter(
+      (e) => !(e.timetableId === timetableId && e.courseId === courseId),
+    ))
+  }
 
   return (
     <div className="Timetable">
-      <div className="head">
-        <h1 className="title">시간표 & 일정 관리</h1>
-        <p className="desc">학기별 시간표와 수업을 관리합니다</p>
-      </div>
+      <TimetableHeader />
 
       {/* 학기, 시간표 선택 및 수업 추가버튼 */}
-      <div className="controls">
-        <select
-          className="select"
-          value={semesterId}
-          // 학기 변경 시: 해당 학기의 첫 번째 시간표로 자동 선택
-          onChange={(e) => {
-            setSemesterId(e.target.value)
-            const first = mockTimetables.find((t) => t.semesterId === e.target.value)
-            if (first) setTimetableId(first.id)
-          }}
-        >
-          {mockSemesters.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-              {s.isActive ? ' (현재)' : ''}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="select"
-          value={timetableId}
-          onChange={(e) => setTimetableId(e.target.value)}
-        >
-          {semTimetables.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-              {t.isDefault ? ' (기본)' : ''}
-            </option>
-          ))}
-        </select>
-
-        <button type="button" className="btn-primary">
-          + 수업 추가
-        </button>
-      </div>
-      {/* ================================================ */}
-
+      <TimetableControls
+        semesterId={semesterId}
+        timetableId={timetableId}
+        mockSemesters={mockSemesters}
+        semTimetables={semTimetables}
+        availableCourses={availableCourses}
+        selectedCourseId={selectedAvailableCourseId}
+        onChangeSemester={onChangeSemester}
+        onChangeTimetable={(e) => setTimetableId(e.target.value)}
+        onChangeCourse={(e) => setSelectedCourseId(e.target.value)}
+        onAddCourse={onAddCourse}
+      />
 
       {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
-      <div className="tabs">
-        <button
-          type="button"
-          className={view === 'info' ? 'active' : ''}
-          onClick={() => setView('info')}
-        >
-          수업 정보
-        </button>
-        <button
-          type="button"
-          className={view === 'note' ? 'active' : ''}
-          onClick={() => setView('note')}
-        >
-          노트
-        </button>
-        <button
-          type="button"
-          className={view === 'difficulty' ? 'active' : ''}
-          onClick={() => setView('difficulty')}
-        >
-          난이도
-        </button>
-      </div>
-      {/* ================================================ */}
-
+      <TimetableTabs view={view} setView={setView} />
 
       {/* 시간표 출력 */}
-      <div className="card">
-        <div className="cardHead">
-          <span className="cardTitle">
-            {semester?.name} - {timetable?.name}
-          </span>
-          <span className="cardSub">
-            ({semTimetables.length}개의 시간표)
-          </span>
-        </div>
-        <div className="gridWrap">
-          <div className="grid">
-            <div className="gridHeader">
-              <div className="timeColLabel" />
-              {DAYS.map((d) => (
-                <div key={d} className="day">
-                  {d}
-                </div>
-              ))}
-            </div>
-            <div className="gridBody">
-              <div className="timeLabels">
-                {TIME_SLOTS.map((t) => (
-                  <div key={t} className="timeRow">
-                    {t}
-                  </div>
-                ))}
-              </div>
-              {DAYS.map((_, dayIndex) => (
-                <div key={dayIndex} className="dayCol">
-                  {TIME_SLOTS.map((t) => (
-                    <div key={t} className="slot" />
-                  ))}
-                  {coursesOnBoard
-                    .filter((c) => c.schedules.some((s) => s.day === dayIndex))
-                    .map((course) => {
-                      const sc = course.schedules.find((s) => s.day === dayIndex)
-                      if (!sc) return null
-                      const st = slotStyle(sc.startTime, sc.endTime)
-                      return (
-                        <div
-                          key={`${course.id}-${dayIndex}`}
-                          className="block"
-                          style={{
-                            ...st,
-                            backgroundColor: course.color,
-                          }}
-                        >
-                          <div className="blockName">{course.name}</div>
-                          {view === 'info' && (
-                            <>
-                              <div className="blockMeta">{course.room}</div>
-                              <div className="blockMeta">
-                                {sc.startTime} - {sc.endTime}
-                              </div>
-                            </>
-                          )}
-                          {view === 'note' && (
-                            <div className="blockMeta">{course.note}</div>
-                          )}
-                          {view === 'difficulty' && (
-                            <div className="stars">
-                              {'★'.repeat(course.difficulty)}
-                              {'☆'.repeat(5 - course.difficulty)}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* ================================================ */}
-
+      <TimetableGrid
+        DAYS={DAYS}
+        TIME_SLOTS={TIME_SLOTS}
+        semester={semester}
+        timetable={timetable}
+        semTimetables={semTimetables}
+        coursesOnBoard={coursesOnBoard}
+        view={view}
+        slotStyle={slotStyle}
+      />
 
       {/* 시간표 정보를 카드 형태로 출력 */}
-      <div className="card">
-        <div className="cardHead">
-          <span className="cardTitle">
-            {view === 'info' && '수업 정보'}
-            {view === 'note' && '수업 노트'}
-            {view === 'difficulty' && '과목별 난이도'}
-          </span>
-        </div>
-        <div className="list">
-          {coursesOnBoard.map((c) => (
-            <div key={c.id} className="listItem">
-              <span
-                className="dot"
-                style={{ background: c.color }}
-              />
-              <div className="listBody">
-                <div className="listName">{c.name}</div>
-                {view === 'info' && (
-                  <div className="listMeta">
-                    {c.professor} · {c.room}
-                    <br />
-                    {c.schedules
-                      .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
-                      .join(', ')}
-                  </div>
-                )}
-                {view === 'note' && (
-                  <div className="listMeta">{c.note}</div>
-                )}
-                {view === 'difficulty' && (
-                  <div className="listMeta">
-                    {'★'.repeat(c.difficulty)}
-                    {'☆'.repeat(5 - c.difficulty)} ({c.difficulty}/5)
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* ================================================ */}
+      <TimetableCourseList
+        DAYS={DAYS}
+        coursesOnBoard={coursesOnBoard}
+        view={view}
+        onDeleteCourse={onDeleteCourse}
+      />
     </div>
   )
 }
