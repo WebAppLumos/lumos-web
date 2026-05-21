@@ -3,11 +3,11 @@ import { useMemo, useState } from 'react'
 import { DAYS, TIME_SLOTS, mockCourses, mockSemesters, 
   mockTimetableEntries, mockTimetables, } from '../../lib/mock-data'
 
-import TimetableCourseList from './components/TimetableCourseList'
-import TimetableControls from './components/TimetableControls'
-import TimetableGrid from './components/TimetableGrid'
-import TimetableHeader from './components/TimetableHeader'
-import TimetableTabs from './components/TimetableTabs'
+import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
+import TimetableControls from '../../components/Timetable/TimetableControls'
+import TimetableGrid from '../../components/Timetable/TimetableGrid'
+import TimetableHeader from '../../components/Timetable/TimetableHeader'
+import TimetableTabs from '../../components/Timetable/TimetableTabs'
 
 import './Timetable.css'
 
