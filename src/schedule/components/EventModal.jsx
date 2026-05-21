@@ -4,7 +4,15 @@ import './EventModal.css';
 
 ReactModal.setAppElement('#root');
 
-function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerItem, deleteLedgerItem, updateLedgerItem }) {
+function EventModal({ 
+  modalOpen, 
+  closeModal, 
+  date, 
+  scheduleItems = [], 
+  addScheduleItem, 
+  deleteScheduleItem, 
+  updateScheduleItem 
+}) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -14,10 +22,10 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
   const handleAdd = () => {
     if (!title) return;
 
-    addLedgerItem({
-      ledger_date: date,
-      ledger_title: title,
-      ledger_content: content,
+    addScheduleItem({
+      date: date,
+      title: title,
+      content: content,
     });
 
     setTitle('');
@@ -25,9 +33,9 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
   };
 
   const startEditing = (item) => {
-    setEditingId(item.ledger_ID);
-    setEditTitle(item.ledger_title);
-    setEditContent(item.ledger_content);
+    setEditingId(item.id);
+    setEditTitle(item.title);
+    setEditContent(item.content);
   };
 
   const cancelEditing = () => {
@@ -35,11 +43,11 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
   };
 
   const handleUpdate = (id) => {
-    updateLedgerItem({
-      ledger_ID: id,
-      ledger_date: date,
-      ledger_title: editTitle,
-      ledger_content: editContent,
+    updateScheduleItem({
+      id: id,
+      date: date,
+      title: editTitle,
+      content: editContent,
     });
     setEditingId(null);
   };
@@ -54,11 +62,11 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
     >
       <h3>날짜: {date}</h3>
 
-      <div className="ledger-list">
-        {ledgerItems.length > 0 ? (
-          ledgerItems.map((item) => (
-            <div key={item.ledger_ID} className="ledger-item">
-              {editingId === item.ledger_ID ? (
+      <div className="schedule-list">
+        {scheduleItems.length > 0 ? (
+          scheduleItems.map((item) => (
+            <div key={item.id} className="schedule-item">
+              {editingId === item.id ? (
                 <div className="edit-form">
                   <input
                     type="text"
@@ -73,17 +81,17 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
                     placeholder="내용"
                   />
                   <div className="btn-group">
-                    <button onClick={() => handleUpdate(item.ledger_ID)} className="save-btn">저장</button>
+                    <button onClick={() => handleUpdate(item.id)} className="save-btn">저장</button>
                     <button onClick={cancelEditing} className="cancel-btn">취소</button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <p><strong>제목:</strong> {item.ledger_title}</p>
-                  <p><strong>내용:</strong> {item.ledger_content}</p>
+                  <p><strong>제목:</strong> {item.title}</p>
+                  <p><strong>내용:</strong> {item.content}</p>
                   <div className="btn-group">
                     <button onClick={() => startEditing(item)} className="edit-btn">수정</button>
-                    <button onClick={() => deleteLedgerItem(item.ledger_ID)} className="delete-btn">삭제</button>
+                    <button onClick={() => deleteScheduleItem(item.id)} className="delete-btn">삭제</button>
                   </div>
                 </>
               )}
@@ -94,18 +102,18 @@ function EventModal({ modalOpen, closeModal, date, ledgerItems = [], addLedgerIt
         )}
       </div>
 
-      <div className="ledger-form">
+      <div className="schedule-form">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목 (title)"
+          placeholder="일정 제목"
         />
         <input
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="내용 (content)"
+          placeholder="일정 내용"
         />
         <button onClick={handleAdd} className="add-btn">추가</button>
       </div>

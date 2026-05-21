@@ -21,16 +21,14 @@ npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction 
 ```text
 src/schedule/
 ├── README.md
-├── Schedule.jsx        # 메인 컨테이너 컴포넌트
-├── components/
-│   ├── Calendar.jsx    # 메인 달력 컴포넌트
-│   ├── Calendar.css    # 달력 스타일
-│   ├── Todolist.jsx    # 할 일 리스트 UI
-│   ├── Todolist.css    # Todolist 스타일
-│   ├── EventModal.jsx  # 모달 컴포넌트
-│   └── EventModal.css  # 모달 스타일
-└── hooks/
-    └── useSchedule.js  # 캘린더 상태 관리 커스텀 훅
+├── Schedule.jsx        # 메인 컨테이너 컴포넌트 (상태 관리 로직 포함)
+└── components/
+    ├── Calendar.jsx    # 메인 달력 컴포넌트
+    ├── Calendar.css    # 달력 스타일
+    ├── Todolist.jsx    # 할 일 리스트 UI
+    ├── Todolist.css    # Todolist 스타일
+    ├── EventModal.jsx  # 모달 컴포넌트
+    └── EventModal.css  # 모달 스타일
 ```
 
 ---
@@ -38,19 +36,16 @@ src/schedule/
 ## 🧩 기능 설명
 
 ### Schedule.jsx
-- 전체 레이아웃을 관리하며 `useSchedule` 훅을 통해 상태를 제어합니다.
-
-### hooks/useSchedule.js
-- 모달의 열림/닫힘 상태를 관리합니다.
-- 선택된 날짜(`selectedDate`)를 추적합니다.
+- 전체 레이아웃을 관리하며 내부 상태(`useState`)를 통해 캘린더와 모달의 데이터를 직접 제어합니다.
+- 일정의 추가, 수정, 삭제(CRUD) 로직이 포함되어 있습니다.
 
 ### components/Calendar.jsx
 - FullCalendar 기반의 달력 컴포넌트입니다.
-- 날짜 클릭 시 `openModal` 함수를 호출하여 모달을 띄웁니다.
+- 날짜 클릭 시 부모 컴포넌트의 `openModal` 함수를 호출하여 모달을 띄웁니다.
 
 ### components/EventModal.jsx
 - `react-modal`을 사용한 팝업창입니다.
-- 선택된 날짜를 표시하며, 제목과 내용을 입력받을 수 있는 확장성을 고려하여 설계되었습니다.
+- 선택된 날짜의 일정을 표시하고 편집할 수 있는 기능을 제공합니다.
 
 ### components/Todolist.jsx
 - 선택된 날짜에 따른 할 일 리스트를 표시하는 UI입니다.
@@ -71,7 +66,7 @@ src/schedule/
 
 - [x] UI 구성 및 컴포넌트 분리 완료
 - [x] 레이아웃(Grid) 구성 완료
-- [x] `useSchedule` 커스텀 훅 구현 (로컬 상태 관리)
+- [x] `useState` 기반 로컬 상태 관리 구현 (기존 커스텀 훅 통합)
 - [x] 캘린더 날짜 클릭 시 모달 열기 기능 구현
 - [x] 모달 내 선택 날짜 표시 기능 구현
 - [x] EventModal 내 제목/내용 입력 필드 추가 완료

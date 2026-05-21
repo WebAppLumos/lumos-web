@@ -1,19 +1,41 @@
+import { useState } from 'react';
 import Calendar from './components/Calendar';
 import TodoList from './components/Todolist';
 import EventModal from './components/EventModal';
-import useSchedule from './hooks/useSchedule';
 
 function Schedule() {
-  const {
-    selectedDate,
-    modalOpen,
-    ledgerItems,
-    addLedgerItem,
-    deleteLedgerItem,
-    updateLedgerItem,
-    openModal,
-    closeModal,
-  } = useSchedule();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [scheduleItems, setScheduleItems] = useState([]);
+
+  function addScheduleItem(newItem) {
+    setScheduleItems((prev) => [
+      ...prev,
+      { ...newItem, id: Date.now(), done: false }
+    ]);
+  }
+
+  function deleteScheduleItem(id) {
+    setScheduleItems((prev) => prev.filter((item) => item.id !== id));
+  }
+
+  function updateScheduleItem(updatedItem) {
+    setScheduleItems((prev) =>
+      prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+    );
+  }
+
+  function openModal(date) {
+    setSelectedDate(date);
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+    setSelectedDate(null);
+  }
+
+  const selectedDateItems = scheduleItems.filter(item => item.date === selectedDate);
 
   return (
     <div className="main-content-grid">
@@ -30,10 +52,10 @@ function Schedule() {
         modalOpen={modalOpen}
         closeModal={closeModal}
         date={selectedDate}
-        ledgerItems={ledgerItems}
-        addLedgerItem={addLedgerItem}
-        deleteLedgerItem={deleteLedgerItem}
-        updateLedgerItem={updateLedgerItem}
+        scheduleItems={selectedDateItems}
+        addScheduleItem={addScheduleItem}
+        deleteScheduleItem={deleteScheduleItem}
+        updateScheduleItem={updateScheduleItem}
       />
     </div>
   );

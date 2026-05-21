@@ -35,8 +35,7 @@ npm run dev
 src/
 ├── schedule/          # 일정 관리 모듈 (핵심 로직)
 │   ├── components/    # UI 컴포넌트
-│   ├── hooks/         # 커스텀 훅 (상태 관리)
-│   └── Schedule.jsx   # 모달/캘린더 통합 컨테이너
+│   └── Schedule.jsx   # 상태 관리 및 모달/캘린더 통합 컨테이너
 └── App.jsx            # 메인 엔트리
 ```
 
