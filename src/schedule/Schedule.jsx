@@ -41,7 +41,7 @@ function Schedule() {
     <div className="main-content-grid">
 
       <div className="calendar-section">
-        <Calendar onDateClick={openModal} />
+        <Calendar onDateClick={openModal} events={scheduleItems} />
       </div>
 
       <div className="side-section">
