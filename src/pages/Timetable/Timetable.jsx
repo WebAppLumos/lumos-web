@@ -46,15 +46,15 @@ export default function Timetable() {
 
   return (
     <div className="Timetable">
-      <div className="Timetable-head">
-        <h1 className="Timetable-title">시간표 & 일정 관리</h1>
-        <p className="Timetable-desc">학기별 시간표와 수업을 관리합니다</p>
+      <div className="head">
+        <h1 className="title">시간표 & 일정 관리</h1>
+        <p className="desc">학기별 시간표와 수업을 관리합니다</p>
       </div>
 
       {/* 학기, 시간표 선택 및 수업 추가버튼 */}
-      <div className="Timetable-controls">
+      <div className="controls">
         <select
-          className="Timetable-select"
+          className="select"
           value={semesterId}
           // 학기 변경 시: 해당 학기의 첫 번째 시간표로 자동 선택
           onChange={(e) => {
@@ -72,7 +72,7 @@ export default function Timetable() {
         </select>
 
         <select
-          className="Timetable-select"
+          className="select"
           value={timetableId}
           onChange={(e) => setTimetableId(e.target.value)}
         >
@@ -84,7 +84,7 @@ export default function Timetable() {
           ))}
         </select>
 
-        <button type="button" className="Timetable-btn-primary">
+        <button type="button" className="btn-primary">
           + 수업 추가
         </button>
       </div>
@@ -92,7 +92,7 @@ export default function Timetable() {
 
 
       {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
-      <div className="Timetable-tabs">
+      <div className="tabs">
         <button
           type="button"
           className={view === 'info' ? 'active' : ''}
@@ -119,37 +119,37 @@ export default function Timetable() {
 
 
       {/* 시간표 출력 */}
-      <div className="Timetable-card">
-        <div className="Timetable-cardHead">
-          <span className="Timetable-cardTitle">
+      <div className="card">
+        <div className="cardHead">
+          <span className="cardTitle">
             {semester?.name} - {timetable?.name}
           </span>
-          <span className="Timetable-cardSub">
+          <span className="cardSub">
             ({semTimetables.length}개의 시간표)
           </span>
         </div>
-        <div className="Timetable-gridWrap">
-          <div className="Timetable-grid">
-            <div className="Timetable-gridHeader">
-              <div className="Timetable-timeColLabel" />
+        <div className="gridWrap">
+          <div className="grid">
+            <div className="gridHeader">
+              <div className="timeColLabel" />
               {DAYS.map((d) => (
-                <div key={d} className="Timetable-day">
+                <div key={d} className="day">
                   {d}
                 </div>
               ))}
             </div>
-            <div className="Timetable-gridBody">
-              <div className="Timetable-timeLabels">
+            <div className="gridBody">
+              <div className="timeLabels">
                 {TIME_SLOTS.map((t) => (
-                  <div key={t} className="Timetable-timeRow">
+                  <div key={t} className="timeRow">
                     {t}
                   </div>
                 ))}
               </div>
               {DAYS.map((_, dayIndex) => (
-                <div key={dayIndex} className="Timetable-dayCol">
+                <div key={dayIndex} className="dayCol">
                   {TIME_SLOTS.map((t) => (
-                    <div key={t} className="Timetable-slot" />
+                    <div key={t} className="slot" />
                   ))}
                   {coursesOnBoard
                     .filter((c) => c.schedules.some((s) => s.day === dayIndex))
@@ -160,26 +160,26 @@ export default function Timetable() {
                       return (
                         <div
                           key={`${course.id}-${dayIndex}`}
-                          className="Timetable-block"
+                          className="block"
                           style={{
                             ...st,
                             backgroundColor: course.color,
                           }}
                         >
-                          <div className="Timetable-blockName">{course.name}</div>
+                          <div className="blockName">{course.name}</div>
                           {view === 'info' && (
                             <>
-                              <div className="Timetable-blockMeta">{course.room}</div>
-                              <div className="Timetable-blockMeta">
+                              <div className="blockMeta">{course.room}</div>
+                              <div className="blockMeta">
                                 {sc.startTime} - {sc.endTime}
                               </div>
                             </>
                           )}
                           {view === 'note' && (
-                            <div className="Timetable-blockMeta">{course.note}</div>
+                            <div className="blockMeta">{course.note}</div>
                           )}
                           {view === 'difficulty' && (
-                            <div className="Timetable-stars">
+                            <div className="stars">
                               {'★'.repeat(course.difficulty)}
                               {'☆'.repeat(5 - course.difficulty)}
                             </div>
@@ -197,25 +197,25 @@ export default function Timetable() {
 
 
       {/* 시간표 정보를 카드 형태로 출력 */}
-      <div className="Timetable-card">
-        <div className="Timetable-cardHead">
-          <span className="Timetable-cardTitle">
+      <div className="card">
+        <div className="cardHead">
+          <span className="cardTitle">
             {view === 'info' && '수업 정보'}
             {view === 'note' && '수업 노트'}
             {view === 'difficulty' && '과목별 난이도'}
           </span>
         </div>
-        <div className="Timetable-list">
+        <div className="list">
           {coursesOnBoard.map((c) => (
-            <div key={c.id} className="Timetable-listItem">
+            <div key={c.id} className="listItem">
               <span
-                className="Timetable-dot"
+                className="dot"
                 style={{ background: c.color }}
               />
-              <div className="Timetable-listBody">
-                <div className="Timetable-listName">{c.name}</div>
+              <div className="listBody">
+                <div className="listName">{c.name}</div>
                 {view === 'info' && (
-                  <div className="Timetable-listMeta">
+                  <div className="listMeta">
                     {c.professor} · {c.room}
                     <br />
                     {c.schedules
@@ -224,10 +224,10 @@ export default function Timetable() {
                   </div>
                 )}
                 {view === 'note' && (
-                  <div className="Timetable-listMeta">{c.note}</div>
+                  <div className="listMeta">{c.note}</div>
                 )}
                 {view === 'difficulty' && (
-                  <div className="Timetable-listMeta">
+                  <div className="listMeta">
                     {'★'.repeat(c.difficulty)}
                     {'☆'.repeat(5 - c.difficulty)} ({c.difficulty}/5)
                   </div>

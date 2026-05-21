@@ -25,27 +25,27 @@ export default function Signin() {
 
   return (
     <div className="Signin">
-      <div className="Signin-inner">
-        <div className="Signin-brand">
-          <div className="Signin-logo" aria-hidden>
+      <div className="inner">
+        <div className="brand">
+          <div className="logo" aria-hidden>
             🎓
           </div>
-          <h1 className="Signin-title">Lumos</h1>
-          <p className="Signin-sub">대학 생활 맞춤 대시보드</p>
+          <h1 className="title">Lumos</h1>
+          <p className="sub">대학 생활 맞춤 대시보드</p>
         </div>
 
-        <div className="Signin-card">
-          <div className="Signin-cardHead">
-            <h2 className="Signin-cardTitle">로그인</h2>
-            <p className="Signin-cardDesc">계정에 로그인하여 대시보드를 이용하세요</p>
+        <div className="card">
+          <div className="cardHead">
+            <h2 className="cardTitle">로그인</h2>
+            <p className="cardDesc">계정에 로그인하여 대시보드를 이용하세요</p>
           </div>
-          <form className="Signin-form" onSubmit={onSubmit}>
-            <label className="Signin-label" htmlFor="signin-email">
+          <form className="form" onSubmit={onSubmit}>
+            <label className="label" htmlFor="signin-email">
               이메일
             </label>
             <input
               id="signin-email"
-              className="Signin-input"
+              className="input"
               type="email"
               placeholder="example@university.ac.kr"
               value={email}
@@ -56,10 +56,10 @@ export default function Signin() {
             <label className="Signin-label" htmlFor="signin-password">
               비밀번호
             </label>
-            <div className="Signin-passwordWrap">
+            <div className="passwordWrap">
               <input
                 id="signin-password"
-                className="Signin-input Signin-inputGrow"
+                className="input inputGrow"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
@@ -68,7 +68,7 @@ export default function Signin() {
               />
               <button
                 type="button"
-                className="Signin-togglePw"
+                className="togglePw"
                 // 비밀번호 보기/숨김
                 onClick={() => setShowPassword((v) => !v)}
               >
@@ -76,16 +76,16 @@ export default function Signin() {
               </button>
             </div>
 
-            <button type="submit" className="Signin-submit">
+            <button type="submit" className="submit">
               로그인
             </button>
           </form>
-          <p className="Signin-foot">
-            계정이 없으신가요? <span className="Signin-muted">회원가입 페이지는 Signup.jsx</span>
+          <p className="foot">
+            계정이 없으신가요? <span className="muted">회원가입 페이지는 Signup.jsx</span>
           </p>
         </div>
 
-        <p className="Signin-legal">
+        <p className="legal">
           로그인하면 서비스 이용약관과 개인정보 처리방침에 동의하게 됩니다.
         </p>
       </div>

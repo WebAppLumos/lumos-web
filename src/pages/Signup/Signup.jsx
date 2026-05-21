@@ -36,29 +36,29 @@ export default function Signup() {
 
   return (
     <div className="Signup">
-      <div className="Signup-inner">
-        <div className="Signup-brand">
-          <div className="Signup-logo" aria-hidden>
+      <div className="inner">
+        <div className="brand">
+          <div className="logo" aria-hidden>
             🎓
           </div>
-          <h1 className="Signup-title">Lumos</h1>
-          <p className="Signup-sub">대학 생활 맞춤 대시보드</p>
+          <h1 className="title">Lumos</h1>
+          <p className="sub">대학 생활 맞춤 대시보드</p>
         </div>
 
-        <div className="Signup-card">
-          <div className="Signup-cardHead">
-            <h2 className="Signup-cardTitle">회원가입</h2>
-            <p className="Signup-cardDesc">Lumos에 가입하고 맞춤형 대시보드를 만들어보세요</p>
+        <div className="card">
+          <div className="cardHead">
+            <h2 className="cardTitle">회원가입</h2>
+            <p className="cardDesc">Lumos에 가입하고 맞춤형 대시보드를 만들어보세요</p>
           </div>
 
-          <form className="Signup-form" onSubmit={onSubmit}>
-            {hint ? <p className="Signup-hint">{hint}</p> : null}
-            <label className="Signup-label" htmlFor="su-name">
+          <form className="form" onSubmit={onSubmit}>
+            {hint ? <p className="hint">{hint}</p> : null}
+            <label className="label" htmlFor="su-name">
               이름
             </label>
             <input
               id="su-name"
-              className="Signup-input"
+              className="input"
               type="text"
               placeholder="홍길동"
               value={name}
@@ -66,12 +66,12 @@ export default function Signup() {
               required
             />
 
-            <label className="Signup-label" htmlFor="su-email">
+            <label className="label" htmlFor="su-email">
               이메일
             </label>
             <input
               id="su-email"
-              className="Signup-input"
+              className="input"
               type="email"
               placeholder="example@university.ac.kr"
               value={email}
@@ -79,14 +79,14 @@ export default function Signup() {
               required
             />
 
-            <div className="Signup-row">
-              <div className="Signup-col">
-                <label className="Signup-label" htmlFor="su-dept">
+            <div className="row">
+              <div className="col">
+                <label className="label" htmlFor="su-dept">
                   학과
                 </label>
                 <select
                   id="su-dept"
-                  className="Signup-input"
+                  className="input"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   required
@@ -99,13 +99,13 @@ export default function Signup() {
                   ))}
                 </select>
               </div>
-              <div className="Signup-col">
-                <label className="Signup-label" htmlFor="su-grade">
+              <div className="col">
+                <label className="label" htmlFor="su-grade">
                   학년
                 </label>
                 <select
                   id="su-grade"
-                  className="Signup-input"
+                  className="input"
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
                   required
@@ -119,13 +119,13 @@ export default function Signup() {
               </div>
             </div>
 
-            <label className="Signup-label" htmlFor="su-pw">
+            <label className="label" htmlFor="su-pw">
               비밀번호
             </label>
-            <div className="Signup-passwordWrap">
+            <div className="passwordWrap">
               <input
                 id="su-pw"
-                className="Signup-input Signup-inputGrow"
+                className="input inputGrow"
                 type={showPw ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
@@ -134,7 +134,7 @@ export default function Signup() {
               />
               <button
                 type="button"
-                className="Signup-togglePw"
+                className="togglePw"
                 // 비밀번호 보기/숨김
                 onClick={() => setShowPw((v) => !v)}
               >
@@ -142,13 +142,13 @@ export default function Signup() {
               </button>
             </div>
 
-            <label className="Signup-label" htmlFor="su-pw2">
+            <label className="label" htmlFor="su-pw2">
               비밀번호 확인
             </label>
-            <div className="Signup-passwordWrap">
+            <div className="passwordWrap">
               <input
                 id="su-pw2"
-                className="Signup-input Signup-inputGrow"
+                className="input inputGrow"
                 type={showPw2 ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password2}
@@ -157,7 +157,7 @@ export default function Signup() {
               />
               <button
                 type="button"
-                className="Signup-togglePw"
+                className="togglePw"
                 // 비밀번호 보기/숨김
                 onClick={() => setShowPw2((v) => !v)}
               >
@@ -165,18 +165,18 @@ export default function Signup() {
               </button>
             </div>
 
-            <button type="submit" className="Signup-submit">
+            <button type="submit" className="submit">
               회원가입
             </button>
           </form>
 
-          <p className="Signup-foot">
+          <p className="foot">
             이미 계정이 있으신가요?{' '}
-            <span className="Signup-muted">로그인은 Signin.jsx</span>
+            <span className="muted">로그인은 Signin.jsx</span>
           </p>
         </div>
 
-        <p className="Signup-legal">
+        <p className="legal">
           회원가입하면 서비스 이용약관과 개인정보 처리방침에 동의하게 됩니다.
         </p>
       </div>
