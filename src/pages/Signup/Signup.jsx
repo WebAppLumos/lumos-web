@@ -15,12 +15,12 @@ export default function Signup() {
   const [showPw2, setShowPw2] = useState(false) // PW 표시 여부(true/false)
   const [hint, setHint] = useState('') // 각 항목에 대한 입력 방법 힌트 표시
 
-  // 비밃번호 일치 여부 검증 및 회원가입 요청
+  // 비밀번호 일치 여부 검증 및 회원가입 요청
   const onSubmit = (e) => {
     e.preventDefault()
     setHint('')
 
-    // 비밀번호 검증 (학습용: 간단히만 체크)
+    // 비밀번호 검증 (개발 중엔 간단하게만 검증)
     if (password !== password2) {
       setHint('비밀번호가 일치하지 않습니다.')
       return
@@ -32,6 +32,14 @@ export default function Signup() {
 
     // 회원가입 요청 (Firebase Auth)
     createUserWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        // 회원가입 성공
+        window.alert('회원가입 성공!')
+      })
+      .catch(() => {
+        // 회원가입 실패
+        window.alert('회원가입에 실패했습니다.')
+      })
   }
 
   return (
