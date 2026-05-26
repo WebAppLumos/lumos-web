@@ -1,36 +1,69 @@
-// 시설 목록 컴포넌트
-
 function PlaceList(props) {
 
-  // 부모(MapPage)에서 전달받은 데이터
+  // props 받기
   const {
-    showPlaces,
+    places,
+    category,
+    setSelectedPosition,
   } = props;
+
+
+  // 카테고리 필터링
+  const filteredPlaces =
+
+    category === "전체"
+
+      ? places
+
+      : places.filter((item) =>
+
+          item.type === category
+        );
+
 
   return (
 
     <div className="placeList">
 
-      {/* 시설 목록 출력 */}
-      {showPlaces.map((item) => (
+      {filteredPlaces.map((item) => (
 
-        <div
-          className="placeBox"
+       <div
+            key={item.id}
 
-          key={item.id}
-        >
+            className="placeBox"
+
+            onClick={() =>
+
+                setSelectedPosition([
+                item.lat,
+                item.lng,
+                ])
+            }
+            >
 
           <h3>
             {item.name}
           </h3>
 
           <p>
-            {item.type}
-          </p>
-
-          <p>
             {item.time}
           </p>
+           
+           <button
+
+  className="routeButton"
+
+  onClick={() =>
+
+    window.open(
+      `https://map.kakao.com/link/to/${item.name},${item.lat},${item.lng}`
+    )
+  }
+>
+
+  길찾기
+
+</button>
 
         </div>
 

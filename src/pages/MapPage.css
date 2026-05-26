@@ -11,7 +11,7 @@ body {
   margin: 0;
   padding: 0;
 
-  background-color: #f5f5f5;
+  overflow: hidden;
 }
 
 
@@ -38,6 +38,10 @@ body {
   display: flex;
 
   flex-direction: column;
+
+  height: 100vh;
+
+  overflow: hidden;
 }
 
 
@@ -112,7 +116,7 @@ body {
 .mapBox {
   flex: 1;
 
-  min-height: 700px;
+  min-height: 0;
 
   border-radius: 20px;
 
@@ -205,4 +209,29 @@ body {
     flex-direction: column;
   }
 
+}
+
+.routeButton {
+
+  width: 100%;
+
+  margin-top: 10px;
+
+  padding: 10px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background-color: #5d8f3b;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+
+.routeButton:hover {
+
+  opacity: 0.9;
 }
