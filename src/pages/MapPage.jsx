@@ -9,27 +9,30 @@ import "leaflet/dist/leaflet.css";
 
 import "./MapPage.css";
 
+import { useState } from "react";
+
 import SideMenu from "../components/SideMenu";
 
 import Category from "../components/Category";
 
-import { useState } from "react";
-
 function MapPage() {
 
+  // 현재 선택된 카테고리
   const [category, setCategory] =
     useState("전체");
 
   return (
-    <div className="container">
+
+    <div className="mapContainer">
 
       {/* 왼쪽 메뉴 */}
       <SideMenu />
 
-      {/* 가운데 */}
+
+      {/* 가운데 영역 */}
       <div className="centerBox">
 
-        {/* 위 */}
+        {/* 제목 */}
         <div className="topBox">
 
           <div className="titleBox">
@@ -44,12 +47,17 @@ function MapPage() {
 
           </div>
 
+
+          {/* 검색창 */}
           <input
             className="search"
+
             placeholder="찾고 싶은 교내 시설"
           />
 
         </div>
+
+
 
         {/* 카테고리 */}
         <Category
@@ -57,12 +65,16 @@ function MapPage() {
           setCategory={setCategory}
         />
 
+
+
         {/* 지도 */}
         <div className="mapBox">
 
           <MapContainer
             center={[35.8532, 128.4913]}
+
             zoom={17}
+
             style={{
               width: "100%",
               height: "100%",
@@ -74,6 +86,7 @@ function MapPage() {
 
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+
 
             <Marker position={[35.8542, 128.4925]}>
 
@@ -89,72 +102,65 @@ function MapPage() {
 
       </div>
 
-      {/* 오른쪽 */}
-     <div className="rightBox">
+
+
+      {/* 오른쪽 영역 */}
+      <div className="rightBox">
 
         <h1>
-            {category}
+          {category}
         </h1>
 
-        {/* 시설 목록 */}
+
         <div className="placeList">
 
-            <div className="placeBox activePlace">
+          <div className="placeBox activePlace">
 
             <h3>
-                블루포트 공학관점
+              블루포트 공학관점
             </h3>
 
             <p>
-                09:00 - 19:00
+              09:00 - 19:00
             </p>
 
-            </div>
+          </div>
 
-            <div className="placeBox">
+
+          <div className="placeBox">
 
             <h3>
-                이디야
+              이디야
             </h3>
 
             <p>
-                08:00 - 21:00
+              08:00 - 21:00
             </p>
 
-            </div>
-
-            <div className="placeBox">
-
-            <h3>
-                피피카페
-            </h3>
-
-            <p>
-                08:30 - 19:00
-            </p>
-
-            </div>
+          </div>
 
         </div>
+
+
 
         {/* 다음 수업 */}
         <div className="nextClass">
 
-            <h3>
+          <h3>
             다음 수업
-            </h3>
+          </h3>
 
-            <p>
+          <p>
             웹프로그래밍
-            </p>
+          </p>
 
-            <p>
+          <p>
             현재 위치에서 5분 소요
-            </p>
+          </p>
 
         </div>
 
-        </div>
+      </div>
 
     </div>
   );
