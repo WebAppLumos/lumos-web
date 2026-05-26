@@ -7,6 +7,7 @@ export default function TimetableGrid({
   coursesOnBoard,
   view,
   slotStyle,
+  onDeleteCourse,
 }) {
   return (
     // 요일/시간 슬롯 기준으로 수업 블록을 배치하는 시간표 영역
@@ -59,7 +60,16 @@ export default function TimetableGrid({
                           backgroundColor: course.color,
                         }}
                         >
-                          <div className="blockName">{course.name}</div>
+                        <button
+                          type="button"
+                          className="blockDelete"
+                          // 현재 시간표에서 해당 수업 삭제
+                          onClick={() => onDeleteCourse(course.id)}
+                          aria-label={`${course.name} 삭제`}
+                        >
+                          ×
+                        </button>
+                        <div className="blockName">{course.name}</div>
                         {/* 선택된 탭에 따라 블록 안의 부가 정보 변경 */}
                         { // view를 수업 정보로 변경
                           view === 'info' && (

@@ -98,6 +98,7 @@ export default function Timetable() {
 
       {/* 학기, 시간표 선택 및 수업 추가버튼 */}
       <TimetableControls
+        DAYS={DAYS}
         semesterId={semesterId}
         timetableId={timetableId}
         mockSemesters={mockSemesters}
@@ -123,6 +124,7 @@ export default function Timetable() {
         coursesOnBoard={coursesOnBoard}
         view={view}
         slotStyle={slotStyle}
+        onDeleteCourse={onDeleteCourse}
       />
 
       {/* 시간표 정보를 카드 형태로 출력 */}
