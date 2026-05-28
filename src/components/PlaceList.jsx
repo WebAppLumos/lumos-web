@@ -7,7 +7,6 @@ function PlaceList(props) {
     travelTimes,
   } = props;
 
-
   return (
 
     <div className="placeList">
@@ -33,12 +32,16 @@ function PlaceList(props) {
             {item.name}
           </h3>
 
-          <p>
-            {item.time}
-          </p>
+          {
 
+            item.time && (
 
-          {/* 길찾기 버튼 */}
+              <p>
+                {item.time}
+              </p>
+            )
+          }
+
           <button
 
             className="routeButton"

@@ -109,33 +109,50 @@ function MapPage() {
   // 카테고리 + 검색 필터
   const filteredPlaces =
 
-    places.filter((item) => {
+  places.filter((item) => {
 
-      // 카테고리 필터
-      const matchCategory =
+    // 카테고리 필터
+    const matchCategory =
 
-        category === "전체"
+      category === "전체"
 
-          ? true
+        ? true
 
-          : category === null
+        : category === null
 
-            ? false
+          ? false
 
-            : item.type === category;
-
-
-      // 검색 필터
-      const matchSearch =
-
-        item.name.includes(search);
+          : item.type === category;
 
 
-      return (
-        matchCategory &&
-        matchSearch
+    // 검색 필터
+    const matchSearch =
+
+      item.name.includes(search) ||
+
+      item.building?.some((keyword) =>
+
+        keyword.includes(search)
       );
-    });
+
+
+    // 건물 데이터 처리
+    const showBuilding =
+
+      item.type !== "건물"
+
+        ? true
+
+        : search !== "";
+
+
+    return (
+
+      matchCategory &&
+      matchSearch &&
+      showBuilding
+    );
+  });
 
 
   // 길찾기 함수
