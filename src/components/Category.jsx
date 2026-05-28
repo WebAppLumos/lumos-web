@@ -16,22 +16,36 @@ function Category(props) {
   ];
 
   return (
+
     <div className="categoryBox">
 
       {menuList.map((item) => (
 
         <button
+
           key={item}
 
           className={
+
             category === item
+
               ? "category activeCategory"
+
               : "category"
           }
 
-          onClick={() =>
-            setCategory(item)
-          }
+          onClick={() => {
+
+            // 같은 카테고리 다시 누르면 해제
+            if (category === item) {
+
+              setCategory(null);
+
+            } else {
+
+              setCategory(item);
+            }
+          }}
         >
 
           {item}

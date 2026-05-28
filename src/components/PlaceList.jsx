@@ -1,10 +1,10 @@
 function PlaceList(props) {
 
-  // props 받기
   const {
     places,
     category,
     setSelectedPosition,
+    handleRoute,
   } = props;
 
 
@@ -27,19 +27,20 @@ function PlaceList(props) {
 
       {filteredPlaces.map((item) => (
 
-       <div
-            key={item.id}
+        <div
 
-            className="placeBox"
+          key={item.id}
 
-            onClick={() =>
+          className="placeBox"
 
-                setSelectedPosition([
-                item.lat,
-                item.lng,
-                ])
-            }
-            >
+          onClick={() =>
+
+            setSelectedPosition([
+              item.lat,
+              item.lng,
+            ])
+          }
+        >
 
           <h3>
             {item.name}
@@ -48,22 +49,25 @@ function PlaceList(props) {
           <p>
             {item.time}
           </p>
-           
-           <button
 
-  className="routeButton"
 
-  onClick={() =>
+          {/* 길찾기 버튼 */}
+          <button
 
-    window.open(
-      `https://map.kakao.com/link/to/${item.name},${item.lat},${item.lng}`
-    )
-  }
->
+            className="routeButton"
 
-  길찾기
+            onClick={(event) => {
 
-</button>
+              // 부모 클릭 막기
+              event.stopPropagation();
+
+              handleRoute(item);
+            }}
+          >
+
+            길찾기
+
+          </button>
 
         </div>
 

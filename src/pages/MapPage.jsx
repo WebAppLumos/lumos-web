@@ -1,11 +1,29 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap,} from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  CircleMarker,
+  Polyline,
+  useMap,
+} from "react-leaflet";
+
+import axios from "axios";
+
 import "leaflet/dist/leaflet.css";
+
 import "./MapPage.css";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+
 import SideMenu from "../components/SideMenu";
 import Category from "../components/Category";
 import PlaceList from "../components/PlaceList";
 
+import places from "../data/places";
+
+
+// 지도 이동 컴포넌트
 function MoveMap(props) {
 
   const {
@@ -14,69 +32,133 @@ function MoveMap(props) {
 
   const map = useMap();
 
-  // 지도 이동
-  map.flyTo(position, 18);
+  useEffect(() => {
+
+    map.flyTo(position, 18);
+
+  }, [position]);
 
   return null;
 }
 
+
 function MapPage() {
 
-  // 현재 선택된 카테고리
-  const [category, setCategory] = useState("전체");
+  // 현재 선택 카테고리
+  const [category, setCategory] =
+    useState("전체");
 
-  // 임시 나의 위치
-  const [selectedPosition, setSelectedPosition] =
-  useState([35.8532, 128.4913]);
 
-  const places = [
-// 카페  
-{ id: 1, name: "블루포트 공학관점", type: "카페", time: "09:00 - 19:00", lat: 35.85910891900613, lng: 128.48747324155707},
-{ id: 2, name: "카페사월", type: "카페", time: "09:00 - 18:00", lat: 35.85672754000742, lng: 128.4898419543818},
-{ id: 3, name: "카페ING 동산도서관점", type: "카페", time: "08:40 - 18:00", lat: 35.85639335738497, lng: 128.48772138401628},
-{ id: 4, name: "피피커피", type: "카페", time: "08:30 - 19:00", lat: 35.85625408418409, lng: 128.48513954036963},
-{ id: 5, name: "붐카페&코너베이커리", type: "카페", time: "09:00 - 19:00", lat: 35.85423022055133, lng: 128.4861118722504},
-{ id: 6, name: "카페ING 동영관점", type: "카페", time: "08:30 - 16:15", lat: 35.85320516540829, lng: 128.48428844646253},
-{ id: 7, name: "이디야커피 계명대명교생활관점", type: "카페", time: "07:50 - 21:00", lat: 35.85705832685428, lng: 128.4802146357763},
+  // 지도 중심 위치
+  const [
+    selectedPosition,
+    setSelectedPosition,
+  ] = useState([35.8532, 128.4913]);
 
-//서점
-{ id: 8, name: "계명대 구내서점", type: "서점", time: "09:00 - 19:00", lat: 35.85423022055133, lng: 128.4861118722504},
 
-//도서관
-{ id: 9, name: "동산도서관", type: "도서관", time: "09:00 - 19:00", lat: 35.85640495369977, lng: 128.48714874254276},
-{ id: 10, name: "의학도서관", type: "도서관", time: "08:30 - 22:00", lat: 35.85509916572842, lng: 128.4805102964029},
+  // 현재 내 위치
+  const [
+    myPosition,
+    setMyPosition,
+  ] = useState([35.8532, 128.4913]);
 
-// 프린트
-{ id: 11, name: "동산도서관 3F", type: "프린트", time: "09:00 - 19:00", lat: 35.85640495369977, lng: 128.48714874254276},
-{ id: 12, name: "공대 1호관 2F", type: "프린트", time: "09:00 - 19:00", lat: 35.85913509095088, lng: 128.48754291875463},
-{ id: 13, name: "구바 지하 1층", type: "프린트", time: "09:00 - 19:00", lat: 35.85639335738497, lng: 128.48772138401628},
-{ id: 14, name: "의양관 지하 1층", type: "프린트", time: "09:00 - 19:00", lat: 35.856267774531446, lng: 128.4849433084449},
-{ id: 15, name: "음대 1F", type: "프린트", time: "09:00 - 19:00", lat: 35.85829876580757, lng: 128.4904912789133},
 
-// 학식당
-{ id: 16, name: "구바우어관", type: "학식당", time: "09:00 - 19:00", lat: 35.85423022055133, lng: 128.4861118722504},
-{ id: 17, name: "신바우어관", type: "학식당", time: "09:00 - 19:00", lat: 35.85393360912969, lng: 128.48550305451363},
-{ id: 18, name: "공대학식당", type: "학식당", time: "09:00 - 19:00", lat: 35.858219287991645, lng: 128.4894519809646},
-{ id: 19, name: "아람관", type: "학식당", time: "09:00 - 19:00", lat: 35.853956594358515, lng: 128.48291324663953},
+  // 경로 좌표
+  const [
+    routePath,
+    setRoutePath,
+  ] = useState([]);
 
-// 편의점
-{ id: 20, name: "CU 계명대명교생활관점", type: "편의점", time: "00:00 - 24:00", lat: 35.85705832685428, lng: 128.4802146357763},
-{ id: 21, name: "이마트24 계명대공학관점", type: "편의점", time: "08:30 - 20:00", lat: 35.858219287991645, lng: 128.4894519809646},
-{ id: 22, name: "CU 계명대의과대학점", type: "편의점", time: "09:00 - 18:00", lat: 35.85509916572842, lng: 128.4805102964029},
-{ id: 23, name: "이마트24 R계명대바우어점", type: "편의점", time: "00:00 - 24:00", lat: 35.85423022055133, lng: 128.4861118722504},
 
-];
+  // 카테고리 필터
+  const filteredPlaces =
 
-const filteredPlaces =
+    category === "전체"
 
-  category === "전체"
+      ? places
 
-    ? places
+      : category === null
 
-    : places.filter((item) =>
+        ? []
 
-        item.type === category
+        : places.filter((item) =>
+
+            item.type === category
+          );
+
+
+  // 길찾기 함수
+  const handleRoute = async (item) => {
+
+    const startX = myPosition[1];
+    const startY = myPosition[0];
+
+    const endX = item.lng;
+    const endY = item.lat;
+
+    try {
+
+      const response = await axios.post(
+
+        "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",
+
+        {
+          startX,
+          startY,
+
+          endX,
+          endY,
+
+          startName: "현재 위치",
+          endName: item.name,
+        },
+
+        {
+          headers: {
+
+            appKey: "X4XtmhJo2F5GfVgf9fuK718RCgpgziOi7mjyfgFX",
+          },
+        }
       );
+
+      const features =
+        response.data.features;
+
+      const route = [];
+
+      features.forEach((feature) => {
+
+        const geometry =
+          feature.geometry;
+
+        if (
+          geometry.type === "LineString"
+        ) {
+
+          geometry.coordinates.forEach(
+            (coord) => {
+
+              route.push([
+                coord[1],
+                coord[0],
+              ]);
+            }
+          );
+        }
+      });
+
+      setRoutePath(route);
+
+      setSelectedPosition([
+        item.lat,
+        item.lng,
+      ]);
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
 
 
   return (
@@ -87,11 +169,10 @@ const filteredPlaces =
       <SideMenu />
 
 
-
-      {/* 가운데 영역 */}
+      {/* 가운데 */}
       <div className="centerBox">
 
-        {/* 제목 + 검색창 */}
+        {/* 제목 */}
         <div className="topBox">
 
           <div className="titleBox">
@@ -110,12 +191,10 @@ const filteredPlaces =
           {/* 검색창 */}
           <input
             className="search"
-
             placeholder="찾고 싶은 교내 시설"
           />
 
         </div>
-
 
 
         {/* 카테고리 */}
@@ -125,15 +204,12 @@ const filteredPlaces =
         />
 
 
-
         {/* 지도 */}
         <div className="mapBox">
 
           <MapContainer
             center={[35.8532, 128.4913]}
-
             zoom={17}
-
             style={{
               width: "100%",
               height: "100%",
@@ -147,35 +223,77 @@ const filteredPlaces =
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <MoveMap position={selectedPosition} />
+
+            {/* 지도 이동 */}
+            <MoveMap
+              position={selectedPosition}
+            />
 
 
-            {/* 지도 마커 */}
-          {filteredPlaces.map((item) => (
+            {/* 현재 위치 */}
+            <CircleMarker
 
-            <Marker
+              center={myPosition}
+
+              radius={10}
+
+              pathOptions={{
+                color: "blue",
+                fillColor: "blue",
+                fillOpacity: 0.7,
+              }}
+            >
+
+              <Popup>
+                현재 위치
+              </Popup>
+
+            </CircleMarker>
+
+
+            {/* 길찾기 선 */}
+            {
+
+              routePath.length > 0 && (
+
+                <Polyline
+
+                  positions={routePath}
+
+                  pathOptions={{
+                    color: "blue",
+                  }}
+                />
+              )
+            }
+
+
+            {/* 시설 마커 */}
+            {filteredPlaces.map((item) => (
+
+              <Marker
 
                 key={item.id}
 
                 position={[
-                item.lat,
-                item.lng,
+                  item.lat,
+                  item.lng,
                 ]}
-            >
+              >
 
                 <Popup>
 
-                <h3>
+                  <h3>
                     {item.name}
-                </h3>
+                  </h3>
 
-                <p>
+                  <p>
                     {item.time}
-                </p>
+                  </p>
 
                 </Popup>
 
-            </Marker>
+              </Marker>
 
             ))}
 
@@ -186,11 +304,9 @@ const filteredPlaces =
       </div>
 
 
-
-      {/* 오른쪽 영역 */}
+      {/* 오른쪽 */}
       <div className="rightBox">
 
-        {/* 현재 카테고리 */}
         <h1>
           {category}
         </h1>
@@ -198,14 +314,20 @@ const filteredPlaces =
 
         {/* 시설 리스트 */}
         <PlaceList
-            places={places}
 
-            category={category}
+          places={places}
 
-            setSelectedPosition={
-                setSelectedPosition
-            }
-            />
+          category={category}
+
+          setSelectedPosition={
+            setSelectedPosition
+          }
+
+          handleRoute={
+            handleRoute
+          }
+        />
+
 
         {/* 다음 수업 */}
         <div className="nextClass">
