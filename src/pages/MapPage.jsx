@@ -23,7 +23,7 @@ import PlaceList from "../components/PlaceList";
 import places from "../data/places";
 
 
-// 지도 이동 컴포넌트
+// 지도 이동
 function MoveMap(props) {
 
   const {
@@ -44,9 +44,14 @@ function MoveMap(props) {
 
 function MapPage() {
 
-  // 현재 선택 카테고리
+  // 현재 카테고리
   const [category, setCategory] =
     useState("전체");
+
+
+  // 검색어
+  const [search, setSearch] =
+    useState("");
 
 
   // 지도 중심 위치
@@ -63,28 +68,74 @@ function MapPage() {
   ] = useState([35.8532, 128.4913]);
 
 
-  // 경로 좌표
+  // 길찾기 경로
   const [
     routePath,
     setRoutePath,
   ] = useState([]);
 
 
-  // 카테고리 필터
+  // 장소별 소요시간
+  const [
+    travelTimes,
+    setTravelTimes,
+  ] = useState({});
+
+
+  // GPS 현재 위치
+  useEffect(() => {
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        setMyPosition([
+
+          position.coords.latitude,
+
+          position.coords.longitude,
+        ]);
+      },
+
+      (error) => {
+
+        console.log(error);
+      }
+    );
+
+  }, []);
+
+
+  // 카테고리 + 검색 필터
   const filteredPlaces =
 
-    category === "전체"
+    places.filter((item) => {
 
-      ? places
+      // 카테고리 필터
+      const matchCategory =
 
-      : category === null
+        category === "전체"
 
-        ? []
+          ? true
 
-        : places.filter((item) =>
+          : category === null
 
-            item.type === category
-          );
+            ? false
+
+            : item.type === category;
+
+
+      // 검색 필터
+      const matchSearch =
+
+        item.name.includes(search);
+
+
+      return (
+        matchCategory &&
+        matchSearch
+      );
+    });
 
 
   // 길찾기 함수
@@ -116,7 +167,8 @@ function MapPage() {
         {
           headers: {
 
-            appKey: "X4XtmhJo2F5GfVgf9fuK718RCgpgziOi7mjyfgFX",
+            appKey:
+              "X4XtmhJo2F5GfVgf9fuK718RCgpgziOi7mjyfgFX",
           },
         }
       );
@@ -124,6 +176,24 @@ function MapPage() {
       const features =
         response.data.features;
 
+
+      // 총 시간
+      const totalTime =
+        response.data.features[0]
+          .properties.totalTime;
+
+
+      // 장소별 시간 저장
+      setTravelTimes((prev) => ({
+
+        ...prev,
+
+        [item.id]:
+          Math.round(totalTime / 60),
+      }));
+
+
+      // 경로 저장
       const route = [];
 
       features.forEach((feature) => {
@@ -190,8 +260,17 @@ function MapPage() {
 
           {/* 검색창 */}
           <input
+
             className="search"
+
             placeholder="찾고 싶은 교내 시설"
+
+            value={search}
+
+            onChange={(event) =>
+
+              setSearch(event.target.value)
+            }
           />
 
         </div>
@@ -315,9 +394,7 @@ function MapPage() {
         {/* 시설 리스트 */}
         <PlaceList
 
-          places={places}
-
-          category={category}
+          places={filteredPlaces}
 
           setSelectedPosition={
             setSelectedPosition
@@ -325,6 +402,10 @@ function MapPage() {
 
           handleRoute={
             handleRoute
+          }
+
+          travelTimes={
+            travelTimes
           }
         />
 

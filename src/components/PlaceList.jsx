@@ -2,30 +2,17 @@ function PlaceList(props) {
 
   const {
     places,
-    category,
     setSelectedPosition,
     handleRoute,
+    travelTimes,
   } = props;
-
-
-  // 카테고리 필터링
-  const filteredPlaces =
-
-    category === "전체"
-
-      ? places
-
-      : places.filter((item) =>
-
-          item.type === category
-        );
 
 
   return (
 
     <div className="placeList">
 
-      {filteredPlaces.map((item) => (
+      {places.map((item) => (
 
         <div
 
@@ -56,9 +43,17 @@ function PlaceList(props) {
 
             className="routeButton"
 
+            title={
+
+              travelTimes[item.id]
+
+                ? `현재 위치에서 약 ${travelTimes[item.id]}분`
+
+                : "길찾기"
+            }
+
             onClick={(event) => {
 
-              // 부모 클릭 막기
               event.stopPropagation();
 
               handleRoute(item);
