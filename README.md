@@ -1,21 +1,18 @@
 # Lumos Web
 
-간단한 대학 생활 대시보드. Vite + React 기반으로, 학기별 시간표를 보고 간단한 인증(학습용 Firebase Auth) 흐름을 포함한다.
-
-**변경 포인트:** 개발 편의상 일부 설정이 파일에 하드코딩되어 있으니 실제로 배포하거나 개발할 때는 환경변수(`VITE_` 접두사)를 사용하도록 `src/lib/firebase.js`를 수정해야 한다. 참고: [src/lib/firebase.js](src/lib/firebase.js)
+대학생을 위한 학습용 대시보드 웹 앱입니다. Vite + React 기반으로 인증, 대시보드, 시간표 관리 화면을 제공합니다.
 
 **기술 스택**
 
-- React 19 (UI)
-- Vite (번들 및 개발 서버)
-- Firebase (Auth, Analytics) — 현재는 `firebase` 패키지 사용
-- ESLint (코드 품질 검사용)
+- React 19
+- Vite
+- React Router
+- Firebase Auth / Analytics
+- ESLint
 
-## 빠른 시작 (개발 환경)
+## 빠른 시작
 
-요구사항: Node.js 16 이상(권장), npm
-
-설치 및 개발 서버 실행:
+요구사항: Node.js 16 이상, npm
 
 ```bash
 npm install
@@ -29,18 +26,91 @@ npm run build
 npm run preview
 ```
 
-코드 스타일 검사(로컬):
+코드 스타일 검사:
 
 ```bash
 npm run lint
 ```
 
-## 환경 변수(권장)
+## 라우팅
 
-현재 [src/lib/firebase.js](src/lib/firebase.js)에는 샘플 값이 하드코딩되어 있다. 
-배포 전 키를 재생성하여 다음 `VITE_` 접두사 환경변수를 사용해 분리해야 한다.
+라우터는 [src/Router.jsx](src/Router.jsx)에서 관리합니다.
 
+| 경로 | 페이지 | 설명 |
+|------|--------|------|
+| `/` | Dashboard | 메인 대시보드 |
+| `/timetable` | Timetable | 시간표 관리 |
+| `/login` | Signin | 로그인 |
+| `/signup` | Signup | 회원가입 |
+
+## 주요 기능
+
+### 인증
+
+- [src/pages/Signin/Signin.jsx](src/pages/Signin/Signin.jsx)
+  - 이메일/비밀번호 로그인
+  - Firebase `signInWithEmailAndPassword` 사용
+  - 로그인 성공 시 `localStorage`에 `unidash_user` 저장
+  - 성공 후 `/` 대시보드로 이동
+
+- [src/pages/Signup/Signup.jsx](src/pages/Signup/Signup.jsx)
+  - 이름, 이메일, 비밀번호, 학과, 학년 입력
+  - 비밀번호 확인 및 최소 길이 검증
+  - Firebase `createUserWithEmailAndPassword` 사용
+  - 회원가입 성공 시 `localStorage`에 `unidash_user` 저장
+  - 성공 후 `/` 대시보드로 이동
+
+### 대시보드
+
+- [src/pages/Dashboard/Dashboard.jsx](src/pages/Dashboard/Dashboard.jsx)
+  - `localStorage`의 `unidash_user`를 기준으로 로그인 상태 판단
+  - 비로그인 사용자는 로그인 안내 카드 표시
+  - 로그인 사용자는 대시보드 위젯 표시
+  - 위젯 편집 모드에서 위젯 표시/숨김 가능
+  - 기본 시간표 데이터를 이용해 오늘의 시간표 위젯 표시
+
+대시보드 컴포넌트:
+
+- `DashboardNav` — 공통 상단 내비게이션, 로그인/회원가입/로그아웃 UI
+- `DashboardHeader` — 대시보드 제목 및 위젯 편집 버튼
+- `DashboardLoginCard` — 비로그인 사용자 안내 카드
+- `DashboardWidgetEditor` — 위젯 표시 상태 편집
+- `TodayTimetableWidget` — 오늘의 시간표 요약 카드
+
+### 시간표
+
+- [src/pages/Timetable/Timetable.jsx](src/pages/Timetable/Timetable.jsx)
+  - `src/lib/mock-data.js`의 더미 데이터 사용
+  - 학기 및 시간표 선택
+  - 수업 추가 모달에서 선택한 수업을 현재 시간표에 추가
+  - 시간표 그리드와 수업 카드 목록에서 수업 삭제 가능
+  - `수업 정보`, `노트`, `난이도` 보기 모드 제공
+  - 공통 대시보드 내비게이션 사용
+
+## 프로젝트 구조
+
+```text
+src/
+  App.jsx
+  Router.jsx
+  lib/
+    firebase.js
+    mock-data.js
+  components/
+    Dashboard/
+    Timetable/
+  pages/
+    Dashboard/
+    Signin/
+    Signup/
+    Timetable/
 ```
+
+## 환경 변수 권장 사항
+
+현재 [src/lib/firebase.js](src/lib/firebase.js)에는 Firebase 설정값이 직접 작성되어 있습니다. 추후 배포 시에는 Key를 새로 발급 받은 후 `.env.local`에 `VITE_` 접두사 환경변수를 분리해야 합니다.
+
+```text
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
@@ -50,66 +120,8 @@ VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_MEASUREMENT_ID=
 ```
 
-프로젝트 루트에 `.env` 파일을 만들어 값을 넣으면 `vite`가 자동으로 로드한다. (예: `.env.local`). 
-Windows PowerShell에서도 동일하게 작동한다.
+## 개발 메모
 
-## 프로젝트 구조(주요 파일)
-
-- `src/App.jsx` — 현재 페이지를 선택해서 렌더링합니다.
-- `src/main.jsx` — 앱 진입점
-- `src/lib/firebase.js` — Firebase 초기화 (학습용: 현재는 하드코딩)
-- `src/lib/mock-data.js` — 시간표/과목 더미 데이터
-- `src/pages/Signin/Signin.jsx` — 로그인 UI 및 로직
-- `src/pages/Signup/Signup.jsx` — 회원가입 UI 및 로직
-- `src/pages/Timetable/Timetable.jsx` — 시간표 UI 및 상호작용
-
-자세한 파일 위치는 폴더를 참고하세요: [src/pages](src/pages)
-
-## Pages & Flow
-
-아래는 각 페이지의 현재 작동 방식과 흐름(구현된 동작 기반)입니다.
-
-- **Signin** (`src/pages/Signin/Signin.jsx`)
-  - 입력: 이메일, 비밀번호
-  - 검증: HTML `required` 속성으로 기본 검증
-  - 호출: `signInWithEmailAndPassword(auth, email, password)` (Firebase Auth)
-  - 결과: 성공 시 `window.alert("로그인 성공!")`, 실패 시 에러 알림
-  - 비고: 현재는 로그인 후 리다이렉트나 사용자 상태 저장 로직이 구현되어 있지 않습니다.
-
-- **Signup** (`src/pages/Signup/Signup.jsx`)
-  - 입력: 이름, 이메일, 비밀번호, 비밀번호 확인, 학과, 학년
-  - 검증: 비밀번호 일치 여부 및 길이(최소 6자) 간단 검증
-  - 호출: `createUserWithEmailAndPassword(auth, email, password)` (Firebase Auth)
-  - 결과: 현재는 `then/catch` 후속 처리(알림/리다이렉트)가 추가되어 있지 않으므로 추후 필요에 따라 확장.
-
-- **Timetable** (`src/pages/Timetable/Timetable.jsx`)
-  - 데이터 소스: `src/lib/mock-data.js`의 더미 데이터
-  - 주요 UI: 학기 선택, 시간표 선택, `+ 수업 추가` 버튼(현재 UI만 존재)
-  - 표시 모드: `수업 정보`, `노트`, `난이도` 탭으로 블록 내용 전환
-  - 시간 계산: `timeToNumber()`로 시간 문자열을 숫자로 변환해 블록 위치/높이를 계산
-  - 상호작용: 학기를 변경하면 해당 학기의 첫 번째 시간표로 자동 선택됨.
-
-## 주의 및 개선 제안
-
-- `src/lib/firebase.js`의 하드코딩된 키는 배포 시 재생성하여 `.env`로 이동. (보안 및 협업 대비)
-- `Signin`/`Signup` UX 개선 목적으로 컴포넌트에 인증 후 처리(사용자 상태 저장, 리다이렉트, 에러 상세 표시)를 추가 예정.
-- `+ 수업 추가` 버튼은 현재 기능은 미구현 상태. 추후 구현 예정.
-
-## 기여/개발 팁
-
-- 로컬에서 빠르게 특정 페이지만 보려면 `src/App.jsx`에서 import를 변경하여 페이지를 로드해야 한다.
-
-```jsx
-// src/App.jsx
-import Page from './pages/Timetable/Timetable.jsx'
-// import Page from './pages/Signin/Signin.jsx'
-// import Page from './pages/Signup/Signup.jsx'
-
-export default function App() {
-  return <Page />
-}
-```
-
-- ESLint: `npm run lint`로 ESLint를 사용할 수 있다.
-
----
+- 현재 사용자 세션은 학습용으로 `localStorage`의 `unidash_user`에 저장합니다.
+- 시간표 데이터는 실제 DB가 아닌 mock 데이터 기반입니다.
+- 인증은 Firebase Auth를 사용하지만 사용자 프로필 정보는 별도 DB에 저장하지 않습니다.
