@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import './Signin.css'
 
 export default function Signin() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('') // 이메일(ID)
   const [password, setPassword] = useState('') // 비밀번호
   const [showPassword, setShowPassword] = useState(false) // PW 표시 여부(true/false)
@@ -15,7 +17,16 @@ export default function Signin() {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         // 로그인 성공
+        const userData = {
+          id: 'user-1',
+          email,
+          name: '김대학',
+          department: '컴퓨터공학과',
+          grade: 3,
+        }
+        localStorage.setItem('unidash_user', JSON.stringify(userData))
         window.alert('로그인 성공!')
+        navigate('/')
       })
       .catch(() => {
         // 로그인 실패
@@ -81,7 +92,7 @@ export default function Signin() {
             </button>
           </form>
           <p className="foot">
-            계정이 없으신가요? <span className="muted">회원가입 페이지는 Signup.jsx</span>
+            계정이 없으신가요? <Link to="/signup" className="muted">회원가입</Link>
           </p>
         </div>
 

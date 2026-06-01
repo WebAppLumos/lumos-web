@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { DEPARTMENTS } from '../../lib/mock-data'
 import './Signup.css'
 
 export default function Signup() {
+  const navigate = useNavigate()
   const [name, setName] = useState('') // 이름
   const [email, setEmail] = useState('') // 이메일(ID)
   const [password, setPassword] = useState('') // 비밀번호
@@ -34,7 +36,16 @@ export default function Signup() {
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         // 회원가입 성공
+        const userData = {
+          id: `user-${Date.now()}`,
+          email,
+          name,
+          department,
+          grade: Number(grade),
+        }
+        localStorage.setItem('unidash_user', JSON.stringify(userData))
         window.alert('회원가입 성공!')
+        navigate('/')
       })
       .catch(() => {
         // 회원가입 실패
@@ -180,7 +191,7 @@ export default function Signup() {
 
           <p className="foot">
             이미 계정이 있으신가요?{' '}
-            <span className="muted">로그인은 Signin.jsx</span>
+            <Link to="/login" className="muted">로그인</Link>
           </p>
         </div>
 
