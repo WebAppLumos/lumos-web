@@ -8,7 +8,9 @@ import TimetableControls from '../../components/Timetable/TimetableControls'
 import TimetableGrid from '../../components/Timetable/TimetableGrid'
 import TimetableHeader from '../../components/Timetable/TimetableHeader'
 import TimetableTabs from '../../components/Timetable/TimetableTabs'
+import DashboardNav from '../../components/Dashboard/DashboardNav'
 
+import '../Dashboard/Dashboard.css'
 import './Timetable.css'
 
 // Time을 숫자로 변환 (예: "09:00" -> 9, "13:30" -> 13.5)
@@ -25,6 +27,11 @@ function slotStyle(start, end) {
 }
 
 export default function Timetable() {
+  const [user, setUser] = useState(() => {
+    // 원본 파일처럼 앱 로그인 상태는 localStorage의 사용자 정보로 판단
+    const storedUser = localStorage.getItem('unidash_user')
+    return storedUser ? JSON.parse(storedUser) : null
+  })
   const [semesterId, setSemesterId] = useState( // 학기 ID 가져오기
     mockSemesters.find((s) => s.isActive)?.id ?? mockSemesters[0].id,
   )
@@ -93,11 +100,14 @@ export default function Timetable() {
   }
 
   return (
-    <div className="Timetable">
-      <TimetableHeader />
+    <div className="dashboardPage">
+      <DashboardNav user={user} onLogout={() => setUser(null)} />
+      <main className="dashboardMain">
+        <div className="Timetable">
+          <TimetableHeader />
 
-      {/* 학기, 시간표 선택 및 수업 추가버튼 */}
-      <TimetableControls
+          {/* 학기, 시간표 선택 및 수업 추가버튼 */}
+          <TimetableControls
         DAYS={DAYS}
         semesterId={semesterId}
         timetableId={timetableId}
@@ -109,13 +119,13 @@ export default function Timetable() {
         onChangeTimetable={(e) => setTimetableId(e.target.value)}
         onChangeCourse={(e) => setSelectedCourseId(e.target.value)}
         onAddCourse={onAddCourse}
-      />
+          />
 
-      {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
-      <TimetableTabs view={view} setView={setView} />
+          {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
+          <TimetableTabs view={view} setView={setView} />
 
-      {/* 시간표 출력 */}
-      <TimetableGrid
+          {/* 시간표 출력 */}
+          <TimetableGrid
         DAYS={DAYS}
         TIME_SLOTS={TIME_SLOTS}
         semester={semester}
@@ -125,15 +135,17 @@ export default function Timetable() {
         view={view}
         slotStyle={slotStyle}
         onDeleteCourse={onDeleteCourse}
-      />
+          />
 
-      {/* 시간표 정보를 카드 형태로 출력 */}
-      <TimetableCourseList
+          {/* 시간표 정보를 카드 형태로 출력 */}
+          <TimetableCourseList
         DAYS={DAYS}
         coursesOnBoard={coursesOnBoard}
         view={view}
         onDeleteCourse={onDeleteCourse}
-      />
+          />
+        </div>
+      </main>
     </div>
   )
 }
