@@ -53,6 +53,18 @@ export default function DashboardNav({ user, onLogout }) {
         >
           시간표
         </NavLink>
+        <NavLink
+          to="/schedule"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          일정
+        </NavLink>
+        <NavLink
+          to="/assignment"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          과제
+        </NavLink>
       </nav>
 
       <div className="navActions">
