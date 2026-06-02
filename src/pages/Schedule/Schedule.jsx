@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Calendar from './components/Calendar';
-import TodoList from './components/Todolist';
-import EventModal from './components/EventModal';
+import Calendar from '../../components/Schedule/Calendar';
+import TodoList from '../../components/Schedule/Todolist';
+import EventModal from '../../components/Schedule/EventModal';
 
 function Schedule() {
   const [selectedDate, setSelectedDate] = useState(null);

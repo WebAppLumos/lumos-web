@@ -74,17 +74,17 @@
   margin-left: 4px;
 }
 
-.imminent-box { 
+.imminent-box {
   background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(225, 29, 72, 0.05);
 }
 
-.imminent-title { 
-  margin: 0 0 16px; 
-  font-size: 18px; 
-  font-weight: 700; 
+.imminent-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
   color: #e11d48;
   display: flex;
   align-items: center;
@@ -96,11 +96,11 @@
   font-size: 20px;
 }
 
-.imminent-card { 
+.imminent-card {
   border: none;
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08); 
-  margin-bottom: 0; 
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08);
+  margin-bottom: 0;
 }
 
 .task-card {
@@ -141,8 +141,8 @@
 .task-meta { font-size: 13px; color: #8b95a1; font-weight: 500; }
 .actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-.completed-card { 
-  opacity: 0.6; 
+.completed-card {
+  opacity: 0.6;
   background-color: #f9fafb;
   box-shadow: none;
 }

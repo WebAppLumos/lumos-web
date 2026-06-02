@@ -17,17 +17,17 @@ export default function AssignmentAdd({ onAdd, onCancel }) {
     <form className="toss-form" onSubmit={handleSubmit}>
       <div className="input-group">
         <label>과목명</label>
-        <input type="text" placeholder="예: 소프트웨어공학" 
+        <input type="text" placeholder="예: 소프트웨어공학"
           value={course} onChange={(e) => setCourse(e.target.value)}/>
       </div>
       <div className="input-group">
         <label>과제명</label>
-        <input type="text" placeholder="과제 내용을 입력하세요" 
+        <input type="text" placeholder="과제 내용을 입력하세요"
           value={title} onChange={(e) => setTitle(e.target.value)}/>
       </div>
       <div className="input-group">
         <label>마감일</label>
-        <input type="date" value={deadline} 
+        <input type="date" value={deadline}
           onChange={(e) => setDeadline(e.target.value)}/>
       </div>
       <div className="button-group">

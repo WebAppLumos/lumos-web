@@ -1,8 +1,8 @@
-import Sidebar from './Sidebar.jsx';
 import { useState, useRef } from 'react';
-import AssignmentCount from './AssignmentCount.jsx';
-import AssignmentAdd from './AssignmentAdd.jsx';
-import AssignmentList from './AssignmentList.jsx';
+import Sidebar from '../../components/Assignment/Sidebar.jsx';
+import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
+import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
+import AssignmentList from '../../components/Assignment/AssignmentList.jsx';
 import './Assignment.css';
 
 const initialTasks = [
@@ -58,11 +58,11 @@ export default function Assignment() {
   const imminentTask = getImminentTask();
 
   const handleAddTask = (newTask) => {
-    const newTaskData = { 
+    const newTaskData = {
       ...newTask,
       id: nextId.current,
       isCompleted: false,
-      statusClass: "d-day-info" 
+      statusClass: "d-day-info"
     };
     setTasks([...tasks, newTaskData]);
     nextId.current += 1;
@@ -102,12 +102,12 @@ export default function Assignment() {
             </div>
           )}
           <div className="list-box">
-            <AssignmentList tasks={tasks} onDelete={handleDeleteTask} 
+            <AssignmentList tasks={tasks} onDelete={handleDeleteTask}
               onUpdate={handleUpdateTask} className="component-label label-red"/>
           </div>
         </div>
       </main>
-      
+
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">

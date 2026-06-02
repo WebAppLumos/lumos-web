@@ -11,27 +11,27 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
       alert('모든 항목을 입력해주세요.');
       return;
     }
-    onUpdate(task.id, { 
-      course: editCourse, 
-      title: editTitle, 
-      deadline: editDeadline 
+    onUpdate(task.id, {
+      course: editCourse,
+      title: editTitle,
+      deadline: editDeadline
     });
     setIsEditing(false);
   };
 
   return (
     <div className={`task-card ${task.isCompleted ? 'completed-card' : ''}`}>
-      <input type="checkbox" checked={task.isCompleted} 
+      <input type="checkbox" checked={task.isCompleted}
         onChange={() => onUpdate(task.id, { isCompleted: !task.isCompleted })}
         className="task-checkbox"/>
       <div className="task-info">
         {isEditing ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <input value={editCourse} onChange={(e) => setEditCourse(e.target.value)} 
+            <input value={editCourse} onChange={(e) => setEditCourse(e.target.value)}
               className="edit-input" placeholder="과목명"/>
-            <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} 
+            <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
               className="edit-input" placeholder="과제명"/>
-            <input type="date" value={editDeadline} 
+            <input type="date" value={editDeadline}
               onChange={(e) => setEditDeadline(e.target.value)} className="edit-input" />
           </div>
         ) : (
@@ -43,7 +43,7 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
         )}
       </div>
       <div className="actions">
-        {isEditing ? (<button className="btn-toss btn-edit" onClick={handleSave}>저장</button>) : 
+        {isEditing ? (<button className="btn-toss btn-edit" onClick={handleSave}>저장</button>) :
         (<button className="btn-toss btn-edit" onClick={() => setIsEditing(true)}>수정</button>)}
         <button className="btn-toss btn-delete" onClick={() => onDelete(task.id)}>삭제</button>
       </div>

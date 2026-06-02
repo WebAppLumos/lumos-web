@@ -4,7 +4,7 @@ export default function AssignmentList({ tasks, onDelete, onUpdate }) {
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.isCompleted === b.isCompleted) return 0;
     return a.isCompleted ? 1 : -1;
-});
+  });
   return (
     <div className="task-list">
       {sortedTasks.length === 0 ? (
