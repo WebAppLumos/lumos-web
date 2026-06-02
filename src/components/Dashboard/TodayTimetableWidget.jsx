@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import './TodayTimetableWidget.css'
 
 export default function TodayTimetableWidget({ DAYS, courses, isEditing }) {
   return (

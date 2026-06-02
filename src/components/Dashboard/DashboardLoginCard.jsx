@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import './DashboardLoginCard.css'
 
 export default function DashboardLoginCard() {
   return (

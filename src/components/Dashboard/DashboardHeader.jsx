@@ -1,3 +1,5 @@
+import './DashboardHeader.css'
+
 export default function DashboardHeader({ isEditing, onToggleEdit }) {
   return (
     // 대시보드 페이지 상단 제목과 편집 버튼

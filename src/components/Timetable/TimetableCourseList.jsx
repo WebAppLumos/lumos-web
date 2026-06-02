@@ -1,3 +1,5 @@
+import './TimetableCourseList.css'
+
 export default function TimetableCourseList({
   DAYS,
   coursesOnBoard,

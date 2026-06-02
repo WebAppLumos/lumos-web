@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './TimetableControls.css'
 
 export default function TimetableControls({
   DAYS,

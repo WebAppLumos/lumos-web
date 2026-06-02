@@ -1,3 +1,5 @@
+import './TimetableTabs.css'
+
 export default function TimetableTabs({ view, setView }) {
   return (
     // 시간표 블록과 하단 목록에 표시할 정보 종류 선택

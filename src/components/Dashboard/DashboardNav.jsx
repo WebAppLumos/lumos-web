@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
+import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()

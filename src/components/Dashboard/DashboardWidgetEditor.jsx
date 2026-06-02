@@ -1,3 +1,5 @@
+import './DashboardWidgetEditor.css'
+
 export default function DashboardWidgetEditor({ widgets, onToggleWidget }) {
   return (
     // 대시보드에 표시할 위젯 선택 영역

@@ -1,0 +1,16 @@
+.Timetable .head {
+  margin-bottom: 1.5rem;
+}
+
+.Timetable .title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 700;
+  color: #171717;
+}
+
+.Timetable .desc {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #737373;
+}

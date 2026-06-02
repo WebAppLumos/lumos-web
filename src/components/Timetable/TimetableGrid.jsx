@@ -1,3 +1,5 @@
+import './TimetableGrid.css'
+
 export default function TimetableGrid({
   DAYS,
   TIME_SLOTS,
