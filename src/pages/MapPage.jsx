@@ -41,6 +41,26 @@ function MoveMap(props) {
   return null;
 }
 
+function RouteMap(props) {
+
+  const { routePath } = props;
+
+  const map = useMap();
+
+  useEffect(() => {
+
+    if (routePath.length >= 2) {
+
+      map.fitBounds(routePath, {
+        padding: [100, 100],
+      });
+    }
+
+  }, [routePath]);
+
+  return null;
+}
+
 
 function MapPage() {
 
@@ -81,6 +101,35 @@ function MapPage() {
     setTravelTimes,
   ] = useState({});
 
+  useEffect(() => {
+
+  const times = {};
+
+  places.forEach((item) => {
+
+    const distance = Math.sqrt(
+
+      Math.pow(
+        item.lat - myPosition[0],
+        2
+      ) +
+
+      Math.pow(
+        item.lng - myPosition[1],
+        2
+      )
+    );
+
+    times[item.id] = Math.max(
+      1,
+      Math.round(distance * 5000)
+    );
+  });
+
+  setTravelTimes(times);
+
+}, [myPosition]);
+  
 
   // GPS 현재 위치
   useEffect(() => {
@@ -156,96 +205,18 @@ function MapPage() {
 
 
   // 길찾기 함수
-  const handleRoute = async (item) => {
+const handleRoute = (item) => {
 
-    const startX = myPosition[1];
-    const startY = myPosition[0];
+  const destinationPosition = [
+    item.lat,
+    item.lng,
+  ];
 
-    const endX = item.lng;
-    const endY = item.lat;
-
-    try {
-
-      const response = await axios.post(
-
-        "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&format=json",
-
-        {
-          startX,
-          startY,
-
-          endX,
-          endY,
-
-          startName: "현재 위치",
-          endName: item.name,
-        },
-
-        {
-          headers: {
-
-            appKey:
-              "X4XtmhJo2F5GfVgf9fuK718RCgpgziOi7mjyfgFX",
-          },
-        }
-      );
-
-      const features =
-        response.data.features;
-
-
-      // 총 시간
-      const totalTime =
-        response.data.features[0]
-          .properties.totalTime;
-
-
-      // 장소별 시간 저장
-      setTravelTimes((prev) => ({
-
-        ...prev,
-
-        [item.id]:
-          Math.round(totalTime / 60),
-      }));
-
-
-      // 경로 저장
-      const route = [];
-
-      features.forEach((feature) => {
-
-        const geometry =
-          feature.geometry;
-
-        if (
-          geometry.type === "LineString"
-        ) {
-
-          geometry.coordinates.forEach(
-            (coord) => {
-
-              route.push([
-                coord[1],
-                coord[0],
-              ]);
-            }
-          );
-        }
-      });
-
-      setRoutePath(route);
-
-      setSelectedPosition([
-        item.lat,
-        item.lng,
-      ]);
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
+  setRoutePath([
+    myPosition,
+    destinationPosition,
+  ]);
+};
 
 
   return (
@@ -325,6 +296,9 @@ function MapPage() {
               position={selectedPosition}
             />
 
+            <RouteMap
+              routePath={routePath}
+            />
 
             {/* 현재 위치 */}
             <CircleMarker

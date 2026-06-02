@@ -42,30 +42,34 @@ function PlaceList(props) {
             )
           }
 
-          <button
+<div className="routeWrapper">
 
-            className="routeButton"
+  <button
 
-            title={
+    className="routeButton"
 
-              travelTimes[item.id]
+    onClick={(event) => {
 
-                ? `현재 위치에서 약 ${travelTimes[item.id]}분`
+      event.stopPropagation();
 
-                : "길찾기"
-            }
+      handleRoute(item);
+    }}
+  >
 
-            onClick={(event) => {
+    길찾기
 
-              event.stopPropagation();
+  </button>
 
-              handleRoute(item);
-            }}
-          >
+ <span className="routeTooltip">
 
-            길찾기
+  {travelTimes[item.id]
+    ? `현재 위치에서 약 ${travelTimes[item.id]}분`
+    : "시간 계산 중..."}
 
-          </button>
+</span>
+
+</div>
+
 
         </div>
 

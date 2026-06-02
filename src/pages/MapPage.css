@@ -230,8 +230,46 @@ body {
   cursor: pointer;
 }
 
+.routeButton.active {
+
+  background-color: #888;
+}
 
 .routeButton:hover {
 
   opacity: 0.9;
+}
+
+.routeWrapper {
+  position: relative;
+}
+
+.routeTooltip {
+  position: absolute;
+
+  bottom: 60px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background-color: #333;
+  color: white;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  white-space: nowrap;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: 0.2s;
+}
+
+.routeWrapper:hover .routeTooltip {
+  opacity: 1;
+  visibility: visible;
 }
