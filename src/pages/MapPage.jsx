@@ -218,6 +218,9 @@ const handleRoute = (item) => {
   ]);
 };
 
+const nextClass = "웹프로그래밍";
+       
+
 
   return (
 
@@ -400,17 +403,11 @@ const handleRoute = (item) => {
           }
         />
 
-
+   
         {/* 다음 수업 */}
         <div className="nextClass">
 
-          <h3>
-            다음 수업
-          </h3>
-
-          <p>
-            웹프로그래밍
-          </p>
+         <h3>  다음 수업 {nextClass} </h3>
 
           <p>
             현재 위치에서 5분 소요
