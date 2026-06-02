@@ -220,8 +220,6 @@ const handleRoute = (item) => {
 
 const nextClass = "웹프로그래밍";
        
-
-
   return (
 
     <div className="mapContainer">
