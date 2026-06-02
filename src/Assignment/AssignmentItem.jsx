@@ -5,6 +5,7 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
   const [editCourse, setEditCourse] = useState(task.course);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDeadline, setEditDeadline] = useState(task.deadline);
+
   const handleSave = () => {
     if (!editCourse || !editTitle || !editDeadline) {
       alert('모든 항목을 입력해주세요.');
@@ -17,8 +18,9 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
     });
     setIsEditing(false);
   };
+
   return (
-    <div className="task-card">
+    <div className={`task-card ${task.isCompleted ? 'completed-card' : ''}`}>
       <input type="checkbox" checked={task.isCompleted} 
         onChange={() => onUpdate(task.id, { isCompleted: !task.isCompleted })}
         className="task-checkbox"/>
@@ -34,18 +36,15 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
           </div>
         ) : (
           <>
-            <div className="task-course">{task.course}</div>
-            <div className="task-title">{task.title}</div>
-            <div className="task-meta">마감일: {task.deadline}</div>
+            <div className={`task-course ${task.isCompleted ? 'completed-text' : ''}`}>{task.course}</div>
+            <div className={`task-title ${task.isCompleted ? 'completed-text' : ''}`}>{task.title}</div>
+            <div className={`task-meta ${task.isCompleted ? 'completed-text' : ''}`}>마감일: {task.deadline}</div>
           </>
         )}
       </div>
       <div className="actions">
-        {isEditing ? (
-          <button className="btn-toss btn-edit" onClick={handleSave}>저장</button>
-        ) : (
-          <button className="btn-toss btn-edit" onClick={() => setIsEditing(true)}>수정</button>
-        )}
+        {isEditing ? (<button className="btn-toss btn-edit" onClick={handleSave}>저장</button>) : 
+        (<button className="btn-toss btn-edit" onClick={() => setIsEditing(true)}>수정</button>)}
         <button className="btn-toss btn-delete" onClick={() => onDelete(task.id)}>삭제</button>
       </div>
     </div>

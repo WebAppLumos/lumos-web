@@ -1,7 +1,8 @@
+import Sidebar from './Sidebar.jsx';
 import { useState, useRef } from 'react';
-import AssignmentCount from './AssignmentCount';
-import AssignmentAdd from './AssignmentAdd';
-import AssignmentList from './AssignmentList';
+import AssignmentCount from './AssignmentCount.jsx';
+import AssignmentAdd from './AssignmentAdd.jsx';
+import AssignmentList from './AssignmentList.jsx';
 import './Assignment.css';
 
 const initialTasks = [
@@ -9,7 +10,7 @@ const initialTasks = [
     id: 1,
     course: "운영체제",
     title: "프로세스 동기화 기법 조사",
-    deadline: "2026-05-27",
+    deadline: "2026-06-03",
     statusClass: "d-day-urgent",
     isCompleted: false,
   },
@@ -17,15 +18,17 @@ const initialTasks = [
     id: 2,
     course: "데이터베이스",
     title: "ERD 설계 과제",
-    deadline: "2026-05-20",
+    deadline: "2026-06-05",
     statusClass: "d-day-warning",
     isCompleted: false,
   }
 ];
+
 export default function Assignment() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const nextId = useRef(3);
+
   const getImminentTask = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -39,6 +42,7 @@ export default function Assignment() {
         return { ...task, diffDays };
       })
       .filter(task => task.diffDays >= 0);
+
     let closestTask = null;
     if (upcomingTasks.length > 0) {
       closestTask = upcomingTasks[0];
@@ -50,7 +54,9 @@ export default function Assignment() {
     }
     return (closestTask && closestTask.diffDays <= 1) ? closestTask : null;
   };
+
   const imminentTask = getImminentTask();
+
   const handleAddTask = (newTask) => {
     const newTaskData = { 
       ...newTask,
@@ -62,39 +68,46 @@ export default function Assignment() {
     nextId.current += 1;
     setIsModalOpen(false);
   };
+
   const handleDeleteTask = (id) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
+
   const handleUpdateTask = (id, updatedData) => {
     setTasks(tasks.map(task => task.id === id ? { ...task, ...updatedData } : task));
   };
+
   return (
-    <div>
-      <div className="layout-wrapper">
-        <div className="header-box">
-          <h1 className="header-title">과제 알림</h1>
-          <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
-        </div>
-        <div className="count-box">
-          <AssignmentCount tasks={tasks} className="component-label label-green"/>
-        </div>
-        {imminentTask && (
-          <div className="imminent-box">
-            <h3 className="imminent-title">마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})</h3>
-            <div className="task-card imminent-card">
-              <div className="task-info">
-                <div className="task-course">{imminentTask.course}</div>
-                <div className="task-title">{imminentTask.title}</div>
-                <div className="task-meta">마감일: {imminentTask.deadline}</div>
+    <div className="page-container">
+      <Sidebar />
+      <main className="main-content">
+        <div className="layout-wrapper">
+          <div className="header-box">
+            <h1 className="header-title">과제 알림</h1>
+            <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
+          </div>
+          <div className="count-box">
+            <AssignmentCount tasks={tasks} className="component-label label-green"/>
+          </div>
+          {imminentTask && (
+            <div className="imminent-box">
+              <h3 className="imminent-title">마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})</h3>
+              <div className="task-card imminent-card">
+                <div className="task-info">
+                  <div className="task-course">{imminentTask.course}</div>
+                  <div className="task-title">{imminentTask.title}</div>
+                  <div className="task-meta">마감일: {imminentTask.deadline}</div>
+                </div>
               </div>
             </div>
+          )}
+          <div className="list-box">
+            <AssignmentList tasks={tasks} onDelete={handleDeleteTask} 
+              onUpdate={handleUpdateTask} className="component-label label-red"/>
           </div>
-        )}
-        <div className="list-box">
-          <AssignmentList tasks={tasks} onDelete={handleDeleteTask} 
-            onUpdate={handleUpdateTask} className="component-label label-red"/>
         </div>
-      </div>
+      </main>
+      
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
