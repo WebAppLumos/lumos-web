@@ -85,14 +85,15 @@ function Schedule() {
   // 4. 일정 수정
   async function updateScheduleItem(updatedItem) {
     try {
-      const response = await axios.patch(`${API_URL}/${updatedItem.scheduleId}`, {
+      const response = await axios.patch(`${API_URL}/${updatedItem.id}`, {
         title: updatedItem.title,
         content: updatedItem.content,
-        date: updatedItem.date
+        date: updatedItem.date,
+        category: updatedItem.category
       });
       const fixedItem = { ...response.data, id: response.data.scheduleId };
       setScheduleItems((prev) =>
-        prev.map((item) => (item.scheduleId === updatedItem.scheduleId ? fixedItem : item))
+        prev.map((item) => (item.scheduleId === updatedItem.id ? fixedItem : item))
       );
     } catch (error) {
       alert("일정 수정 실패");

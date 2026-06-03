@@ -18,23 +18,40 @@
   font-size: 14px;
   outline: none;
   max-height: 85vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   position: relative;
   border: 1px solid var(--border);
 }
 
 .modal-container h3 {
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-h);
   text-align: center;
+  flex-shrink: 0;
 }
 
-/* Ledger List Section */
-.ledger-list {
-  margin-bottom: 32px;
+/* Schedule List Section - Scrollable */
+.schedule-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  padding-right: 8px; /* 스크롤바 공간 */
+}
+
+/* 커스텀 스크롤바 */
+.schedule-list::-webkit-scrollbar {
+  width: 6px;
+}
+.schedule-list::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+.schedule-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .empty-state {
@@ -51,7 +68,58 @@
   font-size: 0.9rem;
 }
 
-.ledger-item {
+/* Category Buttons */
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.category-btn {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: #f3f4f6;
+}
+
+.category-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Category Tags */
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.category-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.category-tag.STUDY { background: #e0f2fe; color: #0369a1; }
+.category-tag.WORK { background: #ffedd5; color: #9a3412; }
+.category-tag.PRIVATE { background: #dcfce7; color: #15803d; }
+.category-tag.ACADEMIC { background: #f3e8ff; color: #7e22ce; }
+.category-tag.HOLIDAY { background: #fee2e2; color: #b91c1c; }
+.category-tag.OTHER { background: #f3f4f6; color: #4b5563; }
+
+.schedule-item {
   background: #f9fafb;
   padding: 16px;
   border-radius: 12px;
@@ -60,73 +128,19 @@
   border: 1px solid var(--border);
 }
 
-.ledger-item p {
+.schedule-item p {
   margin: 6px 0;
   color: var(--text);
   line-height: 1.5;
 }
 
-.ledger-item strong {
+.schedule-item strong {
   color: var(--text-h);
   display: inline-block;
   width: 50px;
 }
 
-.btn-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 14px;
-  width: 100%;
-}
-
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.edit-form input {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-.edit-btn, .save-btn, .delete-btn, .cancel-btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.edit-btn, .save-btn {
-  background: var(--accent-light);
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.edit-btn:hover, .save-btn:hover {
-  background: var(--accent);
-  color: white;
-}
-
-.delete-btn, .cancel-btn {
-  background: #fff5f5;
-  color: #ef4444;
-  border-color: #fee2e2;
-}
-
-.delete-btn:hover, .cancel-btn:hover {
-  background: #ef4444;
-  color: white;
-}
-
-/* Ledger Form Section */
-.ledger-form {
+.schedule-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -135,7 +149,7 @@
   border-top: 1px solid var(--border);
 }
 
-.ledger-form input {
+.schedule-form input {
   padding: 12px 16px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -143,7 +157,7 @@
   transition: border-color 0.2s;
 }
 
-.ledger-form input:focus {
+.schedule-form input:focus {
   border-color: var(--accent);
   outline: none;
 }
