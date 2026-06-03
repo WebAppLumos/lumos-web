@@ -4,6 +4,7 @@ import Timetable from './pages/Timetable/Timetable'
 import Schedule from './pages/Schedule/Schedule'
 import Assignment from './pages/Assignment/Assignment'
 import Scholarship from './pages/Scholarship/Scholarship'
+import MapPage from './pages/MapPage/MapPage'
 import Signin from './pages/Signin/Signin'
 import Signup from './pages/Signup/Signup'
 
@@ -15,6 +16,7 @@ export default function Router() {
       <Route path="/schedule" element={<Schedule />} />
       <Route path="/assignment" element={<Assignment />} />
       <Route path="/scholarship" element={<Scholarship />} />
+      <Route path="/mappage" element={<MapPage />} />
       <Route path="/login" element={<Signin />} />
       <Route path="/signup" element={<Signup />} />
     </Routes>

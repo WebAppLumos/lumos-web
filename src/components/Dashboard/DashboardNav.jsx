@@ -72,6 +72,12 @@ export default function DashboardNav({ user, onLogout }) {
         >
           장학금
         </NavLink>
+        <NavLink
+          to="/mappage"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          캠퍼스맵
+        </NavLink>
       </nav>
 
       <div className="navActions">
