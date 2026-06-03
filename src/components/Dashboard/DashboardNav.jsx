@@ -66,6 +66,12 @@ export default function DashboardNav({ user, onLogout }) {
         >
           과제
         </NavLink>
+        <NavLink
+          to="/scholarship"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          장학금
+        </NavLink>
       </nav>
 
       <div className="navActions">

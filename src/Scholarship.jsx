@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import './Scholarship.css'
 import certificationsData from './certifications.json'
 
-function App() {
+export default function Scholarship() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userName, setUserName] = useState('사용자')
 
@@ -421,5 +421,3 @@ function App() {
     </div>
   )
 }
-
-export default App
