@@ -3,7 +3,7 @@ import DashboardNav from '../../components/Dashboard/DashboardNav'
 import ScholarshipHero from '../../components/Scholarship/ScholarshipHero'
 import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
 import ScholarshipResult from '../../components/Scholarship/ScholarshipResult'
-import certificationsData from './certifications.json'
+import certificationsData from '../../lib/certifications.json'
 import './Scholarship.css'
 
 export default function Scholarship() {
