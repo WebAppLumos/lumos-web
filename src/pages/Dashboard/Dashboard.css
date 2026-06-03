@@ -1,0 +1,84 @@
+.dashboardPage {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.dashboardMain {
+  padding: 2rem 1rem;
+}
+
+.Dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.Dashboard .emptyState {
+  border: 1px solid #e5e5e5;
+  border-radius: 0.625rem;
+  background: #fff;
+}
+
+.Dashboard .emptyState {
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  min-height: 14rem;
+  border-style: dashed;
+  background: #fafafa;
+  color: #737373;
+  text-align: center;
+}
+
+.Dashboard .emptyState p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.Dashboard .emptyIcon {
+  font-size: 2rem;
+}
+
+.Dashboard .widgetGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.Dashboard .widgetItem {
+  position: relative;
+}
+
+.Dashboard .widgetRemoveBtn {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 12%);
+}
+
+@media (min-width: 768px) {
+  .Dashboard .widgetGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .Dashboard .widgetGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
