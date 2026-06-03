@@ -1,0 +1,275 @@
+/* 전체 요소 크기 계산 */
+
+* {
+  box-sizing: border-box;
+}
+
+
+/* 기본 설정 */
+
+body {
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+}
+
+
+/* 전체 레이아웃 */
+
+.mapContainer {
+  display: flex;
+
+  width: 100%;
+
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+
+/* 가운데 영역 */
+
+.centerBox {
+  flex: 1;
+
+  padding: 30px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+
+/* 위 제목 */
+
+.topBox {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+
+.titleBox p {
+  color: gray;
+}
+
+
+/* 검색창 */
+
+.search {
+  width: 250px;
+
+  height: 45px;
+
+  border-radius: 12px;
+
+  border: 1px solid #b5d49d;
+
+  padding-left: 15px;
+
+  font-size: 15px;
+}
+
+
+/* 카테고리 */
+
+.categoryBox {
+  display: flex;
+
+  gap: 15px;
+
+  margin-top: 30px;
+
+  margin-bottom: 20px;
+}
+
+
+.category {
+  border: none;
+
+  background: none;
+
+  font-size: 17px;
+
+  cursor: pointer;
+
+  color: gray;
+}
+
+
+.activeCategory {
+  color: #5d8f3b;
+
+  font-weight: bold;
+}
+
+
+/* 지도 */
+
+.mapBox {
+  flex: 1;
+
+  min-height: 0;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+}
+
+
+/* 오른쪽 영역 */
+
+.rightBox {
+  width: 320px;
+
+  background-color: white;
+
+  padding: 30px 20px;
+
+  box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+/* 시설 리스트 */
+
+.placeList {
+  flex: 1;
+
+  overflow-y: auto;
+
+  margin-top: 20px;
+}
+
+
+/* 시설 카드 */
+
+.placeBox {
+  background-color: #f8f8f8;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  margin-bottom: 15px;
+
+  cursor: pointer;
+}
+
+
+.placeBox:hover {
+  background-color: #efefef;
+}
+
+
+/* 선택된 시설 */
+
+.activePlace {
+  border: 2px solid #5d8f3b;
+}
+
+
+/* 다음 수업 */
+
+.nextClass {
+  background-color: #f3f3f3;
+
+  border-radius: 15px;
+
+  padding: 20px;
+
+  margin-top: 20px;
+}
+
+
+/* 반응형 */
+
+@media (max-width: 1200px) {
+
+  .rightBox {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .mapContainer {
+    flex-direction: column;
+  }
+
+}
+
+.routeButton {
+
+  width: 100%;
+
+  margin-top: 10px;
+
+  padding: 10px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background-color: #5d8f3b;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.routeButton.active {
+
+  background-color: #888;
+}
+
+.routeButton:hover {
+
+  opacity: 0.9;
+}
+
+.routeWrapper {
+  position: relative;
+}
+
+.routeTooltip {
+  position: absolute;
+
+  bottom: 60px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background-color: #333;
+  color: white;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  white-space: nowrap;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: 0.2s;
+}
+
+.routeWrapper:hover .routeTooltip {
+  opacity: 1;
+  visibility: visible;
+}
