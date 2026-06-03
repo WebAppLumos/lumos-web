@@ -17,8 +17,6 @@ function EventModal({
     { key: 'STUDY', label: '학업' },
     { key: 'WORK', label: '알바/업무' },
     { key: 'PRIVATE', label: '개인 약속' },
-    { key: 'ACADEMIC', label: '학사 일정' },
-    { key: 'HOLIDAY', label: '공휴일' },
     { key: 'OTHER', label: '기타' }
   ];
 
