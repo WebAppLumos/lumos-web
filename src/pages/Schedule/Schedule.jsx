@@ -30,7 +30,8 @@ function Schedule() {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(`${API_URL}?userId=${user.id}`);
+      const id = user?.userId || user?.id || 'user-1';
+      const response = await axios.get(`${API_URL}?userId=${id}`);
       const mappedData = response.data.map(item => ({
         ...item,
         id: item.scheduleId 
@@ -41,34 +42,26 @@ function Schedule() {
     }
   };
 
-  // 로그인하지 않은 경우 대시보드와 동일한 로그인 유도 화면 표시
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={user} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <DashboardHeader />
-            <DashboardLoginCard />
-          </div>
-        </main>
-      </div>
-    );
-  }
+  // ... (중략)
 
   // 2. 일정 추가
   async function addScheduleItem(newItem) {
     try {
+      const id = user?.userId || user?.id || 'user-1';
       const requestData = {
-        ...newItem,
-        userId: user ? user.id : 'user-1',
+        title: newItem.title,
+        content: newItem.content,
+        date: newItem.date,
+        category: newItem.category,
+        userId: id,
         isCompleted: false
       };
+      
       const response = await axios.post(API_URL, requestData);
       const addedItem = { ...response.data, id: response.data.scheduleId };
       setScheduleItems((prev) => [...prev, addedItem]);
     } catch (error) {
-      alert("일정 추가 실패");
+      alert("일정 추가에 실패했습니다.");
     }
   }
 
@@ -78,25 +71,27 @@ function Schedule() {
       await axios.delete(`${API_URL}/${id}`);
       setScheduleItems((prev) => prev.filter((item) => item.scheduleId !== id));
     } catch (error) {
-      alert("일정 삭제 실패");
+      alert("일정 삭제에 실패했습니다.");
     }
   }
 
   // 4. 일정 수정
   async function updateScheduleItem(updatedItem) {
     try {
+      const id = user?.userId || user?.id || 'user-1';
       const response = await axios.patch(`${API_URL}/${updatedItem.id}`, {
         title: updatedItem.title,
         content: updatedItem.content,
         date: updatedItem.date,
-        category: updatedItem.category
+        category: updatedItem.category,
+        userId: id
       });
       const fixedItem = { ...response.data, id: response.data.scheduleId };
       setScheduleItems((prev) =>
         prev.map((item) => (item.scheduleId === updatedItem.id ? fixedItem : item))
       );
     } catch (error) {
-      alert("일정 수정 실패");
+      alert("일정 수정에 실패했습니다.");
     }
   }
 
