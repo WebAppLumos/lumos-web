@@ -1,0 +1,137 @@
+import { useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { signOut } from 'firebase/auth'
+import { auth } from '../../lib/firebase'
+import './DashboardNav.css'
+
+export default function DashboardNav({ user, onLogout }) {
+  const navigate = useNavigate()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+
+  const handleLogout = () => {
+    localStorage.removeItem('unidash_user')
+    signOut(auth).catch(() => {})
+    setIsDropdownOpen(false)
+    if (onLogout) onLogout()
+    navigate('/')
+  }
+
+  return (
+    // Dashboard 상단 공통 내비게이션
+    <header className="dashboardNav">
+      <Link to="/" className="navBrand">
+        <span className="navLogo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path
+              d="M3 8.5 12 4l9 4.5-9 4.5L3 8.5Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M7 11v4c0 1.7 2.2 3 5 3s5-1.3 5-3v-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+        <span className="navTitle">UniDash</span>
+      </Link>
+
+      <nav className="navLinks">
+        <NavLink
+          to="/"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          대시보드
+        </NavLink>
+        <NavLink
+          to="/timetable"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          시간표
+        </NavLink>
+        <NavLink
+          to="/schedule"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          일정
+        </NavLink>
+        <NavLink
+          to="/assignment"
+          className={({ isActive }) => `navLink ${isActive ? 'active' : ''}`}
+        >
+          과제
+        </NavLink>
+      </nav>
+
+      <div className="navActions">
+        <button type="button" className="navIconBtn" aria-label="검색">
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <path
+              d="m16 16 4 4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        {user ? (
+          <div className="navUser">
+            <button
+              type="button"
+              className="navAvatar"
+              // 사용자 메뉴 열기/닫기
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              aria-label="사용자 메뉴"
+            >
+              {user.name?.[0] || '김'}
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                <button
+                  type="button"
+                  className="navMenuBackdrop"
+                  // 메뉴 바깥 클릭 시 닫기
+                  onClick={() => setIsDropdownOpen(false)}
+                  aria-label="사용자 메뉴 닫기"
+                />
+                <div className="navUserMenu">
+                  <div className="navUserInfo">
+                    <p>{user.name || '김대학'}</p>
+                    <span>{user.department || '컴퓨터공학과'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="navLogout"
+                    onClick={handleLogout}
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <>
+            <Link to="/login" className="navLogin">로그인</Link>
+            <Link to="/signup" className="navSignup">회원가입</Link>
+          </>
+        )}
+      </div>
+    </header>
+  )
+}

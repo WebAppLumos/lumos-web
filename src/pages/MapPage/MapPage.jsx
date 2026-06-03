@@ -16,11 +16,11 @@ import "./MapPage.css";
 
 import { useState, useEffect } from "react";
 
-import SideMenu from "../components/SideMenu";
-import Category from "../components/Category";
-import PlaceList from "../components/PlaceList";
+import SideMenu from "../../components/Map/SideMenu";
+import Category from "../../components/Map/Category";
+import PlaceList from "../../components/Map/PlaceList";
 
-import places from "../data/places";
+import places from "../../data/places";
 
 
 // 지도 이동
