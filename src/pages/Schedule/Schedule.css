@@ -1,0 +1,66 @@
+:root {
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-hover: #1d4ed8;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --text: #374151;
+  --text-h: #111827;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.main-content-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.calendar-section {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* FullCalendar Customization */
+.fc {
+  --fc-button-bg-color: var(--accent);
+  --fc-button-border-color: var(--accent);
+  --fc-button-hover-bg-color: var(--accent-hover);
+  --fc-button-hover-border-color: var(--accent-hover);
+  --fc-button-active-bg-color: var(--accent-hover);
+  --fc-button-active-border-color: var(--accent-hover);
+  --fc-event-bg-color: var(--accent);
+  --fc-event-border-color: var(--accent);
+  max-height: 800px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: var(--text-h);
+  font-weight: 600;
+  padding: 10px 0;
+}
+
+@media (max-width: 1024px) {
+  .main-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
