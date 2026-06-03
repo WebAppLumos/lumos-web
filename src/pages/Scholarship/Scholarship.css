@@ -1,71 +1,10 @@
-.app-container {
+.scholarshipPage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e4e7;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.nav-left {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.nav-item {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #6b6375;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0.5rem 0;
-}
-
-.nav-item:hover {
-  color: #aa3bff;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.95rem;
-  color: #08060d;
-}
-
-.login-btn {
-  background-color: #aa3bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1.2rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.login-btn:hover {
-  background-color: #8e2edb;
-}
-
-.main-content {
+.scholarshipMain {
   flex: 1;
   padding: 4rem 2rem;
   max-width: 800px;

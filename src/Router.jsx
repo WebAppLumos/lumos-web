@@ -3,7 +3,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import Timetable from './pages/Timetable/Timetable'
 import Schedule from './pages/Schedule/Schedule'
 import Assignment from './pages/Assignment/Assignment'
-import Scholarship from './Scholarship'
+import Scholarship from './pages/Scholarship/Scholarship'
 import Signin from './pages/Signin/Signin'
 import Signup from './pages/Signup/Signup'
 
