@@ -1,29 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Todolist.css';
 
-function TodoList() {
-  const [textArray, setTextArray] = useState([
-    { id: -3, content: '운동하기', done: false },
-    { id: -2, content: '공부 2시간', done: false },
-    { id: -1, content: '프로젝트 작업', done: false },
-  ]);
-
-  function handleToggle(id) {
-    setTextArray(
-      textArray.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            done: !item.done
-          };
-        }
-        return item;
-      })
-    );
-  }
-
-  const allMission = textArray.length;
-  const completedMission = textArray.filter((item) => item.done === true).length;
+function TodoList({ items = [], onToggle }) {
+  const allMission = items.length;
+  const completedMission = items.filter((item) => item.isCompleted).length;
   const progress = allMission === 0 ? 0 : Math.round((completedMission / allMission) * 100);
 
   return (
@@ -37,23 +17,29 @@ function TodoList() {
       </div>
 
       <ul className="todo-list">
-        {textArray.map((item) => (
-          <li 
-            key={item.id} 
-            style={{ 
-              textDecoration: item.done ? "line-through" : "none", 
-              color: item.done ? "gray" : "inherit",
-              opacity: item.done ? 0.6 : 1
-            }}
-          >
-            <input 
-              type="checkbox" 
-              checked={item.done} 
-              onChange={() => handleToggle(item.id)} 
-            />
-            <span className="todo-text">{item.content}</span>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <li 
+              key={item.scheduleId} 
+              style={{ 
+                textDecoration: item.isCompleted ? "line-through" : "none", 
+                color: item.isCompleted ? "gray" : "inherit",
+                opacity: item.isCompleted ? 0.6 : 1
+              }}
+            >
+              <input 
+                type="checkbox" 
+                checked={item.isCompleted} 
+                onChange={() => onToggle(item.scheduleId)} 
+              />
+              <span className="todo-text">{item.title}</span>
+            </li>
+          ))
+        ) : (
+          <li style={{ color: '#999', border: 'none', justifyContent: 'center' }}>
+            오늘 등록된 일정이 없습니다.
           </li>
-        ))}
+        )}
       </ul>
     </div>
   );
