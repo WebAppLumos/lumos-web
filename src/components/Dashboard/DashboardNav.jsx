@@ -9,7 +9,7 @@ export default function DashboardNav({ user, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
 
   const handleLogout = () => {
-    localStorage.removeItem('unidash_user')
+    localStorage.removeItem('lumos_user_info')
     signOut(auth).catch(() => {})
     setIsDropdownOpen(false)
     if (onLogout) onLogout()

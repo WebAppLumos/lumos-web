@@ -1,164 +1,122 @@
 import { useState } from 'react';
 import ReactModal from 'react-modal';
+import axios from 'axios';
 import './EventModal.css';
 
 ReactModal.setAppElement('#root');
 
-function EventModal({ 
-  modalOpen, 
-  closeModal, 
-  date, 
-  scheduleItems = [], 
-  addScheduleItem, 
-  deleteScheduleItem, 
-  updateScheduleItem 
+function EventModal({
+  modalOpen,
+  closeModal,
+  date,
+  scheduleItems = [],
+  fetchData
 }) {
-  const categories = [
-    { key: 'STUDY', label: '학업' },
-    { key: 'WORK', label: '알바/업무' },
-    { key: 'PRIVATE', label: '개인 약속' },
-    { key: 'OTHER', label: '기타' }
-  ];
-
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('OTHER');
-  const [editingId, setEditingId] = useState(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editContent, setEditContent] = useState('');
-  const [editCategory, setEditCategory] = useState('OTHER');
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!title) return;
 
-    addScheduleItem({
-      date: date,
-      title: title,
-      content: content,
-      category: category,
-    });
+    try {
+      // 🔥 로그인 유저 UID 통일
+      const userId = localStorage.getItem('lumos_uid');
 
-    setTitle('');
-    setContent('');
-    setCategory('OTHER');
-  };
+      await axios.post('http://localhost:8080/api/calendar/events', {
+        userId: userId,
+        date,
+        title,
+        content,
+        category
+      });
 
-  const startEditing = (item) => {
-    setEditingId(item.id);
-    setEditTitle(item.title);
-    setEditContent(item.content);
-    setEditCategory(item.category || 'OTHER');
-  };
+      fetchData();
 
-  const cancelEditing = () => {
-    setEditingId(null);
-  };
+      setTitle('');
+      setContent('');
+      setCategory('OTHER');
 
-  const handleUpdate = (id) => {
-    updateScheduleItem({
-      id: id,
-      date: date,
-      title: editTitle,
-      content: editContent,
-      category: editCategory,
-    });
-    setEditingId(null);
+    } catch (error) {
+      console.error("일정 추가 실패:", error);
+    }
   };
 
   return (
     <ReactModal
       isOpen={modalOpen}
       onRequestClose={closeModal}
-      shouldCloseOnOverlayClick={true}
-      className="modal-container"
-      overlayClassName="modal-overlay"
+      style={{
+        overlay: {
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          zIndex: 9999
+        },
+        content: {
+          inset: '50% auto auto 50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 10000,
+          padding: '20px',
+          borderRadius: '10px',
+          width: '400px',
+          maxHeight: '80vh',
+          overflow: 'auto'
+        }
+      }}
     >
-      <h3>날짜: {date}</h3>
+      <h2>📅 날짜: {date}</h2>
 
-      <div className="schedule-list">
-        {scheduleItems.length > 0 ? (
-          scheduleItems.map((item) => (
-            <div key={item.id} className="schedule-item">
-              {editingId === item.id ? (
-                <div className="edit-form">
-                  <div className="category-buttons">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.key}
-                        className={`category-btn ${editCategory === cat.key ? 'active' : ''}`}
-                        onClick={() => setEditCategory(cat.key)}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="제목"
-                  />
-                  <input
-                    type="text"
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    placeholder="내용"
-                  />
-                  <div className="btn-group">
-                    <button onClick={() => handleUpdate(item.id)} className="save-btn">저장</button>
-                    <button onClick={cancelEditing} className="cancel-btn">취소</button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="item-header">
-                    <span className={`category-tag ${item.category}`}>
-                      {categories.find(c => c.key === item.category)?.label || '기타'}
-                    </span>
-                    <p><strong>제목:</strong> {item.title}</p>
-                  </div>
-                  <p><strong>내용:</strong> {item.content}</p>
-                  <div className="btn-group">
-                    <button onClick={() => startEditing(item)} className="edit-btn">수정</button>
-                    <button onClick={() => deleteScheduleItem(item.id)} className="delete-btn">삭제</button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))
-        ) : (
-          <p style={{ textAlign: 'center', color: '#999', margin: '20px 0' }}>등록된 일정이 없습니다.</p>
-        )}
-      </div>
+      {/* 기존 일정 */}
+      {scheduleItems.length > 0 ? (
+        scheduleItems.map((item) => (
+          <div key={item.scheduleId} style={{ marginBottom: '10px' }}>
+            <span className={`category-tag ${item.category}`}>
+              {item.category}
+            </span>
 
+            <p>제목: {item.title}</p>
+            <p>내용: {item.content}</p>
+          </div>
+        ))
+      ) : (
+        <p style={{ textAlign: 'center', color: '#999' }}>
+          등록된 일정이 없습니다.
+        </p>
+      )}
+
+      {/* 입력 폼 */}
       <div className="schedule-form">
-        <div className="category-buttons">
-          {categories.map((cat) => (
-            <button
-              key={cat.key}
-              className={`category-btn ${category === cat.key ? 'active' : ''}`}
-              onClick={() => setCategory(cat.key)}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="일정 제목"
         />
+
         <input
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="일정 내용"
         />
-        <button onClick={handleAdd} className="add-btn">추가</button>
+
+        {/* 🔥 카테고리 추가 */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="STUDY">학업</option>
+          <option value="WORK">알바/업무</option>
+          <option value="PRIVATE">개인 약속</option>
+          <option value="OTHER">기타</option>
+        </select>
+
+        <button onClick={handleAdd} className="add-btn">
+          추가
+        </button>
       </div>
 
-      <button onClick={closeModal} className="close-btn" style={{ marginTop: '10px' }}>
+      <button onClick={closeModal} className="close-btn">
         닫기
       </button>
     </ReactModal>

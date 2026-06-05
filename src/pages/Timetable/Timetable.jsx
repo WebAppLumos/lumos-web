@@ -29,7 +29,7 @@ function slotStyle(start, end) {
 export default function Timetable() {
   const [user, setUser] = useState(() => {
     // 원본 파일처럼 앱 로그인 상태는 localStorage의 사용자 정보로 판단
-    const storedUser = localStorage.getItem('unidash_user')
+    const storedUser = localStorage.getItem('lumos_user_info')
     return storedUser ? JSON.parse(storedUser) : null
   })
   const [semesterId, setSemesterId] = useState( // 학기 ID 가져오기

@@ -8,7 +8,7 @@ import './Scholarship.css'
 
 export default function Scholarship() {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('unidash_user')
+    const storedUser = localStorage.getItem('lumos_user_info')
     return storedUser ? JSON.parse(storedUser) : null
   })
 
