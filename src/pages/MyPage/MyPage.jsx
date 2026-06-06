@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../lib/firebase';
+import { deleteUser } from 'firebase/auth';
 import axios from 'axios';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import './MyPage.css';
@@ -176,22 +178,38 @@ export default function MyPage() {
   };
 
   const handleWithdrawal = async () => {
-    if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터가 삭제됩니다.')) return;
+    if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터와 계정이 영구적으로 삭제됩니다.')) return;
     
     try {
       const userId = localStorage.getItem('lumos_uid');
+      
+      // 1. 우리 백엔드 데이터 먼저 삭제
       await axios.delete('http://localhost:8080/api/users/me', {
         headers: {
           'X-User-Id': userId
         }
       });
+
+      // 2. Firebase 계정 삭제
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        await deleteUser(currentUser);
+      }
+
       alert('탈퇴 처리가 완료되었습니다.');
       localStorage.removeItem('lumos_user_info');
       localStorage.removeItem('lumos_uid');
       window.location.href = '/';
     } catch (error) {
       console.error('Withdrawal failed:', error);
-      alert('탈퇴 처리에 실패했습니다.');
+      
+      // Firebase 보안 정책상 '최근 로그인'이 필요한 경우
+      if (error.code === 'auth/requires-recent-login') {
+        alert('보안을 위해 다시 로그인한 후 탈퇴를 진행해 주세요.');
+        handleLogout(); // 로그아웃 시켜서 다시 로그인 유도
+      } else {
+        alert('탈퇴 처리에 실패했습니다. (사유: ' + (error.response?.data?.message || error.message) + ')');
+      }
     }
   };
 
@@ -335,7 +353,8 @@ export default function MyPage() {
                   name="phoneNumber" 
                   value={formData.phoneNumber} 
                   onChange={handleChange} 
-                  disabled={!isEditing}
+                  disabled={true} 
+                  className="disabledInput"
                   placeholder="010-0000-0000"
                 />
               </div>
