@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import './MyPage.css';
 
 export default function MyPage() {
+  const fileInputRef = useRef(null);
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('lumos_user_info');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -89,25 +90,53 @@ export default function MyPage() {
     navigate('/login');
   };
 
-  const handleProfileImageChange = async (e) => {
-    const url = window.prompt('새 프로필 이미지 URL을 입력하세요:');
-    if (!url) return;
+  const handleProfileImageClick = () => {
+    fileInputRef.current.click();
+  };
 
-    try {
-      const userId = localStorage.getItem('lumos_uid');
-      const res = await axios.patch(
-        'http://localhost:8080/api/users/me/profile-image',
-        { profileImageUrl: url },
-        { headers: { 'X-User-Id': userId } }
-      );
-      const updatedUser = res.data;
-      localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      setFormData(prev => ({ ...prev, profileImageUrl: updatedUser.profileImageUrl }));
-      alert('프로필 이미지가 변경되었습니다.');
-    } catch (error) {
-      alert('이미지 변경에 실패했습니다.');
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 파일 타입 검사
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
     }
+
+    // 파일 크기 제한 (예: 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('파일 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    // 💡 실제 구현 시에는 여기서 서버나 Firebase Storage에 파일을 업로드하고
+    // 받은 URL을 DB에 저장해야 합니다.
+    // 현재는 미리보기용으로만 처리하거나 업로드 로직을 추가할 수 있습니다.
+    
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result;
+      
+      try {
+        const userId = localStorage.getItem('lumos_uid');
+        const res = await axios.patch(
+          'http://localhost:8080/api/users/me/profile-image',
+          { profileImageUrl: base64String },
+          { headers: { 'X-User-Id': userId } }
+        );
+        
+        const updatedUser = res.data;
+        localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setFormData(prev => ({ ...prev, profileImageUrl: updatedUser.profileImageUrl }));
+        alert('프로필 이미지가 변경 및 저장되었습니다.');
+      } catch (error) {
+        console.error('Image upload failed:', error);
+        alert('이미지 저장에 실패했습니다.');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleChange = (e) => {
@@ -192,7 +221,19 @@ export default function MyPage() {
 
           <div className="myPageContent">
             <div className="profileSection">
-              <div className="profileImageWrapper" onClick={handleProfileImageChange}>
+              {/* 숨겨진 파일 입력 필드 */}
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+              <div 
+                className="profileImageWrapper" 
+                onClick={handleProfileImageClick}
+                style={{ cursor: 'pointer' }}
+              >
                 <img 
                   src={formData.profileImageUrl || 'https://via.placeholder.com/150'} 
                   alt="프로필" 
