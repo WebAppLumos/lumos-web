@@ -1,0 +1,292 @@
+.myPageContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.myPageContainer.empty {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.myPageHeader {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.myPageHeader h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.myPageHeader p {
+  color: #666;
+}
+
+.myPageContent {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+}
+
+.profileSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profileImageWrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #f0f0f0;
+  position: relative;
+  cursor: pointer;
+}
+
+.imageOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 11px;
+  padding: 4px 0;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.profileImageWrapper:hover .imageOverlay {
+  opacity: 1;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileBasicInfo {
+  flex: 1;
+}
+
+.creditInfo {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.creditInfo strong {
+  color: #4a90e2;
+}
+
+.myPageLogoutBtn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.myPageLogoutBtn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.summarySection {
+  margin-bottom: 40px;
+}
+
+.weeklySummary {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.weeklySummary h4 {
+  margin: 0 0 12px 0;
+  color: #334155;
+  font-size: 1rem;
+}
+
+.summaryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summaryList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.summaryList li.empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot.HIGH { background: #ef4444; }
+.dot.MEDIUM { background: #f59e0b; }
+.dot.LOW { background: #10b981; }
+
+.infoForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.infoForm input,
+.infoForm select {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.infoForm input:focus,
+.infoForm select:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.infoForm input:disabled,
+.infoForm select:disabled {
+  background-color: #f9f9f9;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.disabledInput {
+  background-color: #f5f5f5 !important;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.formActions {
+  margin-top: 20px;
+}
+
+.editBtn, .saveBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editBtn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+}
+
+.editBtn:hover {
+  background: #357abd;
+}
+
+.editActions {
+  display: flex;
+  gap: 12px;
+}
+
+.saveBtn {
+  flex: 2;
+  background: #28a745;
+  color: white;
+  border: none;
+}
+
+.saveBtn:hover {
+  background: #218838;
+}
+
+.cancelBtn {
+  flex: 1;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dangerZone {
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 2px dashed #fee2e2;
+}
+
+.dangerZone h4 {
+  color: #dc2626;
+  margin: 0 0 8px 0;
+}
+
+.dangerZone p {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.withdrawBtn {
+  padding: 10px 20px;
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.withdrawBtn:hover {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}

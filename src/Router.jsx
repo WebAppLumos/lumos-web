@@ -8,6 +8,8 @@ import MapPage from './pages/MapPage/MapPage'
 import Signin from './pages/Signin/Signin'
 import Signup from './pages/Signup/Signup'
 
+import MyPage from './pages/MyPage/MyPage'
+
 export default function Router() {
   return (
     <Routes>
@@ -19,6 +21,7 @@ export default function Router() {
       <Route path="/mappage" element={<MapPage />} />
       <Route path="/login" element={<Signin />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/mypage" element={<MyPage />} />
     </Routes>
   );
 }

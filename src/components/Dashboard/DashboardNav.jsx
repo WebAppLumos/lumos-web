@@ -124,8 +124,15 @@ export default function DashboardNav({ user, onLogout }) {
                 <div className="navUserMenu">
                   <div className="navUserInfo">
                     <p>{user.name || '김대학'}</p>
-                    <span>{user.department || '컴퓨터공학과'}</span>
+                    <span>{user.major || user.department || '컴퓨터공학과'}</span>
                   </div>
+                  <Link
+                    to="/mypage"
+                    className="navMyPageLink"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    마이페이지
+                  </Link>
                   <button
                     type="button"
                     className="navLogout"
