@@ -1,21 +1,25 @@
-.page-container {
-  display: flex;
+.assignmentPage {
   min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.assignmentPage .page-container {
+  display: flex;
+  min-height: calc(100vh - 4rem);
   background-color: #f9fafb;
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
 }
 
-.main-content {
-  margin-left: 250px;
+.assignmentPage .main-content {
   flex: 1;
   padding: 50px 60px;
   box-sizing: border-box;
-  width: calc(100% - 250px);
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
-.layout-wrapper {
+.assignmentPage .layout-wrapper {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -23,14 +27,14 @@
   max-width: 1000px;
 }
 
-.header-box {
+.assignmentPage .header-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
 }
 
-.header-title {
+.assignmentPage .header-title {
   margin: 0;
   font-size: 28px;
   font-weight: 800;
@@ -38,7 +42,7 @@
   letter-spacing: -0.5px;
 }
 
-.summary-container {
+.assignmentPage .summary-container {
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -48,40 +52,40 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
-.summary-item {
+.assignmentPage .summary-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
 }
 
-.summary-item .label {
+.assignmentPage .summary-item .label {
   font-size: 14px;
   color: #8b95a1;
   font-weight: 600;
 }
 
-.summary-item .value {
+.assignmentPage .summary-item .value {
   font-size: 28px;
   font-weight: 800;
   color: #333d4b;
 }
 
-.summary-item .value span {
+.assignmentPage .summary-item .value span {
   font-size: 15px;
   font-weight: 600;
   color: #8b95a1;
   margin-left: 4px;
 }
 
-.imminent-box {
+.assignmentPage .imminent-box {
   background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(225, 29, 72, 0.05);
 }
 
-.imminent-title {
+.assignmentPage .imminent-title {
   margin: 0 0 16px;
   font-size: 18px;
   font-weight: 700;
@@ -91,19 +95,19 @@
   gap: 8px;
 }
 
-.imminent-title::before {
+.assignmentPage .imminent-title::before {
   content: '🚨';
   font-size: 20px;
 }
 
-.imminent-card {
+.assignmentPage .imminent-card {
   border: none;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(225, 29, 72, 0.08);
   margin-bottom: 0;
 }
 
-.task-card {
+.assignmentPage .task-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -115,12 +119,12 @@
   transition: all 0.2s ease;
 }
 
-.task-card:hover {
+.assignmentPage .task-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
-.task-checkbox {
+.assignmentPage .task-checkbox {
   margin-right: 20px;
   cursor: pointer;
   width: 22px;
@@ -129,39 +133,39 @@
   accent-color: #3182f6;
 }
 
-.task-info {
+.assignmentPage .task-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.task-course { font-size: 13px; font-weight: 600; color: #3182f6; }
-.task-title { font-size: 17px; font-weight: 700; color: #191f28; margin: 0; }
-.task-meta { font-size: 13px; color: #8b95a1; font-weight: 500; }
-.actions { display: flex; gap: 8px; flex-shrink: 0; }
+.assignmentPage .task-course { font-size: 13px; font-weight: 600; color: #3182f6; }
+.assignmentPage .task-title { font-size: 17px; font-weight: 700; color: #191f28; margin: 0; }
+.assignmentPage .task-meta { font-size: 13px; color: #8b95a1; font-weight: 500; }
+.assignmentPage .actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-.completed-card {
+.assignmentPage .completed-card {
   opacity: 0.6;
   background-color: #f9fafb;
   box-shadow: none;
 }
-.completed-card:hover { transform: none; box-shadow: none; }
-.completed-text { text-decoration: line-through; color: #b0b8c1; }
-.completed-card .task-course { color: #b0b8c1; }
+.assignmentPage .completed-card:hover { transform: none; box-shadow: none; }
+.assignmentPage .completed-text { text-decoration: line-through; color: #b0b8c1; }
+.assignmentPage .completed-card .task-course { color: #b0b8c1; }
 
-.add-btn, .button-group button, .btn-toss {
+.assignmentPage .add-btn, .assignmentPage .button-group button, .assignmentPage .btn-toss {
   border: none;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.add-btn:active, .button-group button:active, .btn-toss:active {
+.assignmentPage .add-btn:active, .assignmentPage .button-group button:active, .assignmentPage .btn-toss:active {
   transform: scale(0.96);
 }
 
-.add-btn {
+.assignmentPage .add-btn {
   background-color: #3182f6;
   color: white;
   padding: 12px 20px;
@@ -170,22 +174,22 @@
   box-shadow: 0 4px 12px rgba(49, 130, 246, 0.2);
 }
 
-.add-btn:hover { background-color: #1b64da; }
+.assignmentPage .add-btn:hover { background-color: #1b64da; }
 
-.btn-toss {
+.assignmentPage .btn-toss {
   padding: 10px 16px;
   border-radius: 10px;
   font-size: 14px;
 }
 
-.btn-cancel, .btn-edit { background-color: #f2f4f6; color: #4e5968; }
-.btn-submit { background-color: #3182f6; color: white; }
-.btn-delete { background-color: #fee2e2; color: #e11d48; }
+.assignmentPage .btn-cancel, .assignmentPage .btn-edit { background-color: #f2f4f6; color: #4e5968; }
+.assignmentPage .btn-submit { background-color: #3182f6; color: white; }
+.assignmentPage .btn-delete { background-color: #fee2e2; color: #e11d48; }
 
-.btn-edit:hover { background-color: #e5e8eb; }
-.btn-delete:hover { background-color: #fecaca; }
+.assignmentPage .btn-edit:hover { background-color: #e5e8eb; }
+.assignmentPage .btn-delete:hover { background-color: #fecaca; }
 
-.modal-overlay {
+.assignmentPage .modal-overlay {
   position: fixed;
   top: 0; bottom: 0; left: 0; right: 0;
   background-color: rgba(0, 0, 0, 0.4);
@@ -196,7 +200,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.assignmentPage .modal-content {
   background-color: white;
   border-radius: 28px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -204,18 +208,18 @@
   width: 340px;
 }
 
-.modal-title {
+.assignmentPage .modal-title {
   margin: 0 0 28px;
   font-size: 24px;
   font-weight: 800;
   color: #191f28;
 }
 
-.toss-form { display: flex; flex-direction: column; gap: 24px; }
-.input-group { display: flex; flex-direction: column; gap: 10px; }
-.input-group label { font-size: 14px; color: #4e5968; font-weight: 600; }
+.assignmentPage .toss-form { display: flex; flex-direction: column; gap: 24px; }
+.assignmentPage .input-group { display: flex; flex-direction: column; gap: 10px; }
+.assignmentPage .input-group label { font-size: 14px; color: #4e5968; font-weight: 600; }
 
-.input-group input, .edit-input {
+.assignmentPage .input-group input, .assignmentPage .edit-input {
   width: 100%;
   padding: 16px;
   border: 1px solid transparent;
@@ -228,15 +232,15 @@
   transition: all 0.2s ease;
 }
 
-.edit-input { padding: 10px 14px; border-radius: 10px; font-size: 14px; }
+.assignmentPage .edit-input { padding: 10px 14px; border-radius: 10px; font-size: 14px; }
 
-.input-group input:focus, .edit-input:focus {
+.assignmentPage .input-group input:focus, .assignmentPage .edit-input:focus {
   background-color: #ffffff;
   border: 1px solid #3182f6;
   box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
 }
 
-.input-group input::placeholder { color: #b0b8c1; }
+.assignmentPage .input-group input::placeholder { color: #b0b8c1; }
 
-.button-group { display: flex; gap: 12px; margin-top: 10px; }
-.button-group button { flex: 1; padding: 16px; border-radius: 14px; font-size: 16px; }
+.assignmentPage .button-group { display: flex; gap: 12px; margin-top: 10px; }
+.assignmentPage .button-group button { flex: 1; padding: 16px; border-radius: 14px; font-size: 16px; }

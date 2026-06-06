@@ -5,8 +5,6 @@ import Calendar from '../../components/Schedule/Calendar';
 import TodoList from '../../components/Schedule/Todolist';
 import EventModal from '../../components/Schedule/EventModal';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
-import DashboardHeader from '../../components/Dashboard/DashboardHeader';
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import './Schedule.css';
 
 function Schedule() {
@@ -125,9 +123,9 @@ function Schedule() {
   const todayItems = scheduleItems.filter(item => item.date === todayStr);
 
   return (
-    <div className="dashboardPage">
+    <div className="schedulePage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
-      <main className="dashboardMain">
+      <main className="scheduleMain">
         <div className="main-content-grid">
           <div className="calendar-section">
             <Calendar onDateClick={openModal} events={scheduleItems} />

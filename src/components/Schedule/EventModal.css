@@ -1,4 +1,4 @@
-.modal-overlay {
+.scheduleModalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -9,7 +9,15 @@
   z-index: 9999;
 }
 
-.modal-container {
+.scheduleModalContainer {
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-hover: #1d4ed8;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --text: #374151;
+  --text-h: #111827;
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   width: 400px;
   background: var(--card-bg);
   padding: 32px;
@@ -24,7 +32,7 @@
   border: 1px solid var(--border);
 }
 
-.modal-container h3 {
+.scheduleModalContainer h3 {
   margin-top: 0;
   margin-bottom: 20px;
   font-size: 1.25rem;
@@ -35,7 +43,7 @@
 }
 
 /* Schedule List Section - Scrollable */
-.schedule-list {
+.scheduleModalContainer .scheduleModalList {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 20px;
@@ -43,18 +51,18 @@
 }
 
 /* 커스텀 스크롤바 */
-.schedule-list::-webkit-scrollbar {
+.scheduleModalContainer .scheduleModalList::-webkit-scrollbar {
   width: 6px;
 }
-.schedule-list::-webkit-scrollbar-thumb {
+.scheduleModalContainer .scheduleModalList::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;
 }
-.schedule-list::-webkit-scrollbar-track {
+.scheduleModalContainer .scheduleModalList::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.empty-state {
+.scheduleModalContainer .empty-state {
   padding: 32px 20px;
   text-align: center;
   background: var(--accent-light);
@@ -63,20 +71,20 @@
   color: #6b7280;
 }
 
-.empty-state p {
+.scheduleModalContainer .empty-state p {
   margin: 4px 0;
   font-size: 0.9rem;
 }
 
 /* Category Buttons */
-.category-buttons {
+.scheduleModalContainer .scheduleModalCategoryButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 12px;
 }
 
-.category-btn {
+.scheduleModalContainer .scheduleModalCategoryBtn {
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -86,25 +94,25 @@
   transition: all 0.2s;
 }
 
-.category-btn:hover {
+.scheduleModalContainer .scheduleModalCategoryBtn:hover {
   background: #f3f4f6;
 }
 
-.category-btn.active {
+.scheduleModalContainer .scheduleModalCategoryBtn.active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
 }
 
 /* Category Tags */
-.item-header {
+.scheduleModalContainer .scheduleModalItemHeader {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
 }
 
-.category-tag {
+.scheduleModalContainer .scheduleModalCategoryTag {
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -112,14 +120,14 @@
   text-transform: uppercase;
 }
 
-.category-tag.STUDY { background: #e0f2fe; color: #0369a1; }
-.category-tag.WORK { background: #ffedd5; color: #9a3412; }
-.category-tag.PRIVATE { background: #dcfce7; color: #15803d; }
-.category-tag.ACADEMIC { background: #f3e8ff; color: #7e22ce; }
-.category-tag.HOLIDAY { background: #fee2e2; color: #b91c1c; }
-.category-tag.OTHER { background: #f3f4f6; color: #4b5563; }
+.scheduleModalContainer .scheduleModalCategoryTag.STUDY { background: #e0f2fe; color: #0369a1; }
+.scheduleModalContainer .scheduleModalCategoryTag.WORK { background: #ffedd5; color: #9a3412; }
+.scheduleModalContainer .scheduleModalCategoryTag.PRIVATE { background: #dcfce7; color: #15803d; }
+.scheduleModalContainer .scheduleModalCategoryTag.ACADEMIC { background: #f3e8ff; color: #7e22ce; }
+.scheduleModalContainer .scheduleModalCategoryTag.HOLIDAY { background: #fee2e2; color: #b91c1c; }
+.scheduleModalContainer .scheduleModalCategoryTag.OTHER { background: #f3f4f6; color: #4b5563; }
 
-.schedule-item {
+.scheduleModalContainer .scheduleModalItem {
   background: #f9fafb;
   padding: 16px;
   border-radius: 12px;
@@ -128,19 +136,19 @@
   border: 1px solid var(--border);
 }
 
-.schedule-item p {
+.scheduleModalContainer .scheduleModalItem p {
   margin: 6px 0;
   color: var(--text);
   line-height: 1.5;
 }
 
-.schedule-item strong {
+.scheduleModalContainer .scheduleModalItem strong {
   color: var(--text-h);
   display: inline-block;
   width: 50px;
 }
 
-.schedule-form {
+.scheduleModalContainer .scheduleModalForm {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -149,7 +157,8 @@
   border-top: 1px solid var(--border);
 }
 
-.schedule-form input {
+.scheduleModalContainer .scheduleModalForm input,
+.scheduleModalContainer .scheduleModalEditForm input {
   padding: 12px 16px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -157,12 +166,13 @@
   transition: border-color 0.2s;
 }
 
-.schedule-form input:focus {
+.scheduleModalContainer .scheduleModalForm input:focus,
+.scheduleModalContainer .scheduleModalEditForm input:focus {
   border-color: var(--accent);
   outline: none;
 }
 
-.add-btn {
+.scheduleModalContainer .scheduleModalAddBtn {
   background: var(--accent);
   color: white;
   border: none;
@@ -174,16 +184,16 @@
   transition: all 0.2s;
 }
 
-.add-btn:hover {
+.scheduleModalContainer .scheduleModalAddBtn:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
-.add-btn:active {
+.scheduleModalContainer .scheduleModalAddBtn:active {
   transform: translateY(0);
 }
 
-.close-btn {
+.scheduleModalContainer .scheduleModalCloseBtn {
   width: 100%;
   padding: 12px;
   background: transparent;
@@ -196,7 +206,7 @@
   transition: all 0.2s;
 }
 
-.close-btn:hover {
+.scheduleModalContainer .scheduleModalCloseBtn:hover {
   background: #f3f4f6;
   color: var(--text-h);
 }

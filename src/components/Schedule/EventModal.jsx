@@ -70,22 +70,22 @@ function EventModal({
       isOpen={modalOpen}
       onRequestClose={closeModal}
       shouldCloseOnOverlayClick={true}
-      className="modal-container"
-      overlayClassName="modal-overlay"
+      className="scheduleModalContainer"
+      overlayClassName="scheduleModalOverlay"
     >
       <h3>날짜: {date}</h3>
 
-      <div className="schedule-list">
+      <div className="scheduleModalList">
         {scheduleItems.length > 0 ? (
           scheduleItems.map((item) => (
-            <div key={item.id} className="schedule-item">
+            <div key={item.id} className="scheduleModalItem">
               {editingId === item.id ? (
-                <div className="edit-form">
-                  <div className="category-buttons">
+                <div className="scheduleModalEditForm">
+                  <div className="scheduleModalCategoryButtons">
                     {categories.map((cat) => (
                       <button
                         key={cat.key}
-                        className={`category-btn ${editCategory === cat.key ? 'active' : ''}`}
+                        className={`scheduleModalCategoryBtn ${editCategory === cat.key ? 'active' : ''}`}
                         onClick={() => setEditCategory(cat.key)}
                       >
                         {cat.label}
@@ -104,23 +104,23 @@ function EventModal({
                     onChange={(e) => setEditContent(e.target.value)}
                     placeholder="내용"
                   />
-                  <div className="btn-group">
-                    <button onClick={() => handleUpdate(item.id)} className="save-btn">저장</button>
-                    <button onClick={cancelEditing} className="cancel-btn">취소</button>
+                  <div className="scheduleModalBtnGroup">
+                    <button onClick={() => handleUpdate(item.id)} className="scheduleModalSaveBtn">저장</button>
+                    <button onClick={cancelEditing} className="scheduleModalCancelBtn">취소</button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="item-header">
-                    <span className={`category-tag ${item.category}`}>
+                  <div className="scheduleModalItemHeader">
+                    <span className={`scheduleModalCategoryTag ${item.category}`}>
                       {categories.find(c => c.key === item.category)?.label || '기타'}
                     </span>
                     <p><strong>제목:</strong> {item.title}</p>
                   </div>
                   <p><strong>내용:</strong> {item.content}</p>
-                  <div className="btn-group">
-                    <button onClick={() => startEditing(item)} className="edit-btn">수정</button>
-                    <button onClick={() => deleteScheduleItem(item.id)} className="delete-btn">삭제</button>
+                  <div className="scheduleModalBtnGroup">
+                    <button onClick={() => startEditing(item)} className="scheduleModalEditBtn">수정</button>
+                    <button onClick={() => deleteScheduleItem(item.id)} className="scheduleModalDeleteBtn">삭제</button>
                   </div>
                 </>
               )}
@@ -131,12 +131,12 @@ function EventModal({
         )}
       </div>
 
-      <div className="schedule-form">
-        <div className="category-buttons">
+      <div className="scheduleModalForm">
+        <div className="scheduleModalCategoryButtons">
           {categories.map((cat) => (
             <button
               key={cat.key}
-              className={`category-btn ${category === cat.key ? 'active' : ''}`}
+              className={`scheduleModalCategoryBtn ${category === cat.key ? 'active' : ''}`}
               onClick={() => setCategory(cat.key)}
             >
               {cat.label}
@@ -155,10 +155,10 @@ function EventModal({
           onChange={(e) => setContent(e.target.value)}
           placeholder="일정 내용"
         />
-        <button onClick={handleAdd} className="add-btn">추가</button>
+        <button onClick={handleAdd} className="scheduleModalAddBtn">추가</button>
       </div>
 
-      <button onClick={closeModal} className="close-btn" style={{ marginTop: '10px' }}>
+      <button onClick={closeModal} className="scheduleModalCloseBtn" style={{ marginTop: '10px' }}>
         닫기
       </button>
     </ReactModal>
