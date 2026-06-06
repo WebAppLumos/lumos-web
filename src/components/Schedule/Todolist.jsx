@@ -19,11 +19,19 @@ function TodoList({ items = [], fetchData }) {
 
   const { start, end } = getWeekRange();
 
-  // 이번 주 일정만 필터링
+  // 이번 주 일정만 필터링 후 날짜 및 우선순위 정렬
   const weeklyItems = items.filter(item => {
     const itemDate = new Date(item.date);
     return itemDate >= start && itemDate <= end;
-  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  }).sort((a, b) => {
+    // 1차 정렬: 날짜순
+    const dateCompare = new Date(a.date) - new Date(b.date);
+    if (dateCompare !== 0) return dateCompare;
+
+    // 2차 정렬: 우선순위 높은 순
+    const weights = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+    return weights[b.priority] - weights[a.priority];
+  });
 
   const handleToggle = async (id) => {
     try {

@@ -117,12 +117,17 @@ function EventModal({
         {scheduleItems.length === 0 ? (
           <p className="empty-msg">일정이 없습니다.</p>
         ) : (
-          scheduleItems.map(item => {
-            const isOwner = item.userId === currentUserId;
-            const isAdmin = item.userId === 'admin';
+          [...scheduleItems]
+            .sort((a, b) => {
+              const weights = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+              return weights[b.priority] - weights[a.priority];
+            })
+            .map(item => {
+              const isOwner = item.userId === currentUserId;
+              const isAdmin = item.userId === 'admin';
 
-            return (
-              <div key={item.scheduleId} className={`event-item ${isAdmin ? 'admin-event' : ''}`}>
+              return (
+                <div key={item.scheduleId} className={`event-item ${isAdmin ? 'admin-event' : ''}`}>
                 <div className="event-info">
                   <span className={`priority-badge ${item.priority}`}>{item.priority}</span>
                   <span className="event-title">{item.title}</span>

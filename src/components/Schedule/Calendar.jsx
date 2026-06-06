@@ -16,6 +16,8 @@ function Calendar({ onDateClick, events = [] }) {
     title: item.title,
     start: item.date ? new Date(item.date).toISOString().split('T')[0] : null,
     backgroundColor: categoryToColor[item.category] || categoryToColor.OTHER,
+    // 우선순위 정렬을 위한 필드 추가
+    priorityWeight: item.priority === 'HIGH' ? 3 : item.priority === 'MEDIUM' ? 2 : 1,
   })).filter(Boolean);
 
   return (
@@ -27,6 +29,7 @@ function Calendar({ onDateClick, events = [] }) {
         center: 'title',
         right: 'dayGridMonth,dayGridWeek'
       }}
+      eventOrder="-priorityWeight" // 높은 우선순위가 위로 오도록 설정
       events={calendarEvents}
       dateClick={(info) => onDateClick?.(info.dateStr)}
       height="auto"

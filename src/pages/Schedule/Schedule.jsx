@@ -18,15 +18,22 @@ function Schedule() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  
+  // 검색 필터 상태 추가
+  const [keyword, setKeyword] = useState('');
+  const [category, setCategory] = useState('');
 
   const fetchData = async () => {
     try {
       const userId = localStorage.getItem('lumos_uid');
       if (!userId) return;
 
-      const res = await axios.get(
-        `http://localhost:8080/api/calendar/events?userId=${userId}`
-      );
+      // 필터 파라미터 구성
+      const params = { userId };
+      if (keyword) params.keyword = keyword;
+      if (category) params.category = category;
+
+      const res = await axios.get('http://localhost:8080/api/calendar/events', { params });
 
       setEvents(res.data || []);
     } catch (err) {
@@ -36,7 +43,12 @@ function Schedule() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [category]); // 카테고리 변경 시 즉시 검색
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchData();
+  };
 
   return (
     <div className="dashboardPage">
@@ -44,6 +56,30 @@ function Schedule() {
       
       <main className="dashboardMain">
         <div className="schedule-page">
+          
+          {/* 검색 및 필터 바 추가 */}
+          <div className="schedule-filter-bar">
+            <form onSubmit={handleSearch} className="search-form">
+              <input 
+                type="text" 
+                placeholder="일정 키워드 검색..." 
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+              <button type="submit">검색</button>
+            </form>
+
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">전체 카테고리</option>
+              <option value="ACADEMIC">학사</option>
+              <option value="HOLIDAY">공휴일</option>
+              <option value="STUDY">학업</option>
+              <option value="WORK">알바</option>
+              <option value="PRIVATE">개인</option>
+              <option value="OTHER">기타</option>
+            </select>
+          </div>
+
           <div className="schedule-content">
             <div className="calendar-area">
               <Calendar
