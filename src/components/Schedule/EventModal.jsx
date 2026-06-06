@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import axios from 'axios';
 import './EventModal.css';
@@ -12,113 +12,174 @@ function EventModal({
   scheduleItems = [],
   fetchData
 }) {
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('OTHER');
+  const [priority, setPriority] = useState('MEDIUM');
+  const [editId, setEditId] = useState(null);
+  const currentUserId = localStorage.getItem('lumos_uid');
 
-  const handleAdd = async () => {
-    if (!title) return;
-
-    try {
-      // 🔥 로그인 유저 UID 통일
-      const userId = localStorage.getItem('lumos_uid');
-
-      await axios.post('http://localhost:8080/api/calendar/events', {
-        userId: userId,
-        date,
-        title,
-        content,
-        category
-      });
-
-      fetchData();
-
+  useEffect(() => {
+    if (!modalOpen) {
       setTitle('');
       setContent('');
       setCategory('OTHER');
-
-    } catch (error) {
-      console.error("일정 추가 실패:", error);
+      setPriority('MEDIUM');
+      setEditId(null);
     }
+  }, [modalOpen]);
+
+  const handleAdd = async () => {
+    try {
+      await axios.post('http://localhost:8080/api/calendar/events', {
+        userId: currentUserId,
+        date,
+        title,
+        content,
+        category,
+        priority
+      });
+      setTitle('');
+      setContent('');
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 추가에 실패했습니다.');
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/calendar/events/${editId}`,
+        {
+          userId: currentUserId,
+          date,
+          title,
+          content,
+          category,
+          priority
+        }
+      );
+      setEditId(null);
+      setTitle('');
+      setContent('');
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/calendar/events/${id}`);
+      if (editId === id) {
+        setEditId(null);
+        setTitle('');
+        setContent('');
+      }
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 삭제에 실패했습니다.');
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditId(item.scheduleId);
+    setTitle(item.title);
+    setContent(item.content || '');
+    setCategory(item.category || 'OTHER');
+    setPriority(item.priority || 'MEDIUM');
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setTitle('');
+    setContent('');
+    setCategory('OTHER');
+    setPriority('MEDIUM');
   };
 
   return (
     <ReactModal
       isOpen={modalOpen}
       onRequestClose={closeModal}
-      style={{
-        overlay: {
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          zIndex: 9999
-        },
-        content: {
-          inset: '50% auto auto 50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 10000,
-          padding: '20px',
-          borderRadius: '10px',
-          width: '400px',
-          maxHeight: '80vh',
-          overflow: 'auto'
-        }
-      }}
+      className="event-modal-content"
+      overlayClassName="event-modal-overlay"
     >
-      <h2>📅 날짜: {date}</h2>
-
-      {/* 기존 일정 */}
-      {scheduleItems.length > 0 ? (
-        scheduleItems.map((item) => (
-          <div key={item.scheduleId} style={{ marginBottom: '10px' }}>
-            <span className={`category-tag ${item.category}`}>
-              {item.category}
-            </span>
-
-            <p>제목: {item.title}</p>
-            <p>내용: {item.content}</p>
-          </div>
-        ))
-      ) : (
-        <p style={{ textAlign: 'center', color: '#999' }}>
-          등록된 일정이 없습니다.
-        </p>
-      )}
-
-      {/* 입력 폼 */}
-      <div className="schedule-form">
-
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="일정 제목"
-        />
-
-        <input
-          type="text"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="일정 내용"
-        />
-
-        {/* 🔥 카테고리 추가 */}
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="STUDY">학업</option>
-          <option value="WORK">알바/업무</option>
-          <option value="PRIVATE">개인 약속</option>
-          <option value="OTHER">기타</option>
-        </select>
-
-        <button onClick={handleAdd} className="add-btn">
-          추가
-        </button>
+      <div className="modal-header">
+        <h3>📅 {date}</h3>
+        <button className="close-btn" onClick={closeModal}>×</button>
       </div>
 
-      <button onClick={closeModal} className="close-btn">
-        닫기
-      </button>
+      <div className="event-list">
+        {scheduleItems.length === 0 ? (
+          <p className="empty-msg">일정이 없습니다.</p>
+        ) : (
+          scheduleItems.map(item => {
+            const isOwner = item.userId === currentUserId;
+            const isAdmin = item.userId === 'admin';
+
+            return (
+              <div key={item.scheduleId} className={`event-item ${isAdmin ? 'admin-event' : ''}`}>
+                <div className="event-info">
+                  <span className={`priority-badge ${item.priority}`}>{item.priority}</span>
+                  <span className="event-title">{item.title}</span>
+                  {item.content && <p className="event-content">{item.content}</p>}
+                </div>
+                {isOwner && (
+                  <div className="event-actions">
+                    <button onClick={() => startEdit(item)}>수정</button>
+                    <button onClick={() => handleDelete(item.scheduleId)}>삭제</button>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="event-form">
+        <h4>{editId ? '일정 수정' : '새 일정 추가'}</h4>
+        <input 
+          value={title} 
+          onChange={e => setTitle(e.target.value)} 
+          placeholder="제목 (최대 100자)" 
+          maxLength={100}
+        />
+        <textarea 
+          value={content} 
+          onChange={e => setContent(e.target.value)} 
+          placeholder="내용"
+        />
+
+        <div className="form-row">
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option value="ACADEMIC">학사</option>
+            <option value="HOLIDAY">공휴일</option>
+            <option value="STUDY">학업</option>
+            <option value="WORK">알바</option>
+            <option value="PRIVATE">개인</option>
+            <option value="OTHER">기타</option>
+          </select>
+
+          <select value={priority} onChange={e => setPriority(e.target.value)}>
+            <option value="HIGH">높음</option>
+            <option value="MEDIUM">중간</option>
+            <option value="LOW">낮음</option>
+          </select>
+        </div>
+
+        <div className="form-actions">
+          <button className="submit-btn" onClick={editId ? handleUpdate : handleAdd}>
+            {editId ? '수정 완료' : '추가하기'}
+          </button>
+          {editId && (
+            <button className="cancel-btn" onClick={cancelEdit}>취소</button>
+          )}
+        </div>
+      </div>
     </ReactModal>
   );
 }

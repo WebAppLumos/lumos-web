@@ -3,6 +3,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 function Calendar({ onDateClick, events = [] }) {
+
   const categoryToColor = {
     STUDY: '#0369a1',
     WORK: '#9a3412',
@@ -10,19 +11,26 @@ function Calendar({ onDateClick, events = [] }) {
     OTHER: '#4b5563'
   };
 
-  const calendarEvents = events.map(item => ({
-    title: item.title,
-    start: item.date,
+  const calendarEvents = (events || []).map(item => ({
     id: item.scheduleId?.toString(),
+    title: item.title,
+    start: item.date ? new Date(item.date).toISOString().split('T')[0] : null,
     backgroundColor: categoryToColor[item.category] || categoryToColor.OTHER,
-  }));
+  })).filter(Boolean);
 
   return (
     <FullCalendar
       plugins={[dayGridPlugin, interactionPlugin]}
       initialView="dayGridMonth"
+      headerToolbar={{
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek'
+      }}
       events={calendarEvents}
-      dateClick={(info) => onDateClick(info.dateStr)}
+      dateClick={(info) => onDateClick?.(info.dateStr)}
+      height="auto"
+      aspectRatio={1.5}
     />
   );
 }

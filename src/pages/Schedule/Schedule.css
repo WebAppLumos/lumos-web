@@ -1,33 +1,17 @@
-.schedule-page {
-  width: 100%;
-}
-
 .schedule-content {
   display: flex;
   gap: 24px;
-  padding: 20px;
   align-items: flex-start;
 }
 
-/* 캘린더 영역 */
 .calendar-area {
   flex: 2;
-  min-width: 0;
+  min-width: 600px;
 }
 
-/* 투두 영역 */
 .todo-area {
   flex: 1;
   min-width: 280px;
 }
 
-/* FullCalendar 안정화 */
-.fc {
-  width: 100%;
-  font-size: 14px;
-}
-
-/* 달력 셀 크기 */
-.fc .fc-daygrid-day-frame {
-  min-height: 80px;
-}
+/* FullCalendar 건드리지 마라 */

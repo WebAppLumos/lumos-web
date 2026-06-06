@@ -1,18 +1,43 @@
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+/* FullCalendar Header & Navigation Styling */
+.fc .fc-toolbar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  padding: 0 4px !important;
 }
 
-.modal-container {
-  width: 240px;              /* 🔥 핵심: 작게 */
-  background: #fff;
-  padding: 12px 14px;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  font-size: 13px;
+.fc .fc-toolbar-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+}
+
+.fc .fc-button {
+  background-color: #fff !important;
+  border: 1px solid #ddd !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+.fc .fc-button:hover {
+  background-color: #f8f9fa !important;
+  border-color: #ccc !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: #4a90e2 !important;
+  border-color: #4a90e2 !important;
+  color: #fff !important;
+}
+
+.fc .fc-icon {
+  font-size: 1.2em !important;
 }
