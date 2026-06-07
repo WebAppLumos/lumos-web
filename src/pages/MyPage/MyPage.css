@@ -1,66 +1,81 @@
 .myPageContainer {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
 }
 
 .myPageContainer.empty {
   text-align: center;
-  padding: 100px 20px;
+  padding: 120px 20px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .myPageHeader {
   margin-bottom: 40px;
-  text-align: center;
+  text-align: left;
 }
 
 .myPageHeader h2 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
 }
 
 .myPageHeader p {
   color: #666;
+  font-size: 1.1rem;
 }
 
 .myPageContent {
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+  padding: 50px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .profileSection {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 40px;
-  padding-bottom: 30px;
+  gap: 32px;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .profileImageWrapper {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 40px;
   overflow: hidden;
-  border: 3px solid #f0f0f0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   position: relative;
   cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.profileImageWrapper:hover {
+  transform: translateY(-5px);
 }
 
 .imageOverlay {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.5);
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
   color: white;
-  font-size: 11px;
-  padding: 4px 0;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -75,53 +90,51 @@
   object-fit: cover;
 }
 
-.profileBasicInfo {
-  flex: 1;
+.profileBasicInfo h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.profileBasicInfo span {
+  display: block;
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 12px;
 }
 
 .creditInfo {
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: #666;
+  background: #f0f7ff;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #4a90e2;
+  font-weight: 500;
 }
 
 .creditInfo strong {
-  color: #4a90e2;
-}
-
-.myPageLogoutBtn {
-  padding: 8px 16px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  color: #4b5563;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.myPageLogoutBtn:hover {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fecaca;
+  font-weight: 800;
 }
 
 .summarySection {
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 
 .weeklySummary {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid #eef2f8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .weeklySummary h4 {
-  margin: 0 0 12px 0;
-  color: #334155;
-  font-size: 1rem;
+  margin: 0 0 16px 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .summaryList {
@@ -130,163 +143,232 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .summaryList li {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 10px;
+  font-size: 0.95rem;
   color: #475569;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .summaryList li.empty {
   color: #94a3b8;
-  font-style: italic;
+  justify-content: center;
+  padding: 24px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.dot.HIGH { background: #ef4444; }
-.dot.MEDIUM { background: #f59e0b; }
-.dot.LOW { background: #10b981; }
+.dot.HIGH { background: #ff4d4d; box-shadow: 0 0 8px rgba(255, 77, 77, 0.4); }
+.dot.MEDIUM { background: #ffb84d; box-shadow: 0 0 8px rgba(255, 184, 77, 0.4); }
+.dot.LOW { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
 
 .infoForm {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .formGroup label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #555;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #444;
+  margin-left: 4px;
 }
 
 .infoForm input,
 .infoForm select {
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  padding: 14px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  background: #fcfdfe;
+  transition: all 0.2s;
+  color: #334155;
 }
 
 .infoForm input:focus,
 .infoForm select:focus {
   outline: none;
   border-color: #4a90e2;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+  background: white;
 }
 
 .infoForm input:disabled,
 .infoForm select:disabled {
-  background-color: #f9f9f9;
-  color: #888;
+  background-color: #f8fafc;
+  color: #94a3b8;
+  border-color: #f1f5f9;
   cursor: not-allowed;
-}
-
-.disabledInput {
-  background-color: #f5f5f5 !important;
 }
 
 .formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  grid-column: 1 / -1;
 }
 
 .formActions {
-  margin-top: 20px;
+  grid-column: 1 / -1;
+  margin-top: 24px;
 }
 
 .editBtn, .saveBtn {
   width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1rem;
+  padding: 16px;
+  border-radius: 18px;
+  font-weight: 800;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.editBtn {
-  background: #4a90e2;
-  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
 }
 
+.editBtn {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  box-shadow: 0 10px 20px rgba(74, 144, 226, 0.2);
+}
+
 .editBtn:hover {
-  background: #357abd;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(74, 144, 226, 0.3);
 }
 
 .editActions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .saveBtn {
   flex: 2;
-  background: #28a745;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
   color: white;
-  border: none;
+  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
 }
 
 .saveBtn:hover {
-  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(46, 204, 113, 0.3);
 }
 
 .cancelBtn {
   flex: 1;
-  background: #f8f9fa;
-  color: #666;
-  border: 1px solid #ddd;
-  padding: 14px;
-  border-radius: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 16px;
+  border-radius: 18px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background: #e2e8f0;
 }
 
 .dangerZone {
-  margin-top: 60px;
-  padding-top: 30px;
-  border-top: 2px dashed #fee2e2;
+  margin-top: 64px;
+  padding: 32px;
+  background: #fff5f5;
+  border-radius: 24px;
+  border: 1px solid #ffebeb;
 }
 
 .dangerZone h4 {
-  color: #dc2626;
+  color: #e53e3e;
+  font-size: 1.1rem;
+  font-weight: 800;
   margin: 0 0 8px 0;
 }
 
 .dangerZone p {
-  font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #9b2c2c;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.dangerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.myPageLogoutBtn {
+  padding: 12px 24px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.myPageLogoutBtn:hover {
+  background: #f1f5f9;
+  color: #1a1a1a;
+  border-color: #cbd5e1;
 }
 
 .withdrawBtn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   background: white;
-  color: #dc2626;
-  border: 1px solid #fee2e2;
-  border-radius: 8px;
-  font-weight: 600;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .withdrawBtn:hover {
-  background: #dc2626;
+  background: #e53e3e;
   color: white;
-  border-color: #dc2626;
+  border-color: #e53e3e;
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2);
+}
+
+
+@media (max-width: 640px) {
+  .infoForm {
+    grid-template-columns: 1fr;
+  }
+  
+  .profileSection {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .myPageLogoutBtn {
+    margin: 0 auto;
+  }
+  
+  .myPageContent {
+    padding: 30px 20px;
+  }
 }

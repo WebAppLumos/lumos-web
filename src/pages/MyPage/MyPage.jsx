@@ -4,9 +4,11 @@ import { auth } from '../../lib/firebase';
 import { deleteUser } from 'firebase/auth';
 import axios from 'axios';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import './MyPage.css';
 
 export default function MyPage() {
+
   const fileInputRef = useRef(null);
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('lumos_user_info');
@@ -25,7 +27,6 @@ export default function MyPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [weeklyTasks, setWeeklyTasks] = useState([]);
   const [totalCredits, setTotalCredits] = useState(0);
 
   const navigate = useNavigate();
@@ -41,35 +42,12 @@ export default function MyPage() {
         email: user.email || '',
         profileImageUrl: user.profileImageUrl || ''
       });
-      fetchWeeklySummary();
       fetchSemesterCredits();
     }
   }, [user]);
 
-  const fetchWeeklySummary = async () => {
-    try {
-      const userId = localStorage.getItem('lumos_uid');
-      const res = await axios.get(`http://localhost:8080/api/calendar/events?userId=${userId}`);
-      
-      const now = new Date();
-      const start = new Date(now);
-      start.setDate(now.getDate() - now.getDay());
-      start.setHours(0,0,0,0);
-      const end = new Date(start);
-      end.setDate(start.getDate() + 6);
-      end.setHours(23,59,59,999);
-
-      const weekly = res.data.filter(item => {
-        const d = new Date(item.date);
-        return d >= start && d <= end;
-      });
-      setWeeklyTasks(weekly);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const fetchSemesterCredits = async () => {
+
     try {
       // 1. 활성 학기 찾기
       const semRes = await axios.get('http://localhost:8080/api/semesters');
@@ -218,9 +196,8 @@ export default function MyPage() {
       <div className="dashboardPage">
         <DashboardNav user={null} />
         <main className="dashboardMain">
-          <div className="myPageContainer empty">
-            <p>로그인이 필요한 서비스입니다.</p>
-            <button onClick={() => window.location.href = '/login'}>로그인하러 가기</button>
+          <div className="Dashboard">
+            <DashboardLoginCard />
           </div>
         </main>
       </div>
@@ -266,26 +243,10 @@ export default function MyPage() {
                   이번 학기 신청 학점: <strong>{totalCredits}학점</strong>
                 </div>
               </div>
-              <button className="myPageLogoutBtn" onClick={handleLogout}>로그아웃</button>
-            </div>
-
-            <div className="summarySection">
-              <div className="weeklySummary">
-                <h4>이번 주 할 일 ({weeklyTasks.length})</h4>
-                <ul className="summaryList">
-                  {weeklyTasks.slice(0, 3).map(task => (
-                    <li key={task.scheduleId}>
-                      <span className={`dot ${task.priority}`}></span>
-                      {task.title}
-                    </li>
-                  ))}
-                  {weeklyTasks.length > 3 && <li>외 {weeklyTasks.length - 3}건...</li>}
-                  {weeklyTasks.length === 0 && <li className="empty">일정이 없습니다.</li>}
-                </ul>
-              </div>
             </div>
 
             <form className="infoForm" onSubmit={handleSubmit}>
+
               <div className="formGroup">
                 <label>이름</label>
                 <input 
@@ -391,9 +352,13 @@ export default function MyPage() {
 
             <div className="dangerZone">
               <h4>계정 관리</h4>
-              <p>계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.</p>
-              <button className="withdrawBtn" onClick={handleWithdrawal}>회원 탈퇴</button>
+              <p>계정에서 로그아웃하거나 탈퇴할 수 있습니다. 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.</p>
+              <div className="dangerActions">
+                <button className="myPageLogoutBtn" onClick={handleLogout}>로그아웃</button>
+                <button className="withdrawBtn" onClick={handleWithdrawal}>회원 탈퇴</button>
+              </div>
             </div>
+
           </div>
         </div>
       </main>

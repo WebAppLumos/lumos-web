@@ -109,8 +109,9 @@ export default function DashboardNav({ user, onLogout }) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               aria-label="사용자 메뉴"
             >
-              {user.name?.[0] || '김'}
+              {user.name?.[0] || ''}
             </button>
+
 
             {isDropdownOpen && (
               <>
@@ -123,9 +124,13 @@ export default function DashboardNav({ user, onLogout }) {
                 />
                 <div className="navUserMenu">
                   <div className="navUserInfo">
-                    <p>{user.name || '김대학'}</p>
-                    <span>{user.major || user.department || '컴퓨터공학과'}</span>
+                    <p>{user.name || ''}</p>
+                    <span>{user.major || user.department || ''}</span>
                   </div>
+
+
+
+
                   <Link
                     to="/mypage"
                     className="navMyPageLink"

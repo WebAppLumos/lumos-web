@@ -5,8 +5,10 @@ import Calendar from '../../components/Schedule/Calendar';
 import EventModal from '../../components/Schedule/EventModal';
 import TodoList from '../../components/Schedule/Todolist';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 
 import '../Dashboard/Dashboard.css';
+
 import './Schedule.css';
 
 function Schedule() {
@@ -50,7 +52,22 @@ function Schedule() {
     fetchData();
   };
 
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <DashboardNav user={null} />
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <DashboardLoginCard />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+
   return (
+
     <div className="dashboardPage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
       
