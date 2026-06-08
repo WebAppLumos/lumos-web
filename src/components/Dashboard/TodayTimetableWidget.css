@@ -1,8 +1,19 @@
 .Dashboard .dashboardCard {
+  min-height: 14rem;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid #e5e5e5;
-  border-radius: 0.625rem;
+  border-radius: 1rem;
   background: #fff;
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 5%);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.Dashboard .dashboardCard:hover {
+  border-color: #d4d4d4;
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 8%);
+  transform: translateY(-0.125rem);
 }
 
 .Dashboard .dashboardCard.editing {
@@ -29,7 +40,21 @@
   font-weight: 600;
 }
 
+.Dashboard .summaryIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  color: #171717;
+}
+
 .Dashboard .cardLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  padding: 0 0.625rem;
+  border-radius: 999px;
+  background: #fff;
   flex-shrink: 0;
   color: #171717;
   font-size: 0.75rem;
@@ -38,10 +63,12 @@
 }
 
 .Dashboard .cardLink:hover {
-  text-decoration: underline;
+  background: #171717;
+  color: #fafafa;
 }
 
 .Dashboard .cardContent {
+  flex: 1;
   padding: 1.25rem;
 }
 
@@ -85,4 +112,70 @@
 
 .Dashboard .classSeparator {
   margin: 0 0.375rem;
+}
+
+.Dashboard .summaryDescription {
+  margin: 0 0 1rem;
+  color: #525252;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.Dashboard .summaryList {
+  display: grid;
+  gap: 0.625rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.Dashboard .summaryList li {
+  position: relative;
+  padding-left: 1rem;
+  color: #404040;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.Dashboard .summaryList li::before {
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #171717;
+  content: '';
+}
+
+.Dashboard .summaryWidget-schedule .summaryIcon {
+  color: #2563eb;
+}
+
+.Dashboard .summaryWidget-assignment .summaryIcon {
+  color: #16a34a;
+}
+
+.Dashboard .summaryWidget-scholarship .summaryIcon {
+  color: #9333ea;
+}
+
+.Dashboard .summaryWidget-campus-map .summaryIcon {
+  color: #f97316;
+}
+
+.Dashboard .summaryWidget-schedule .summaryList li::before {
+  background: #2563eb;
+}
+
+.Dashboard .summaryWidget-assignment .summaryList li::before {
+  background: #16a34a;
+}
+
+.Dashboard .summaryWidget-scholarship .summaryList li::before {
+  background: #9333ea;
+}
+
+.Dashboard .summaryWidget-campus-map .summaryList li::before {
+  background: #f97316;
 }

@@ -44,12 +44,14 @@
 
 .Dashboard .widgetGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 20rem));
   gap: 1.5rem;
+  align-items: stretch;
 }
 
 .Dashboard .widgetItem {
   position: relative;
+  width: 100%;
 }
 
 .Dashboard .widgetRemoveBtn {
@@ -69,16 +71,11 @@
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 12%);
+  transition: transform 0.15s ease, background 0.15s ease;
 }
 
-@media (min-width: 768px) {
-  .Dashboard .widgetGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.Dashboard .widgetRemoveBtn:hover {
+  background: #dc2626;
+  transform: scale(1.05);
 }
 
-@media (min-width: 1280px) {
-  .Dashboard .widgetGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}

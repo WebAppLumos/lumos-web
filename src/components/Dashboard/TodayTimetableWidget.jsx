@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { CalendarClock } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
 export default function TodayTimetableWidget({ DAYS, courses, isEditing }) {
@@ -7,7 +8,7 @@ export default function TodayTimetableWidget({ DAYS, courses, isEditing }) {
     <div className={`dashboardCard ${isEditing ? 'editing' : ''}`}>
       <div className="cardHead">
         <h3 className="cardTitle">
-          <span aria-hidden="true">◷</span>
+          <CalendarClock className="summaryIcon timetableIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
           오늘의 시간표
         </h3>
         <Link to="/timetable" className="cardLink">전체보기</Link>
