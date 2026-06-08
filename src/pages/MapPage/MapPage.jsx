@@ -16,7 +16,7 @@ import "./MapPage.css";
 
 import { useState, useEffect } from "react";
 
-import SideMenu from "../../components/Map/SideMenu";
+import DashboardNav from "../../components/Dashboard/DashboardNav";
 import Category from "../../components/Map/Category";
 import PlaceList from "../../components/Map/PlaceList";
 
@@ -63,6 +63,12 @@ function RouteMap(props) {
 
 
 function MapPage() {
+
+  const [user, setUser] =
+    useState(() => {
+      const storedUser = localStorage.getItem("unidash_user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    });
 
   // 현재 카테고리
   const [category, setCategory] =
@@ -222,11 +228,13 @@ const nextClass = "웹프로그래밍";
        
   return (
 
-    <div className="mapContainer">
+    <div className="mapPage">
+      <DashboardNav
+        user={user}
+        onLogout={() => setUser(null)}
+      />
 
-      {/* 왼쪽 메뉴 */}
-      <SideMenu />
-
+      <div className="mapContainer">
 
       {/* 가운데 */}
       <div className="centerBox">
@@ -415,6 +423,7 @@ const nextClass = "웹프로그래밍";
 
       </div>
 
+      </div>
     </div>
   );
 }

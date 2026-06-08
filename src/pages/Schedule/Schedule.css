@@ -1,4 +1,4 @@
-:root {
+.schedulePage {
   --accent: #2563eb;
   --accent-light: #eff6ff;
   --accent-hover: #1d4ed8;
@@ -8,9 +8,15 @@
   --text-h: #111827;
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  min-height: 100vh;
+  background: #fff;
 }
 
-.main-content-grid {
+.scheduleMain {
+  padding: 2rem 1rem;
+}
+
+.schedulePage .main-content-grid {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
   gap: 2rem;
@@ -20,7 +26,7 @@
   align-items: start;
 }
 
-.calendar-section {
+.schedulePage .calendar-section {
   background: #fff;
   padding: 1.5rem;
   border-radius: 1.25rem;
@@ -28,14 +34,14 @@
   border: 1px solid var(--border);
 }
 
-.side-section {
+.schedulePage .side-section {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 /* FullCalendar Customization */
-.fc {
+.schedulePage .fc {
   --fc-button-bg-color: var(--accent);
   --fc-button-border-color: var(--accent);
   --fc-button-hover-bg-color: var(--accent-hover);
@@ -47,20 +53,20 @@
   max-height: 800px;
 }
 
-.fc .fc-toolbar-title {
+.schedulePage .fc .fc-toolbar-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-h);
 }
 
-.fc .fc-col-header-cell-cushion {
+.schedulePage .fc .fc-col-header-cell-cushion {
   color: var(--text-h);
   font-weight: 600;
   padding: 10px 0;
 }
 
 @media (max-width: 1024px) {
-  .main-content-grid {
+  .schedulePage .main-content-grid {
     grid-template-columns: 1fr;
   }
 }
