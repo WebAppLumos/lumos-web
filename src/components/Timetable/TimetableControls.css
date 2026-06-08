@@ -6,16 +6,6 @@
   margin-bottom: 1rem;
 }
 
-.Timetable .select {
-  min-width: 10rem;
-  height: 2.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  background: #fff;
-}
-
 .Timetable .btn-primary {
   margin-left: auto;
   height: 2.5rem;
@@ -27,6 +17,41 @@
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
+}
+
+.Timetable .selectorTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 11rem;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.Timetable .selectorTrigger:hover {
+  border-color: #171717;
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 6%);
+}
+
+.Timetable .selectorLabel {
+  color: #737373;
+  font-size: 0.75rem;
+}
+
+.Timetable .selectorValue {
+  min-width: 0;
+  overflow: hidden;
+  color: #171717;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .Timetable .btn-primary:disabled {
@@ -151,4 +176,127 @@
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.Timetable .selectorModal {
+  width: min(92vw, 28rem);
+}
+
+.Timetable .selectorList {
+  gap: 0.625rem;
+}
+
+.Timetable .selectorOption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  background: #fff;
+  overflow: hidden;
+}
+
+.Timetable .selectorOption:hover {
+  border-color: #d4d4d4;
+  background: #fafafa;
+}
+
+.Timetable .selectorOption.active {
+  border-color: #171717;
+}
+
+.Timetable .selectorSelect {
+  flex: 1;
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+  padding: 0.75rem 3rem 0.75rem 0.875rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.Timetable .selectorSelect span {
+  color: #171717;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.Timetable .selectorSelect small {
+  min-height: 1rem;
+  color: #737373;
+  font-size: 0.75rem;
+}
+
+.Timetable .selectorEdit {
+  position: absolute;
+  right: 0.625rem;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #f5f5f5;
+  color: #525252;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.Timetable .selectorOption:hover .selectorEdit {
+  opacity: 1;
+}
+
+.Timetable .selectorEdit:hover {
+  background: #e5e5e5;
+  color: #171717;
+}
+
+.Timetable .selectorRenameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem;
+}
+
+.Timetable .selectorRenameRow input {
+  flex: 1;
+  min-width: 0;
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.Timetable .selectorRenameRow input:focus {
+  border-color: #171717;
+  outline: none;
+}
+
+.Timetable .selectorSave,
+.Timetable .selectorCancel {
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.Timetable .selectorSave {
+  background: #171717;
+  color: #fff;
+}
+
+.Timetable .selectorSave:disabled {
+  background: #d4d4d4;
+  cursor: not-allowed;
+}
+
+.Timetable .selectorCancel {
+  background: #f5f5f5;
+  color: #525252;
 }

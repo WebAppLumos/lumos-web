@@ -84,6 +84,64 @@ export const mockCourses = [
   },
 ]
 
+// 수업별 노트 목록
+export const mockNotes = [
+  {
+    note_id: 'note-1',
+    course_id: 'course-1',
+    title: '중간고사 범위',
+    content: '1~5장 핵심 개념과 프로세스 스케줄링 예제 위주로 정리.',
+    is_pinned: true,
+    created_at: '2024-03-18T09:00:00',
+    updated_at: '2024-03-18T09:00:00',
+  },
+  {
+    note_id: 'note-2',
+    course_id: 'course-1',
+    title: '기말고사 범위',
+    content: '메모리 관리와 파일 시스템 파트를 다시 확인하기.',
+    is_pinned: false,
+    created_at: '2024-05-20T11:00:00',
+    updated_at: '2024-05-20T11:00:00',
+  },
+  {
+    note_id: 'note-3',
+    course_id: 'course-2',
+    title: 'SQL 실습 준비',
+    content: '실습 노트북 지참, JOIN 문제를 사전에 풀어오기.',
+    is_pinned: true,
+    created_at: '2024-03-21T14:00:00',
+    updated_at: '2024-03-21T14:00:00',
+  },
+  {
+    note_id: 'note-4',
+    course_id: 'course-3',
+    title: '코딩테스트 패턴',
+    content: '그리디와 DP 유형별 풀이 템플릿을 정리.',
+    is_pinned: false,
+    created_at: '2024-04-03T10:30:00',
+    updated_at: '2024-04-03T10:30:00',
+  },
+  {
+    note_id: 'note-5',
+    course_id: 'course-4',
+    title: 'Wireshark 설치',
+    content: '다음 실습 전까지 설치와 캡처 필터 사용법 확인.',
+    is_pinned: true,
+    created_at: '2024-03-25T16:00:00',
+    updated_at: '2024-03-25T16:00:00',
+  },
+  {
+    note_id: 'note-6',
+    course_id: 'course-5',
+    title: '팀 프로젝트 아이디어',
+    content: '요구사항 명세서 초안 작성 후 팀원들과 역할 분담.',
+    is_pinned: false,
+    created_at: '2024-04-11T13:00:00',
+    updated_at: '2024-04-11T13:00:00',
+  },
+]
+
 // 시간표 목록
 export const mockTimetables = [
   { id: 'tt-1', semesterId: 'sem-1', name: '기본 시간표', isDefault: true },
