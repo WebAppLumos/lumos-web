@@ -96,6 +96,39 @@ export default function Timetable() {
     )))
   }
 
+  const onAddTimetable = (name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    const hasSemesterTimetables = timetables.some((t) => t.semesterId === semesterId)
+    const nextTimetable = {
+      id: `tt-${Date.now()}`,
+      semesterId,
+      name: nextName,
+      isDefault: !hasSemesterTimetables,
+    }
+
+    setTimetables((prev) => [...prev, nextTimetable])
+    setTimetableId(nextTimetable.id)
+  }
+
+  const onDeleteTimetables = (targetTimetableIds) => {
+    if (targetTimetableIds.length === 0) return
+
+    setTimetables((prev) => {
+      const next = prev.filter((t) => !targetTimetableIds.includes(t.id))
+      const currentDeleted = targetTimetableIds.includes(timetableId)
+
+      if (currentDeleted) {
+        const nextSelected = next.find((t) => t.semesterId === semesterId)
+        setTimetableId(nextSelected?.id ?? '')
+      }
+
+      return next
+    })
+    setEntries((prev) => prev.filter((e) => !targetTimetableIds.includes(e.timetableId)))
+  }
+
   // 사용자가 선택한 수업을 현재 시간표에 추가
   const onAddCourse = () => {
     const course = availableCourses.find((c) => c.id === selectedAvailableCourseId)
@@ -173,6 +206,8 @@ export default function Timetable() {
         onAddCourse={onAddCourse}
         onRenameSemester={onRenameSemester}
         onRenameTimetable={onRenameTimetable}
+        onAddTimetable={onAddTimetable}
+        onDeleteTimetables={onDeleteTimetables}
           />
 
           {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
