@@ -15,6 +15,8 @@ export default function TimetableControls({
   onAddCourse,
   onRenameSemester,
   onRenameTimetable,
+  onAddTimetable,
+  onDeleteTimetables,
 }) {
   // 수업 선택 모달에 표시할 수업 정보 문구 생성
   const formatCourseOption = (course) => {
@@ -36,6 +38,9 @@ export default function TimetableControls({
   const [renameType, setRenameType] = useState('semester')
   const [renamingId, setRenamingId] = useState(null)
   const [renameValue, setRenameValue] = useState('')
+  const [selectedTimetableIds, setSelectedTimetableIds] = useState([])
+  const [isAddTimetableOpen, setIsAddTimetableOpen] = useState(false)
+  const [newTimetableName, setNewTimetableName] = useState('')
 
   // 선택한 수업을 추가한 뒤 모달 닫기
   const handleAddCourse = () => {
@@ -64,9 +69,34 @@ export default function TimetableControls({
     setRenameValue('')
   }
 
+  const toggleTimetableSelection = (targetTimetableId) => {
+    setSelectedTimetableIds((prev) => (
+      prev.includes(targetTimetableId)
+        ? prev.filter((id) => id !== targetTimetableId)
+        : [...prev, targetTimetableId]
+    ))
+  }
+
+  const handleAddTimetable = () => {
+    onAddTimetable(newTimetableName)
+    setNewTimetableName('')
+    setIsAddTimetableOpen(false)
+    setSelectedTimetableIds([])
+    closeSelectorModal()
+  }
+
+  const handleDeleteSelectedTimetables = () => {
+    onDeleteTimetables(selectedTimetableIds)
+    setSelectedTimetableIds([])
+    cancelRename()
+  }
+
   const closeSelectorModal = () => {
     setSelectorType(null)
     cancelRename()
+    setSelectedTimetableIds([])
+    setIsAddTimetableOpen(false)
+    setNewTimetableName('')
   }
 
   return (
@@ -112,18 +142,51 @@ export default function TimetableControls({
       >
         <form className="courseModal selectorModal" onSubmit={(e) => e.preventDefault()}>
           <div className="courseModalHead">
-            <h2>{selectorType === 'semester' ? '학기 선택' : '시간표 선택'}</h2>
-            <button
-              type="button"
-              className="courseModalClose"
-              onClick={closeSelectorModal}
-              aria-label="닫기"
-            >
-              ×
-            </button>
+            <div>
+              <h2>{selectorType === 'semester' ? '학기 선택' : '시간표 선택'}</h2>
+              {selectorType === 'timetable' && (
+                <p className="selectorModalSub">시간표를 추가하거나 선택한 시간표를 삭제할 수 있습니다.</p>
+              )}
+            </div>
+            <div className="selectorHeadActions">
+              {selectorType === 'timetable' && (
+                <button
+                  type="button"
+                  className="btn-primary selectorAddToggle"
+                  onClick={() => {
+                    setIsAddTimetableOpen((prev) => !prev)
+                    cancelRename()
+                  }}
+                >
+                  시간표 추가
+                </button>
+              )}
+              <button
+                type="button"
+                className="courseModalClose"
+                onClick={closeSelectorModal}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
           </div>
 
           <div className="courseModalBody selectorList">
+            {selectorType === 'timetable' && (
+              <div className="selectorToolbar">
+                <span>{semTimetables.length}개의 시간표</span>
+                <button
+                  type="button"
+                  className="selectorDeleteSelected"
+                  onClick={handleDeleteSelectedTimetables}
+                  disabled={selectedTimetableIds.length === 0}
+                >
+                  선택 삭제
+                </button>
+              </div>
+            )}
+
             {(selectorType === 'semester' ? mockSemesters : semTimetables).map((item) => {
               const isSelected = selectorType === 'semester'
                 ? item.id === semesterId
@@ -157,6 +220,15 @@ export default function TimetableControls({
                     </div>
                   ) : (
                     <>
+                      {selectorType === 'timetable' && (
+                        <input
+                          type="checkbox"
+                          className="selectorCheck"
+                          checked={selectedTimetableIds.includes(item.id)}
+                          onChange={() => toggleTimetableSelection(item.id)}
+                          aria-label={`${item.name} 선택`}
+                        />
+                      )}
                       <button
                         type="button"
                         className="selectorSelect"
@@ -188,6 +260,31 @@ export default function TimetableControls({
                 </div>
               )
             })}
+
+            {selectorType === 'timetable' && semTimetables.length === 0 && (
+              <div className="selectorEmpty">등록된 시간표가 없습니다.</div>
+            )}
+
+            {selectorType === 'timetable' && isAddTimetableOpen && (
+              <div className="selectorAddPanel">
+                <div className="selectorAddHead">시간표 추가</div>
+                <input
+                  type="text"
+                  value={newTimetableName}
+                  onChange={(e) => setNewTimetableName(e.target.value)}
+                  placeholder="시간표 이름"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleAddTimetable}
+                  disabled={!newTimetableName.trim()}
+                >
+                  저장
+                </button>
+              </div>
+            )}
           </div>
         </form>
       </div>

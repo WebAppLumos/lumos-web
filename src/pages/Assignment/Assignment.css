@@ -7,7 +7,6 @@
   display: flex;
   min-height: calc(100vh - 4rem);
   background-color: #f9fafb;
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
 }
 
 .assignmentPage .main-content {
