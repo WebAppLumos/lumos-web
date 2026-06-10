@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import Sidebar from '../../components/Assignment/Sidebar.jsx';
+import DashboardNav from '../../components/Dashboard/DashboardNav.jsx';
 import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
 import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
 import AssignmentList from '../../components/Assignment/AssignmentList.jsx';
@@ -25,6 +25,10 @@ const initialTasks = [
 ];
 
 export default function Assignment() {
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('unidash_user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [tasks, setTasks] = useState(initialTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const nextId = useRef(3);
@@ -78,35 +82,37 @@ export default function Assignment() {
   };
 
   return (
-    <div className="page-container">
-      <Sidebar />
-      <main className="main-content">
-        <div className="layout-wrapper">
-          <div className="header-box">
-            <h1 className="header-title">과제 알림</h1>
-            <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
-          </div>
-          <div className="count-box">
-            <AssignmentCount tasks={tasks} className="component-label label-green"/>
-          </div>
-          {imminentTask && (
-            <div className="imminent-box">
-              <h3 className="imminent-title">마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})</h3>
-              <div className="task-card imminent-card">
-                <div className="task-info">
-                  <div className="task-course">{imminentTask.course}</div>
-                  <div className="task-title">{imminentTask.title}</div>
-                  <div className="task-meta">마감일: {imminentTask.deadline}</div>
+    <div className="assignmentPage">
+      <DashboardNav user={user} onLogout={() => setUser(null)} />
+      <div className="page-container">
+        <main className="main-content">
+          <div className="layout-wrapper">
+            <div className="header-box">
+              <h1 className="header-title">과제 알림</h1>
+              <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
+            </div>
+            <div className="count-box">
+              <AssignmentCount tasks={tasks} className="component-label label-green"/>
+            </div>
+            {imminentTask && (
+              <div className="imminent-box">
+                <h3 className="imminent-title">마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})</h3>
+                <div className="task-card imminent-card">
+                  <div className="task-info">
+                    <div className="task-course">{imminentTask.course}</div>
+                    <div className="task-title">{imminentTask.title}</div>
+                    <div className="task-meta">마감일: {imminentTask.deadline}</div>
+                  </div>
                 </div>
               </div>
+            )}
+            <div className="list-box">
+              <AssignmentList tasks={tasks} onDelete={handleDeleteTask}
+                onUpdate={handleUpdateTask} className="component-label label-red"/>
             </div>
-          )}
-          <div className="list-box">
-            <AssignmentList tasks={tasks} onDelete={handleDeleteTask}
-              onUpdate={handleUpdateTask} className="component-label label-red"/>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       {isModalOpen && (
         <div className="modal-overlay">

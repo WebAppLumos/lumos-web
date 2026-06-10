@@ -13,6 +13,10 @@ export default function TimetableControls({
   onChangeTimetable,
   onChangeCourse,
   onAddCourse,
+  onRenameSemester,
+  onRenameTimetable,
+  onAddTimetable,
+  onDeleteTimetables,
 }) {
   // 수업 선택 모달에 표시할 수업 정보 문구 생성
   const formatCourseOption = (course) => {
@@ -27,7 +31,16 @@ export default function TimetableControls({
   const selectedCourse = availableCourses.find(
     (course) => course.id === selectedCourseId,
   )
+  const selectedSemester = mockSemesters.find((s) => s.id === semesterId)
+  const selectedTimetable = semTimetables.find((t) => t.id === timetableId)
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false) // 수업 추가 모달 열림 여부
+  const [selectorType, setSelectorType] = useState(null)
+  const [renameType, setRenameType] = useState('semester')
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [selectedTimetableIds, setSelectedTimetableIds] = useState([])
+  const [isAddTimetableOpen, setIsAddTimetableOpen] = useState(false)
+  const [newTimetableName, setNewTimetableName] = useState('')
 
   // 선택한 수업을 추가한 뒤 모달 닫기
   const handleAddCourse = () => {
@@ -35,36 +48,83 @@ export default function TimetableControls({
     setIsCourseModalOpen(false)
   }
 
+  const openRenameEditor = (type, item) => {
+    setRenameType(type)
+    setRenamingId(item.id)
+    setRenameValue(item.name)
+  }
+
+  const handleRename = () => {
+    if (renameType === 'semester') {
+      onRenameSemester(renamingId, renameValue)
+    } else {
+      onRenameTimetable(renamingId, renameValue)
+    }
+    setRenamingId(null)
+    setRenameValue('')
+  }
+
+  const cancelRename = () => {
+    setRenamingId(null)
+    setRenameValue('')
+  }
+
+  const toggleTimetableSelection = (targetTimetableId) => {
+    setSelectedTimetableIds((prev) => (
+      prev.includes(targetTimetableId)
+        ? prev.filter((id) => id !== targetTimetableId)
+        : [...prev, targetTimetableId]
+    ))
+  }
+
+  const handleAddTimetable = () => {
+    onAddTimetable(newTimetableName)
+    setNewTimetableName('')
+    setIsAddTimetableOpen(false)
+    setSelectedTimetableIds([])
+    closeSelectorModal()
+  }
+
+  const handleDeleteSelectedTimetables = () => {
+    onDeleteTimetables(selectedTimetableIds)
+    setSelectedTimetableIds([])
+    cancelRename()
+  }
+
+  const closeSelectorModal = () => {
+    setSelectorType(null)
+    cancelRename()
+    setSelectedTimetableIds([])
+    setIsAddTimetableOpen(false)
+    setNewTimetableName('')
+  }
+
   return (
     // 학기/시간표 선택과 수업 추가 버튼 영역
     <div className="controls">
-      <select
-        className="select"
-        value={semesterId}
-        // 학기 변경 시: 해당 학기의 첫 번째 시간표로 자동 선택
-        onChange={onChangeSemester}
+      <button
+        type="button"
+        className="selectorTrigger"
+        onClick={() => setSelectorType('semester')}
       >
-        {mockSemesters.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name}
-            {s.isActive ? ' (현재)' : ''}
-          </option>
-        ))}
-      </select>
+        <span className="selectorLabel">학기</span>
+        <span className="selectorValue">
+          {selectedSemester?.name}
+          {selectedSemester?.isActive ? ' (현재)' : ''}
+        </span>
+      </button>
 
-      <select
-        className="select"
-        value={timetableId}
-        // 시간표 변경 시: 선택한 시간표에 포함된 수업만 다시 표시
-        onChange={onChangeTimetable}
+      <button
+        type="button"
+        className="selectorTrigger"
+        onClick={() => setSelectorType('timetable')}
       >
-        {semTimetables.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-            {t.isDefault ? ' (기본)' : ''}
-          </option>
-        ))}
-      </select>
+        <span className="selectorLabel">시간표</span>
+        <span className="selectorValue">
+          {selectedTimetable?.name}
+          {selectedTimetable?.isDefault ? ' (기본)' : ''}
+        </span>
+      </button>
 
       <button
         type="button"
@@ -73,8 +133,161 @@ export default function TimetableControls({
         onClick={() => setIsCourseModalOpen(true)}
         disabled={availableCourses.length === 0}
       >
-        + 수업 목록에서 추가
+        + 수업 목록
       </button>
+
+      <div
+        className="courseModalOverlay"
+        style={{ display: selectorType ? 'block' : 'none' }}
+      >
+        <form className="courseModal selectorModal" onSubmit={(e) => e.preventDefault()}>
+          <div className="courseModalHead">
+            <div>
+              <h2>{selectorType === 'semester' ? '학기 선택' : '시간표 선택'}</h2>
+              {selectorType === 'timetable' && (
+                <p className="selectorModalSub">시간표를 추가하거나 선택한 시간표를 삭제할 수 있습니다.</p>
+              )}
+            </div>
+            <div className="selectorHeadActions">
+              {selectorType === 'timetable' && (
+                <button
+                  type="button"
+                  className="btn-primary selectorAddToggle"
+                  onClick={() => {
+                    setIsAddTimetableOpen((prev) => !prev)
+                    cancelRename()
+                  }}
+                >
+                  시간표 추가
+                </button>
+              )}
+              <button
+                type="button"
+                className="courseModalClose"
+                onClick={closeSelectorModal}
+                aria-label="닫기"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          <div className="courseModalBody selectorList">
+            {selectorType === 'timetable' && (
+              <div className="selectorToolbar">
+                <span>{semTimetables.length}개의 시간표</span>
+                <button
+                  type="button"
+                  className="selectorDeleteSelected"
+                  onClick={handleDeleteSelectedTimetables}
+                  disabled={selectedTimetableIds.length === 0}
+                >
+                  선택 삭제
+                </button>
+              </div>
+            )}
+
+            {(selectorType === 'semester' ? mockSemesters : semTimetables).map((item) => {
+              const isSelected = selectorType === 'semester'
+                ? item.id === semesterId
+                : item.id === timetableId
+
+              return (
+                <div key={item.id} className={`selectorOption ${isSelected ? 'active' : ''}`}>
+                  {renamingId === item.id ? (
+                    <div className="selectorRenameRow">
+                      <input
+                        type="text"
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className="selectorSave"
+                        onClick={handleRename}
+                        disabled={!renameValue.trim()}
+                      >
+                        저장
+                      </button>
+                      <button
+                        type="button"
+                        className="selectorCancel"
+                        onClick={cancelRename}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {selectorType === 'timetable' && (
+                        <input
+                          type="checkbox"
+                          className="selectorCheck"
+                          checked={selectedTimetableIds.includes(item.id)}
+                          onChange={() => toggleTimetableSelection(item.id)}
+                          aria-label={`${item.name} 선택`}
+                        />
+                      )}
+                      <button
+                        type="button"
+                        className="selectorSelect"
+                        onClick={() => {
+                          if (selectorType === 'semester') {
+                            onChangeSemester(item.id)
+                          } else {
+                            onChangeTimetable(item.id)
+                          }
+                          closeSelectorModal()
+                        }}
+                      >
+                        <span>{item.name}</span>
+                        <small>
+                          {selectorType === 'semester' && item.isActive ? '현재 학기' : ''}
+                          {selectorType === 'timetable' && item.isDefault ? '기본 시간표' : ''}
+                        </small>
+                      </button>
+                      <button
+                        type="button"
+                        className="selectorEdit"
+                        onClick={() => openRenameEditor(selectorType, item)}
+                        aria-label={`${item.name} 이름 수정`}
+                      >
+                        ✎
+                      </button>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+
+            {selectorType === 'timetable' && semTimetables.length === 0 && (
+              <div className="selectorEmpty">등록된 시간표가 없습니다.</div>
+            )}
+
+            {selectorType === 'timetable' && isAddTimetableOpen && (
+              <div className="selectorAddPanel">
+                <div className="selectorAddHead">시간표 추가</div>
+                <input
+                  type="text"
+                  value={newTimetableName}
+                  onChange={(e) => setNewTimetableName(e.target.value)}
+                  placeholder="시간표 이름"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleAddTimetable}
+                  disabled={!newTimetableName.trim()}
+                >
+                  저장
+                </button>
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
 
       <div
         className="courseModalOverlay"

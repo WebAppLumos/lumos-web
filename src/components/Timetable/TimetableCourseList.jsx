@@ -3,9 +3,17 @@ import './TimetableCourseList.css'
 export default function TimetableCourseList({
   DAYS,
   coursesOnBoard,
+  notes,
   view,
   onDeleteCourse,
 }) {
+  const notesForCourse = (courseId) => notes
+    .filter((note) => note.course_id === courseId)
+    .sort((a, b) => {
+      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
+      return new Date(b.updated_at) - new Date(a.updated_at)
+    })
+
   return (
     // 시간표 아래에 선택된 view에 맞는 수업 상세 정보를 목록으로 표시
     <div className="card">
@@ -36,7 +44,16 @@ export default function TimetableCourseList({
 
               { // view를 노트로 변경
                 view === 'note' && (
-                  <div className="listMeta">{c.note}</div>
+                  <div className="listMeta">
+                    {notesForCourse(c.id).length > 0
+                      ? notesForCourse(c.id).map((note) => (
+                        <div key={note.note_id}>
+                          {note.is_pinned && '★ '}
+                          {note.title}
+                        </div>
+                      ))
+                      : '노트 없음'}
+                  </div>
               )}
 
               { // view를 난이도로 변경

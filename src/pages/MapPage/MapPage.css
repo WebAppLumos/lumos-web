@@ -1,26 +1,23 @@
-/* 전체 요소 크기 계산 */
+/* 전체 레이아웃 */
 
-* {
+.mapPage {
+  height: 100vh;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-
-/* 기본 설정 */
-
-body {
-  margin: 0;
-  padding: 0;
+.mapPage *,
+.mapPage *::before,
+.mapPage *::after {
+  box-sizing: border-box;
 }
 
-
-/* 전체 레이아웃 */
-
-.mapContainer {
+.mapPage .mapContainer {
   display: flex;
 
   width: 100%;
 
-  height: 100vh;
+  height: calc(100vh - 4rem);
 
   overflow: hidden;
 }
@@ -28,7 +25,7 @@ body {
 
 /* 가운데 영역 */
 
-.centerBox {
+.mapPage .centerBox {
   flex: 1;
 
   padding: 30px;
@@ -37,7 +34,7 @@ body {
 
   flex-direction: column;
 
-  height: 100vh;
+  height: 100%;
 
   overflow: hidden;
 }
@@ -45,7 +42,7 @@ body {
 
 /* 위 제목 */
 
-.topBox {
+.mapPage .topBox {
   display: flex;
 
   justify-content: space-between;
@@ -54,14 +51,14 @@ body {
 }
 
 
-.titleBox p {
+.mapPage .titleBox p {
   color: gray;
 }
 
 
 /* 검색창 */
 
-.search {
+.mapPage .search {
   width: 250px;
 
   height: 45px;
@@ -78,7 +75,7 @@ body {
 
 /* 카테고리 */
 
-.categoryBox {
+.mapPage .categoryBox {
   display: flex;
 
   gap: 15px;
@@ -89,7 +86,7 @@ body {
 }
 
 
-.category {
+.mapPage .category {
   border: none;
 
   background: none;
@@ -102,7 +99,7 @@ body {
 }
 
 
-.activeCategory {
+.mapPage .activeCategory {
   color: #5d8f3b;
 
   font-weight: bold;
@@ -111,7 +108,7 @@ body {
 
 /* 지도 */
 
-.mapBox {
+.mapPage .mapBox {
   flex: 1;
 
   min-height: 0;
@@ -124,7 +121,7 @@ body {
 
 /* 오른쪽 영역 */
 
-.rightBox {
+.mapPage .rightBox {
   width: 320px;
 
   background-color: white;
@@ -141,7 +138,7 @@ body {
 
 /* 시설 리스트 */
 
-.placeList {
+.mapPage .placeList {
   flex: 1;
 
   overflow-y: auto;
@@ -152,7 +149,7 @@ body {
 
 /* 시설 카드 */
 
-.placeBox {
+.mapPage .placeBox {
   background-color: #f8f8f8;
 
   border-radius: 15px;
@@ -165,21 +162,21 @@ body {
 }
 
 
-.placeBox:hover {
+.mapPage .placeBox:hover {
   background-color: #efefef;
 }
 
 
 /* 선택된 시설 */
 
-.activePlace {
+.mapPage .activePlace {
   border: 2px solid #5d8f3b;
 }
 
 
 /* 다음 수업 */
 
-.nextClass {
+.mapPage .nextClass {
   background-color: #f3f3f3;
 
   border-radius: 15px;
@@ -194,7 +191,7 @@ body {
 
 @media (max-width: 1200px) {
 
-  .rightBox {
+  .mapPage .rightBox {
     display: none;
   }
 
@@ -203,13 +200,13 @@ body {
 
 @media (max-width: 900px) {
 
-  .mapContainer {
+  .mapPage .mapContainer {
     flex-direction: column;
   }
 
 }
 
-.routeButton {
+.mapPage .routeButton {
 
   width: 100%;
 
@@ -228,21 +225,21 @@ body {
   cursor: pointer;
 }
 
-.routeButton.active {
+.mapPage .routeButton.active {
 
   background-color: #888;
 }
 
-.routeButton:hover {
+.mapPage .routeButton:hover {
 
   opacity: 0.9;
 }
 
-.routeWrapper {
+.mapPage .routeWrapper {
   position: relative;
 }
 
-.routeTooltip {
+.mapPage .routeTooltip {
   position: absolute;
 
   bottom: 60px;
@@ -267,7 +264,7 @@ body {
   transition: 0.2s;
 }
 
-.routeWrapper:hover .routeTooltip {
+.mapPage .routeWrapper:hover .routeTooltip {
   opacity: 1;
   visibility: visible;
 }

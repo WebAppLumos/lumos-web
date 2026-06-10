@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { DAYS, TIME_SLOTS, mockCourses, mockSemesters, 
+import { DAYS, TIME_SLOTS, mockCourses, mockNotes, mockSemesters,
   mockTimetableEntries, mockTimetables, } from '../../lib/mock-data'
 
 import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
@@ -37,7 +37,10 @@ export default function Timetable() {
   )
   const [timetableId, setTimetableId] = useState(mockTimetables[0].id) // 시간표 ID 가져오기
   const [view, setView] = useState('info') // view 설정 (수업 정보, 노트, 난이도)
+  const [semesters, setSemesters] = useState(mockSemesters)
+  const [timetables, setTimetables] = useState(mockTimetables)
   const [entries, setEntries] = useState(mockTimetableEntries) // 시간표-수업 매핑
+  const [notes, setNotes] = useState(mockNotes)
   const [selectedCourseId, setSelectedCourseId] = useState('') // 추가할 수업 ID
 
   // 현재 선택된 학기/시간표에 표시할 수업만 추려냄
@@ -61,18 +64,69 @@ export default function Timetable() {
   }, [entries, semesterId, timetableId])
 
   // 화면 표시용 선택 데이터
-  const semester = mockSemesters.find((s) => s.id === semesterId)
-  const timetable = mockTimetables.find((t) => t.id === timetableId)
-  const semTimetables = mockTimetables.filter((t) => t.semesterId === semesterId)
+  const semester = semesters.find((s) => s.id === semesterId)
+  const timetable = timetables.find((t) => t.id === timetableId)
+  const semTimetables = timetables.filter((t) => t.semesterId === semesterId)
   const selectedAvailableCourseId = availableCourses.some((c) => c.id === selectedCourseId)
     ? selectedCourseId
     : availableCourses[0]?.id ?? ''
 
   // 학기를 바꾸면 해당 학기의 첫 번째 시간표를 자동 선택
-  const onChangeSemester = (e) => {
-    setSemesterId(e.target.value)
-    const first = mockTimetables.find((t) => t.semesterId === e.target.value)
+  const onChangeSemester = (nextSemesterId) => {
+    setSemesterId(nextSemesterId)
+    const first = timetables.find((t) => t.semesterId === nextSemesterId)
     if (first) setTimetableId(first.id)
+  }
+
+  const onRenameSemester = (targetSemesterId, name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    setSemesters((prev) => prev.map((s) => (
+      s.id === targetSemesterId ? { ...s, name: nextName } : s
+    )))
+  }
+
+  const onRenameTimetable = (targetTimetableId, name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    setTimetables((prev) => prev.map((t) => (
+      t.id === targetTimetableId ? { ...t, name: nextName } : t
+    )))
+  }
+
+  const onAddTimetable = (name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    const hasSemesterTimetables = timetables.some((t) => t.semesterId === semesterId)
+    const nextTimetable = {
+      id: `tt-${Date.now()}`,
+      semesterId,
+      name: nextName,
+      isDefault: !hasSemesterTimetables,
+    }
+
+    setTimetables((prev) => [...prev, nextTimetable])
+    setTimetableId(nextTimetable.id)
+  }
+
+  const onDeleteTimetables = (targetTimetableIds) => {
+    if (targetTimetableIds.length === 0) return
+
+    setTimetables((prev) => {
+      const next = prev.filter((t) => !targetTimetableIds.includes(t.id))
+      const currentDeleted = targetTimetableIds.includes(timetableId)
+
+      if (currentDeleted) {
+        const nextSelected = next.find((t) => t.semesterId === semesterId)
+        setTimetableId(nextSelected?.id ?? '')
+      }
+
+      return next
+    })
+    setEntries((prev) => prev.filter((e) => !targetTimetableIds.includes(e.timetableId)))
   }
 
   // 사용자가 선택한 수업을 현재 시간표에 추가
@@ -99,6 +153,37 @@ export default function Timetable() {
     ))
   }
 
+  const onAddNote = (courseId, note) => {
+    const now = new Date().toISOString()
+
+    setNotes((prev) => [
+      ...prev,
+      {
+        note_id: `note-${Date.now()}`,
+        course_id: courseId,
+        title: note.title,
+        content: note.content,
+        is_pinned: note.is_pinned,
+        created_at: now,
+        updated_at: now,
+      },
+    ])
+  }
+
+  const onDeleteNotes = (noteIds) => {
+    setNotes((prev) => prev.filter((note) => !noteIds.includes(note.note_id)))
+  }
+
+  const onUpdateNote = (noteId, updates) => {
+    const now = new Date().toISOString()
+
+    setNotes((prev) => prev.map((note) => (
+      note.note_id === noteId
+        ? { ...note, ...updates, updated_at: now }
+        : note
+    )))
+  }
+
   return (
     <div className="dashboardPage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
@@ -111,14 +196,18 @@ export default function Timetable() {
         DAYS={DAYS}
         semesterId={semesterId}
         timetableId={timetableId}
-        mockSemesters={mockSemesters}
+        mockSemesters={semesters}
         semTimetables={semTimetables}
         availableCourses={availableCourses}
         selectedCourseId={selectedAvailableCourseId}
         onChangeSemester={onChangeSemester}
-        onChangeTimetable={(e) => setTimetableId(e.target.value)}
+        onChangeTimetable={setTimetableId}
         onChangeCourse={(e) => setSelectedCourseId(e.target.value)}
         onAddCourse={onAddCourse}
+        onRenameSemester={onRenameSemester}
+        onRenameTimetable={onRenameTimetable}
+        onAddTimetable={onAddTimetable}
+        onDeleteTimetables={onDeleteTimetables}
           />
 
           {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
@@ -132,15 +221,20 @@ export default function Timetable() {
         timetable={timetable}
         semTimetables={semTimetables}
         coursesOnBoard={coursesOnBoard}
+        notes={notes}
         view={view}
         slotStyle={slotStyle}
         onDeleteCourse={onDeleteCourse}
+        onAddNote={onAddNote}
+        onDeleteNotes={onDeleteNotes}
+        onUpdateNote={onUpdateNote}
           />
 
           {/* 시간표 정보를 카드 형태로 출력 */}
           <TimetableCourseList
         DAYS={DAYS}
         coursesOnBoard={coursesOnBoard}
+        notes={notes}
         view={view}
         onDeleteCourse={onDeleteCourse}
           />

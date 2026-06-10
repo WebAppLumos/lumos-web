@@ -1,3 +1,10 @@
+import { Link } from 'react-router-dom'
+import {
+  CalendarDays,
+  ClipboardCheck,
+  GraduationCap,
+  MapPinned,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import {
@@ -23,7 +30,111 @@ const dashboardWidgets = [
     type: 'timetable',
     visible: true,
   },
+  {
+    id: 'schedule',
+    title: '일정',
+    type: 'schedule',
+    visible: true,
+  },
+  {
+    id: 'assignment',
+    title: '과제',
+    type: 'assignment',
+    visible: true,
+  },
+  {
+    id: 'scholarship',
+    title: '장학금',
+    type: 'scholarship',
+    visible: true,
+  },
+  {
+    id: 'campus-map',
+    title: '캠퍼스맵',
+    type: 'campus-map',
+    visible: true,
+  },
 ]
+
+const dashboardSummaries = {
+  schedule: {
+    Icon: CalendarDays,
+    title: '일정',
+    link: '/schedule',
+    linkText: '일정 보기',
+    description: '오늘 해야 할 일정과 캘린더를 확인하세요.',
+    items: ['오늘 일정 0개', '이번 주 주요 일정 확인'],
+  },
+  assignment: {
+    Icon: ClipboardCheck,
+    title: '과제',
+    link: '/assignment',
+    linkText: '과제 보기',
+    description: '마감이 가까운 과제를 놓치지 않도록 관리하세요.',
+    items: ['미완료 과제 2개', '가장 가까운 마감: 데이터베이스 ERD 설계'],
+  },
+  scholarship: {
+    Icon: GraduationCap,
+    title: '장학금',
+    link: '/scholarship',
+    linkText: '장학금 보기',
+    description: '내 조건에 맞는 장학금 추천을 확인하세요.',
+    items: ['추천 가능 장학금 3개', '프로필을 입력하면 더 정확해져요'],
+  },
+  'campus-map': {
+    Icon: MapPinned,
+    title: '캠퍼스맵',
+    link: '/mappage',
+    linkText: '지도 보기',
+    description: '교내 시설 위치와 다음 수업 이동 경로를 확인하세요.',
+    items: ['주요 시설 바로 찾기', '다음 수업까지 예상 이동 시간 확인'],
+  },
+}
+
+function DashboardSummaryWidget({ summary, type, isEditing }) {
+  const { Icon } = summary
+
+  return (
+    <div className={`dashboardCard summaryWidget summaryWidget-${type} ${isEditing ? 'editing' : ''}`}>
+      <div className="cardHead">
+        <h3 className="cardTitle">
+          <Icon className="summaryIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
+          {summary.title}
+        </h3>
+        <Link to={summary.link} className="cardLink">{summary.linkText}</Link>
+      </div>
+
+      <div className="cardContent">
+        <p className="summaryDescription">{summary.description}</p>
+        <ul className="summaryList">
+          {summary.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing }) {
+  if (widget.type === 'timetable') {
+    return (
+      <TodayTimetableWidget
+        DAYS={DAYS}
+        courses={todayCourses}
+        isEditing={isEditing}
+      />
+    )
+  }
+
+  return (
+    <DashboardSummaryWidget
+      summary={dashboardSummaries[widget.type]}
+      type={widget.type}
+      isEditing={isEditing}
+    />
+  )
+}
 
 export default function Dashboard() {
   const [user, setUser] = useState(() => {
@@ -112,13 +223,7 @@ export default function Dashboard() {
                     </button>
                   )}
 
-                  {widget.type === 'timetable' && (
-                    <TodayTimetableWidget
-                      DAYS={DAYS}
-                      courses={todayCourses}
-                      isEditing={isEditing}
-                    />
-                  )}
+                  {renderDashboardWidget(widget, { DAYS, todayCourses, isEditing })}
                 </div>
               ))}
             </div>
