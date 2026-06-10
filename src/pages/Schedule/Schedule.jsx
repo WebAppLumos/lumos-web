@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../lib/api';
 
 import Calendar from '../../components/Schedule/Calendar';
 import EventModal from '../../components/Schedule/EventModal';
@@ -35,7 +35,7 @@ function Schedule() {
       if (keyword) params.keyword = keyword;
       if (category) params.category = category;
 
-      const res = await axios.get('http://localhost:8080/api/calendar/events', { params });
+      const res = await api.get('/api/calendar/events', { params });
 
       setEvents(res.data || []);
     } catch (err) {
