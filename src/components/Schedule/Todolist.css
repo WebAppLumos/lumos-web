@@ -1,104 +1,150 @@
-.schedulePage .todo-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: var(--shadow);
+.todo-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   text-align: left;
-}
-
-.schedulePage .todo-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-h);
-  margin-bottom: 16px;
-  margin-top: 0;
-}
-
-.schedulePage .todo-stats {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 20px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 12px;
-  line-height: 1.6;
-}
-
-.schedulePage .todo-stats span {
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-.schedulePage .todo-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.schedulePage .todo-list li {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #f3f4f6;
-  transition: all 0.2s;
+  flex-direction: column;
 }
 
-.schedulePage .todo-list li:last-child {
-  border-bottom: none;
+.todo-card h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  margin-top: 0;
+  letter-spacing: -0.5px;
 }
 
-.schedulePage .todo-list input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: var(--accent);
-  border-radius: 4px;
-}
-
-.schedulePage .todo-text {
-  flex: 1;
-  color: var(--text-h);
+.week-info {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
   font-weight: 500;
 }
 
-.schedulePage .remove-btn {
-  width: 100%;
-  padding: 12px;
-  background: #fff;
-  color: #ef4444;
-  border: 1px solid #fee2e2;
-  border-radius: 10px;
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.todo-list li {
+  padding: 16px;
+  background: #fcfdfe;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.todo-list li:hover {
+  transform: translateX(4px);
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-color: #e2e8f0;
+}
+
+.todo-list li.completed {
+  opacity: 0.6;
+  background: #f8fafc;
+}
+
+.todo-list li.completed .todo-text {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+.todo-item-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.todo-list input[type="checkbox"] {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
+  position: relative;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.schedulePage .remove-btn:hover {
-  background: #ef4444;
+.todo-list input[type="checkbox"]:checked {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.todo-list input[type="checkbox"]:checked::after {
+  content: '✓';
   color: white;
-  border-color: #ef4444;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: bold;
 }
 
-/* Custom Scrollbar for the list */
-.schedulePage .todo-list::-webkit-scrollbar {
+.todo-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.todo-date {
+  font-size: 10px;
+  font-weight: 800;
+  color: #4a90e2;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  text-transform: uppercase;
+}
+
+.todo-text {
+  font-size: 1rem;
+  color: #334155;
+  font-weight: 600;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #94a3b8;
+  padding: 60px 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Scrollbar Styling */
+.todo-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.schedulePage .todo-list::-webkit-scrollbar-track {
+.todo-list::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.schedulePage .todo-list::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+.todo-list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
   border-radius: 10px;
 }
 
-.schedulePage .todo-list::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+.todo-list::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }
+

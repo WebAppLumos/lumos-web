@@ -2,45 +2,59 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
+import axios from 'axios'
 import './Signin.css'
 
 export default function Signin() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('') // 이메일(ID)
-  const [password, setPassword] = useState('') // 비밀번호
-  const [showPassword, setShowPassword] = useState(false) // PW 표시 여부(true/false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
-  // 로그인 성공여부에 따른 알림
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
-    // 로그인 요청 (Firebase Auth)
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        // 로그인 성공
-        const userData = {
-          id: 'user-1',
-          email,
-          name: '김대학',
-          department: '컴퓨터공학과',
-          grade: 3,
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
+      const uid = userCredential.user.uid
+
+      const response = await axios.get(
+        'http://localhost:8080/api/users/me',
+        {
+          headers: {
+            'X-User-Id': uid,
+          },
         }
-        localStorage.setItem('unidash_user', JSON.stringify(userData))
-        window.alert('로그인 성공!')
-        navigate('/')
-      })
-      .catch(() => {
-        // 로그인 실패
-        window.alert('아이디 또는 비밀번호가 틀렸습니다.')
-      })
+      )
+
+      localStorage.setItem('lumos_uid', uid)
+
+      localStorage.setItem(
+        'lumos_user_info',
+        JSON.stringify(response.data)
+      )
+
+      window.alert('로그인 성공!')
+      navigate('/')
+    } catch (error) {
+      console.error(error)
+      console.error('LOGIN ERROR:', error)
+      console.error('STATUS:', error.response?.status)
+      console.error('DATA:', error.response?.data)
+      window.alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.')
+    }
   }
 
   return (
     <div className="Signin">
       <div className="inner">
         <div className="brand">
-          <div className="logo" aria-hidden>
-            🎓
-          </div>
+          <div className="logo">🎓</div>
           <h1 className="title">Lumos</h1>
           <p className="sub">대학 생활 맞춤 대시보드</p>
         </div>
@@ -48,39 +62,35 @@ export default function Signin() {
         <div className="card">
           <div className="cardHead">
             <h2 className="cardTitle">로그인</h2>
-            <p className="cardDesc">계정에 로그인하여 대시보드를 이용하세요</p>
+            <p className="cardDesc">
+              계정에 로그인하여 대시보드를 이용하세요
+            </p>
           </div>
+
           <form className="form" onSubmit={onSubmit}>
-            <label className="label" htmlFor="signin-email">
-              이메일
-            </label>
+            <label className="label">이메일</label>
             <input
-              id="signin-email"
               className="input"
               type="email"
-              placeholder="example@university.ac.kr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
 
-            <label className="Signin-label" htmlFor="signin-password">
-              비밀번호
-            </label>
+            <label className="label">비밀번호</label>
+
             <div className="passwordWrap">
               <input
-                id="signin-password"
                 className="input inputGrow"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
               <button
                 type="button"
                 className="togglePw"
-                // 비밀번호 보기/숨김
                 onClick={() => setShowPassword((v) => !v)}
               >
                 {showPassword ? '숨김' : '보기'}
@@ -91,8 +101,12 @@ export default function Signin() {
               로그인
             </button>
           </form>
+
           <p className="foot">
-            계정이 없으신가요? <Link to="/signup" className="muted">회원가입</Link>
+            계정이 없으신가요?{' '}
+            <Link to="/signup" className="muted">
+              회원가입
+            </Link>
           </p>
         </div>
 

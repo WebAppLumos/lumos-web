@@ -9,7 +9,7 @@ export default function DashboardNav({ user, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
 
   const handleLogout = () => {
-    localStorage.removeItem('unidash_user')
+    localStorage.removeItem('lumos_user_info')
     signOut(auth).catch(() => {})
     setIsDropdownOpen(false)
     if (onLogout) onLogout()
@@ -109,8 +109,9 @@ export default function DashboardNav({ user, onLogout }) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               aria-label="사용자 메뉴"
             >
-              {user.name?.[0] || '김'}
+              {user.name?.[0] || ''}
             </button>
+
 
             {isDropdownOpen && (
               <>
@@ -123,9 +124,20 @@ export default function DashboardNav({ user, onLogout }) {
                 />
                 <div className="navUserMenu">
                   <div className="navUserInfo">
-                    <p>{user.name || '김대학'}</p>
-                    <span>{user.department || '컴퓨터공학과'}</span>
+                    <p>{user.name || ''}</p>
+                    <span>{user.major || user.department || ''}</span>
                   </div>
+
+
+
+
+                  <Link
+                    to="/mypage"
+                    className="navMyPageLink"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    마이페이지
+                  </Link>
                   <button
                     type="button"
                     className="navLogout"

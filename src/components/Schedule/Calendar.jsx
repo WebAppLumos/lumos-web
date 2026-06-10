@@ -3,30 +3,37 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 function Calendar({ onDateClick, events = [] }) {
+
   const categoryToColor = {
     STUDY: '#0369a1',
     WORK: '#9a3412',
     PRIVATE: '#15803d',
-    ACADEMIC: '#7e22ce',
-    HOLIDAY: '#b91c1c',
     OTHER: '#4b5563'
   };
 
-  // FullCalendar가 요구하는 형식(title, start, color)으로 변환
-  const calendarEvents = events.map(item => ({
+  const calendarEvents = (events || []).map(item => ({
+    id: item.scheduleId?.toString(),
     title: item.title,
-    start: item.date,
-    id: item.id.toString(),
+    start: item.date ? new Date(item.date).toISOString().split('T')[0] : null,
     backgroundColor: categoryToColor[item.category] || categoryToColor.OTHER,
-    borderColor: categoryToColor[item.category] || categoryToColor.OTHER,
-  }));
+    // 우선순위 정렬을 위한 필드 추가
+    priorityWeight: item.priority === 'HIGH' ? 3 : item.priority === 'MEDIUM' ? 2 : 1,
+  })).filter(Boolean);
 
   return (
     <FullCalendar
       plugins={[dayGridPlugin, interactionPlugin]}
       initialView="dayGridMonth"
-      events={calendarEvents} // 달력에 일정 표시
-      dateClick={(info) => onDateClick(info.dateStr)}
+      headerToolbar={{
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek'
+      }}
+      eventOrder="-priorityWeight" // 높은 우선순위가 위로 오도록 설정
+      events={calendarEvents}
+      dateClick={(info) => onDateClick?.(info.dateStr)}
+      height="auto"
+      aspectRatio={1.5}
     />
   );
 }

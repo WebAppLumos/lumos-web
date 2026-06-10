@@ -1,154 +1,127 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+
 import Calendar from '../../components/Schedule/Calendar';
-import TodoList from '../../components/Schedule/Todolist';
 import EventModal from '../../components/Schedule/EventModal';
+import TodoList from '../../components/Schedule/Todolist';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
+
+import '../Dashboard/Dashboard.css';
+
 import './Schedule.css';
 
 function Schedule() {
-  const navigate = useNavigate();
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('unidash_user');
+    const storedUser = localStorage.getItem('lumos_user_info');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+
+  const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [scheduleItems, setScheduleItems] = useState([]);
+  
+  // 검색 필터 상태 추가
+  const [keyword, setKeyword] = useState('');
+  const [category, setCategory] = useState('');
 
-  const API_URL = 'http://localhost:8080/api/calendar/events';
-
-  // 1. 초기 렌더링 시 데이터 가져오기
-  useEffect(() => {
-    if (user) {
-      fetchEvents();
-    }
-  }, [user]);
-
-  const fetchEvents = async () => {
+  const fetchData = async () => {
     try {
-      const id = user?.userId || user?.id || 'user-1';
-      const response = await axios.get(`${API_URL}?userId=${id}`);
-      const mappedData = response.data.map(item => ({
-        ...item,
-        id: item.scheduleId 
-      }));
-      setScheduleItems(mappedData);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
+      const userId = localStorage.getItem('lumos_uid');
+      if (!userId) return;
+
+      // 필터 파라미터 구성
+      const params = { userId };
+      if (keyword) params.keyword = keyword;
+      if (category) params.category = category;
+
+      const res = await axios.get('http://localhost:8080/api/calendar/events', { params });
+
+      setEvents(res.data || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // ... (중략)
+  useEffect(() => {
+    fetchData();
+  }, [category]); // 카테고리 변경 시 즉시 검색
 
-  // 2. 일정 추가
-  async function addScheduleItem(newItem) {
-    try {
-      const id = user?.userId || user?.id || 'user-1';
-      const requestData = {
-        title: newItem.title,
-        content: newItem.content,
-        date: newItem.date,
-        category: newItem.category,
-        userId: id,
-        isCompleted: false
-      };
-      
-      const response = await axios.post(API_URL, requestData);
-      const addedItem = { ...response.data, id: response.data.scheduleId };
-      setScheduleItems((prev) => [...prev, addedItem]);
-    } catch (error) {
-      alert("일정 추가에 실패했습니다.");
-    }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchData();
+  };
+
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <DashboardNav user={null} />
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <DashboardLoginCard />
+          </div>
+        </main>
+      </div>
+    );
   }
 
-  // 3. 일정 삭제
-  async function deleteScheduleItem(id) {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      setScheduleItems((prev) => prev.filter((item) => item.scheduleId !== id));
-    } catch (error) {
-      alert("일정 삭제에 실패했습니다.");
-    }
-  }
-
-  // 4. 일정 수정
-  async function updateScheduleItem(updatedItem) {
-    try {
-      const id = user?.userId || user?.id || 'user-1';
-      const response = await axios.patch(`${API_URL}/${updatedItem.id}`, {
-        title: updatedItem.title,
-        content: updatedItem.content,
-        date: updatedItem.date,
-        category: updatedItem.category,
-        userId: id
-      });
-      const fixedItem = { ...response.data, id: response.data.scheduleId };
-      setScheduleItems((prev) =>
-        prev.map((item) => (item.scheduleId === updatedItem.id ? fixedItem : item))
-      );
-    } catch (error) {
-      alert("일정 수정에 실패했습니다.");
-    }
-  }
-
-  // 5. 완료 상태 토글 (Todo 용)
-  async function toggleTodoItem(id) {
-    try {
-      const response = await axios.patch(`${API_URL}/${id}/toggle`);
-      const updated = { ...response.data, id: response.data.scheduleId };
-      setScheduleItems((prev) =>
-        prev.map((item) => (item.scheduleId === id ? updated : item))
-      );
-    } catch (error) {
-      alert("상태 변경 실패");
-    }
-  }
-
-  function openModal(date) {
-    setSelectedDate(date);
-    setModalOpen(true);
-  }
-
-  function closeModal() {
-    setModalOpen(false);
-    setSelectedDate(null);
-  }
-
-  const selectedDateItems = scheduleItems.filter(item => item.date === selectedDate);
-
-  // 오늘 날짜 구하기 (KST 기준 YYYY-MM-DD)
-  const todayStr = new Date().toLocaleDateString('sv-SE'); 
-  const todayItems = scheduleItems.filter(item => item.date === todayStr);
 
   return (
-    <div className="schedulePage">
+
+    <div className="dashboardPage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
-      <main className="scheduleMain">
-        <div className="main-content-grid">
-          <div className="calendar-section">
-            <Calendar onDateClick={openModal} events={scheduleItems} />
+      
+      <main className="dashboardMain">
+        <div className="schedule-page">
+          
+          {/* 검색 및 필터 바 추가 */}
+          <div className="schedule-filter-bar">
+            <form onSubmit={handleSearch} className="search-form">
+              <input 
+                type="text" 
+                placeholder="일정 키워드 검색..." 
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+              <button type="submit">검색</button>
+            </form>
+
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">전체 카테고리</option>
+              <option value="ACADEMIC">학사</option>
+              <option value="HOLIDAY">공휴일</option>
+              <option value="STUDY">학업</option>
+              <option value="WORK">알바</option>
+              <option value="PRIVATE">개인</option>
+              <option value="OTHER">기타</option>
+            </select>
           </div>
 
-          <div className="side-section">
-            <TodoList 
-              items={todayItems} 
-              onToggle={toggleTodoItem} 
-            />
+          <div className="schedule-content">
+            <div className="calendar-area">
+              <Calendar
+                events={events}
+                onDateClick={(date) => {
+                  setSelectedDate(date);
+                  setModalOpen(true);
+                }}
+              />
+            </div>
+
+            <div className="todo-area">
+              <TodoList items={events} fetchData={fetchData} />
+            </div>
           </div>
+
+          <EventModal
+            modalOpen={modalOpen}
+            closeModal={() => setModalOpen(false)}
+            date={selectedDate}
+            scheduleItems={events.filter(e => e.date === selectedDate)}
+            fetchData={fetchData}
+          />
         </div>
       </main>
-
-      <EventModal
-        modalOpen={modalOpen}
-        closeModal={closeModal}
-        date={selectedDate}
-        scheduleItems={selectedDateItems}
-        addScheduleItem={addScheduleItem}
-        deleteScheduleItem={deleteScheduleItem}
-        updateScheduleItem={updateScheduleItem}
-      />
     </div>
   );
 }

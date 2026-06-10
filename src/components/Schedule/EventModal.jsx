@@ -1,166 +1,190 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
+import axios from 'axios';
 import './EventModal.css';
 
 ReactModal.setAppElement('#root');
 
-function EventModal({ 
-  modalOpen, 
-  closeModal, 
-  date, 
-  scheduleItems = [], 
-  addScheduleItem, 
-  deleteScheduleItem, 
-  updateScheduleItem 
+function EventModal({
+  modalOpen,
+  closeModal,
+  date,
+  scheduleItems = [],
+  fetchData
 }) {
-  const categories = [
-    { key: 'STUDY', label: '학업' },
-    { key: 'WORK', label: '알바/업무' },
-    { key: 'PRIVATE', label: '개인 약속' },
-    { key: 'OTHER', label: '기타' }
-  ];
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('OTHER');
-  const [editingId, setEditingId] = useState(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editContent, setEditContent] = useState('');
-  const [editCategory, setEditCategory] = useState('OTHER');
+  const [priority, setPriority] = useState('MEDIUM');
+  const [editId, setEditId] = useState(null);
+  const currentUserId = localStorage.getItem('lumos_uid');
 
-  const handleAdd = () => {
-    if (!title) return;
+  useEffect(() => {
+    if (!modalOpen) {
+      setTitle('');
+      setContent('');
+      setCategory('OTHER');
+      setPriority('MEDIUM');
+      setEditId(null);
+    }
+  }, [modalOpen]);
 
-    addScheduleItem({
-      date: date,
-      title: title,
-      content: content,
-      category: category,
-    });
+  const handleAdd = async () => {
+    try {
+      await axios.post('http://localhost:8080/api/calendar/events', {
+        userId: currentUserId,
+        date,
+        title,
+        content,
+        category,
+        priority
+      });
+      setTitle('');
+      setContent('');
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 추가에 실패했습니다.');
+    }
+  };
 
+  const handleUpdate = async () => {
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/calendar/events/${editId}`,
+        {
+          userId: currentUserId,
+          date,
+          title,
+          content,
+          category,
+          priority
+        }
+      );
+      setEditId(null);
+      setTitle('');
+      setContent('');
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/calendar/events/${id}`);
+      if (editId === id) {
+        setEditId(null);
+        setTitle('');
+        setContent('');
+      }
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || '일정 삭제에 실패했습니다.');
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditId(item.scheduleId);
+    setTitle(item.title);
+    setContent(item.content || '');
+    setCategory(item.category || 'OTHER');
+    setPriority(item.priority || 'MEDIUM');
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
     setTitle('');
     setContent('');
     setCategory('OTHER');
-  };
-
-  const startEditing = (item) => {
-    setEditingId(item.id);
-    setEditTitle(item.title);
-    setEditContent(item.content);
-    setEditCategory(item.category || 'OTHER');
-  };
-
-  const cancelEditing = () => {
-    setEditingId(null);
-  };
-
-  const handleUpdate = (id) => {
-    updateScheduleItem({
-      id: id,
-      date: date,
-      title: editTitle,
-      content: editContent,
-      category: editCategory,
-    });
-    setEditingId(null);
+    setPriority('MEDIUM');
   };
 
   return (
     <ReactModal
       isOpen={modalOpen}
       onRequestClose={closeModal}
-      shouldCloseOnOverlayClick={true}
-      className="scheduleModalContainer"
-      overlayClassName="scheduleModalOverlay"
+      className="event-modal-content"
+      overlayClassName="event-modal-overlay"
     >
-      <h3>날짜: {date}</h3>
+      <div className="modal-header">
+        <h3>📅 {date}</h3>
+        <button className="close-btn" onClick={closeModal}>×</button>
+      </div>
 
-      <div className="scheduleModalList">
-        {scheduleItems.length > 0 ? (
-          scheduleItems.map((item) => (
-            <div key={item.id} className="scheduleModalItem">
-              {editingId === item.id ? (
-                <div className="scheduleModalEditForm">
-                  <div className="scheduleModalCategoryButtons">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.key}
-                        className={`scheduleModalCategoryBtn ${editCategory === cat.key ? 'active' : ''}`}
-                        onClick={() => setEditCategory(cat.key)}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="제목"
-                  />
-                  <input
-                    type="text"
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    placeholder="내용"
-                  />
-                  <div className="scheduleModalBtnGroup">
-                    <button onClick={() => handleUpdate(item.id)} className="scheduleModalSaveBtn">저장</button>
-                    <button onClick={cancelEditing} className="scheduleModalCancelBtn">취소</button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="scheduleModalItemHeader">
-                    <span className={`scheduleModalCategoryTag ${item.category}`}>
-                      {categories.find(c => c.key === item.category)?.label || '기타'}
-                    </span>
-                    <p><strong>제목:</strong> {item.title}</p>
-                  </div>
-                  <p><strong>내용:</strong> {item.content}</p>
-                  <div className="scheduleModalBtnGroup">
-                    <button onClick={() => startEditing(item)} className="scheduleModalEditBtn">수정</button>
-                    <button onClick={() => deleteScheduleItem(item.id)} className="scheduleModalDeleteBtn">삭제</button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))
+      <div className="event-list">
+        {scheduleItems.length === 0 ? (
+          <p className="empty-msg">일정이 없습니다.</p>
         ) : (
-          <p style={{ textAlign: 'center', color: '#999', margin: '20px 0' }}>등록된 일정이 없습니다.</p>
+          [...scheduleItems]
+            .sort((a, b) => {
+              const weights = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+              return weights[b.priority] - weights[a.priority];
+            })
+            .map(item => {
+              const isOwner = item.userId === currentUserId;
+              const isAdmin = item.userId === 'admin';
+
+              return (
+                <div key={item.scheduleId} className={`event-item ${isAdmin ? 'admin-event' : ''}`}>
+                <div className="event-info">
+                  <span className={`priority-badge ${item.priority}`}>{item.priority}</span>
+                  <span className="event-title">{item.title}</span>
+                  {item.content && <p className="event-content">{item.content}</p>}
+                </div>
+                {isOwner && (
+                  <div className="event-actions">
+                    <button onClick={() => startEdit(item)}>수정</button>
+                    <button onClick={() => handleDelete(item.scheduleId)}>삭제</button>
+                  </div>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
 
-      <div className="scheduleModalForm">
-        <div className="scheduleModalCategoryButtons">
-          {categories.map((cat) => (
-            <button
-              key={cat.key}
-              className={`scheduleModalCategoryBtn ${category === cat.key ? 'active' : ''}`}
-              onClick={() => setCategory(cat.key)}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="일정 제목"
+      <div className="event-form">
+        <h4>{editId ? '일정 수정' : '새 일정 추가'}</h4>
+        <input 
+          value={title} 
+          onChange={e => setTitle(e.target.value)} 
+          placeholder="제목 (최대 100자)" 
+          maxLength={100}
         />
-        <input
-          type="text"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="일정 내용"
+        <textarea 
+          value={content} 
+          onChange={e => setContent(e.target.value)} 
+          placeholder="내용"
         />
-        <button onClick={handleAdd} className="scheduleModalAddBtn">추가</button>
-      </div>
 
-      <button onClick={closeModal} className="scheduleModalCloseBtn" style={{ marginTop: '10px' }}>
-        닫기
-      </button>
+        <div className="form-row">
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option value="ACADEMIC">학사</option>
+            <option value="HOLIDAY">공휴일</option>
+            <option value="STUDY">학업</option>
+            <option value="WORK">알바</option>
+            <option value="PRIVATE">개인</option>
+            <option value="OTHER">기타</option>
+          </select>
+
+          <select value={priority} onChange={e => setPriority(e.target.value)}>
+            <option value="HIGH">높음</option>
+            <option value="MEDIUM">중간</option>
+            <option value="LOW">낮음</option>
+          </select>
+        </div>
+
+        <div className="form-actions">
+          <button className="submit-btn" onClick={editId ? handleUpdate : handleAdd}>
+            {editId ? '수정 완료' : '추가하기'}
+          </button>
+          {editId && (
+            <button className="cancel-btn" onClick={cancelEdit}>취소</button>
+          )}
+        </div>
+      </div>
     </ReactModal>
   );
 }
