@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import api from '../../lib/api';
 import './Todolist.css';
 
 function TodoList({ items = [], fetchData }) {
@@ -35,7 +35,7 @@ function TodoList({ items = [], fetchData }) {
 
   const handleToggle = async (id) => {
     try {
-      await axios.patch(`http://localhost:8080/api/calendar/events/${id}/toggle`);
+      await api.patch(`/api/calendar/events/${id}/toggle`);
       fetchData();
     } catch (error) {
       console.error("토글 실패:", error);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactModal from 'react-modal';
-import axios from 'axios';
+import api from '../../lib/api';
 import './EventModal.css';
 
 ReactModal.setAppElement('#root');
@@ -32,7 +32,7 @@ function EventModal({
 
   const handleAdd = async () => {
     try {
-      await axios.post('http://localhost:8080/api/calendar/events', {
+      await api.post('/api/calendar/events', {
         userId: currentUserId,
         date,
         title,
@@ -50,8 +50,8 @@ function EventModal({
 
   const handleUpdate = async () => {
     try {
-      await axios.patch(
-        `http://localhost:8080/api/calendar/events/${editId}`,
+      await api.patch(
+        `/api/calendar/events/${editId}`,
         {
           userId: currentUserId,
           date,
@@ -73,7 +73,7 @@ function EventModal({
   const handleDelete = async (id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
-      await axios.delete(`http://localhost:8080/api/calendar/events/${id}`);
+      await api.delete(`/api/calendar/events/${id}`);
       if (editId === id) {
         setEditId(null);
         setTitle('');

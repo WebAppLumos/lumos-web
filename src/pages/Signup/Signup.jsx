@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import axios from 'axios'
+import api from '../../lib/api'
 import './Signup.css'
 
 export default function Signup() {
@@ -45,7 +45,7 @@ export default function Signup() {
 
       const uid = userCredential.user.uid
 
-      await axios.post('http://localhost:8080/api/users', {
+      await api.post('/api/users', {
         userId: uid,
         email,
         name,
@@ -177,6 +177,7 @@ export default function Signup() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               required
             />
             <button
@@ -199,6 +200,7 @@ export default function Signup() {
               placeholder="••••••••"
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
+              autoComplete="new-password"
               required
             />
             <button

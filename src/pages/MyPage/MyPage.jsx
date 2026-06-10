@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../lib/firebase';
 import { deleteUser } from 'firebase/auth';
-import axios from 'axios';
+import api from '../../lib/api';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import './MyPage.css';
@@ -50,12 +50,12 @@ export default function MyPage() {
 
     try {
       // 1. 활성 학기 찾기
-      const semRes = await axios.get('http://localhost:8080/api/semesters');
+      const semRes = await api.get('/api/semesters');
       const activeSemester = semRes.data.find(s => s.isActive) || semRes.data[0];
       
       if (activeSemester) {
         // 2. 해당 학기의 수업들 가져오기
-        const courseRes = await axios.get(`http://localhost:8080/api/semesters/${activeSemester.id}/courses`);
+        const courseRes = await api.get(`/api/semesters/${activeSemester.id}/courses`);
         const credits = courseRes.data.reduce((acc, curr) => acc + (curr.credit || 0), 0);
         setTotalCredits(credits);
       }
@@ -99,11 +99,9 @@ export default function MyPage() {
       const base64String = reader.result;
       
       try {
-        const userId = localStorage.getItem('lumos_uid');
-        const res = await axios.patch(
-          'http://localhost:8080/api/users/me/profile-image',
-          { profileImageUrl: base64String },
-          { headers: { 'X-User-Id': userId } }
+        const res = await api.patch(
+          '/api/users/me/profile-image',
+          { profileImageUrl: base64String }
         );
         
         const updatedUser = res.data;
@@ -131,16 +129,7 @@ export default function MyPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const userId = localStorage.getItem('lumos_uid');
-      const response = await axios.patch(
-        'http://localhost:8080/api/users/me',
-        formData,
-        {
-          headers: {
-            'X-User-Id': userId
-          }
-        }
-      );
+      const response = await api.patch('/api/users/me', formData);
       
       const updatedUser = response.data;
       localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
@@ -159,14 +148,8 @@ export default function MyPage() {
     if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터와 계정이 영구적으로 삭제됩니다.')) return;
     
     try {
-      const userId = localStorage.getItem('lumos_uid');
-      
       // 1. 우리 백엔드 데이터 먼저 삭제
-      await axios.delete('http://localhost:8080/api/users/me', {
-        headers: {
-          'X-User-Id': userId
-        }
-      });
+      await api.delete('/api/users/me');
 
       // 2. Firebase 계정 삭제
       const currentUser = auth.currentUser;

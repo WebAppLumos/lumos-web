@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import axios from 'axios'
+import api from '../../lib/api'
 import './Signin.css'
 
 export default function Signin() {
@@ -23,14 +23,7 @@ export default function Signin() {
 
       const uid = userCredential.user.uid
 
-      const response = await axios.get(
-        'http://localhost:8080/api/users/me',
-        {
-          headers: {
-            'X-User-Id': uid,
-          },
-        }
-      )
+      const response = await api.get('/api/users/me')
 
       localStorage.setItem('lumos_uid', uid)
 
@@ -71,6 +64,7 @@ export default function Signin() {
             <label className="label">이메일</label>
             <input
               className="input"
+              placeholder="example@university.ac.kr"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -82,6 +76,7 @@ export default function Signin() {
             <div className="passwordWrap">
               <input
                 className="input inputGrow"
+                placeholder="••••••••"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
