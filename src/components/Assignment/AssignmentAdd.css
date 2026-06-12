@@ -1,0 +1,41 @@
+.assignmentAdd.toss-form { display: flex; flex-direction: column; gap: 24px; }
+.assignmentAdd .input-group { display: flex; flex-direction: column; gap: 10px; }
+.assignmentAdd .input-group label { font-size: 14px; color: #4e5968; font-weight: 600; }
+
+.assignmentAdd .input-group input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid transparent;
+  background-color: #f2f4f6;
+  border-radius: 14px;
+  font-size: 15px;
+  color: #191f28;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.assignmentAdd .input-group input:focus {
+  background-color: #ffffff;
+  border: 1px solid #3182f6;
+  box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+}
+
+.assignmentAdd .input-group input::placeholder { color: #b0b8c1; }
+
+.assignmentAdd .button-group { display: flex; gap: 12px; margin-top: 10px; }
+
+.assignmentAdd .button-group button { 
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1; 
+  padding: 16px; 
+  border-radius: 14px; 
+  font-size: 16px; 
+}
+
+.assignmentAdd .button-group button:active { transform: scale(0.96); }
+.assignmentAdd .btn-cancel { background-color: #f2f4f6; color: #4e5968; }
+.assignmentAdd .btn-submit { background-color: #3182f6; color: white; }
