@@ -48,7 +48,7 @@ function Calendar({ onDateClick, events = [] }) {
         events={calendarEvents}
         dateClick={(info) => onDateClick?.(info.dateStr)}
         height="auto"
-        aspectRatio={1.5}
+        aspectRatio={1.52}
       />
     </div>
   );
