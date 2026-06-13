@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
+import { clearStoredSession } from '../../lib/session'
 import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
@@ -13,7 +14,7 @@ export default function DashboardNav({ user, onLogout }) {
   const canShowProfileImage = profileImage && failedAvatarSrc !== profileImage
 
   const handleLogout = () => {
-    localStorage.removeItem('lumos_user_info')
+    clearStoredSession()
     signOut(auth).catch(() => {})
     setIsDropdownOpen(false)
     if (onLogout) onLogout()

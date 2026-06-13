@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import { auth } from '../../lib/firebase';
-import { deleteUser } from 'firebase/auth';
+import { deleteUser, signOut } from 'firebase/auth';
 import api from '../../lib/api';
+import { clearStoredSession } from '../../lib/session';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
@@ -66,8 +67,8 @@ export default function MyPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('lumos_user_info');
-    localStorage.removeItem('lumos_uid');
+    clearStoredSession();
+    signOut(auth).catch(() => {});
     navigate('/login');
   };
 
@@ -163,8 +164,7 @@ export default function MyPage() {
       }
 
       alert('탈퇴 처리가 완료되었습니다.');
-      localStorage.removeItem('lumos_user_info');
-      localStorage.removeItem('lumos_uid');
+      clearStoredSession();
       window.location.href = '/';
     } catch (error) {
       console.error('Withdrawal failed:', error);

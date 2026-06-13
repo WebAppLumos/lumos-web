@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import api from '../../lib/api'
@@ -7,6 +7,7 @@ import './Signin.css'
 
 export default function Signin() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -33,7 +34,11 @@ export default function Signin() {
       )
 
       window.alert('로그인 성공!')
-      navigate('/')
+      const redirectPath = location.state?.from && location.state.from !== '/login'
+        ? location.state.from
+        : '/'
+
+      navigate(redirectPath, { replace: true })
     } catch (error) {
       console.error(error)
       console.error('LOGIN ERROR:', error)
