@@ -1,44 +1,47 @@
 .myPageScope {
-  width: min(1180px, calc(100% - 48px));
+  width: min(64rem, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 36px 0 64px;
+  padding: 0 0 4rem;
 }
 
 .myPageScope .myPageHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 24px;
-  padding: 32px;
-  border-radius: 20px;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
   background: #111111;
   color: #ffffff;
 }
 
 .myPageScope .myPageHeader h2 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
 }
 
 .myPageScope .myPageHeader p {
-  margin-top: 8px;
+  margin: 0.5rem 0 0;
   color: #d1d5db;
 }
 
 .myPageScope .edwardSyncBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 18px;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1rem;
   border: 1px solid #404040;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   background: #1f1f1f;
   color: white;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .myPageScope .edwardSyncBtn:hover {
@@ -47,44 +50,53 @@
 
 .myPageScope .myPageContent {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
+  grid-template-columns: 17.5rem minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.myPageScope .myPageSide {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .myPageScope .profileSection,
+.myPageScope .myPageMenu,
 .myPageScope .infoForm,
+.myPageScope .gradeAccessPanel,
 .myPageScope .dangerZone {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
+  border-radius: 0.625rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 6%);
 }
 
 .myPageScope .profileSection {
-  position: sticky;
-  top: 90px;
-  padding: 28px;
+  padding: 1.5rem;
   overflow: hidden;
 }
 
 .myPageScope .profileSection::before {
   content: "";
   display: block;
-  height: 90px;
-  margin: -28px -28px 0;
+  height: 5.5rem;
+  margin: -1.5rem -1.5rem 0;
   background: #111111;
 }
 
 .myPageScope .profileImageWrapper {
   position: relative;
-  width: 130px;
-  height: 130px;
-  margin: -65px auto 0;
+  width: 7.5rem;
+  height: 7.5rem;
+  margin: -3.75rem auto 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 5px solid white;
+  border: 0.25rem solid white;
   background: #f3f4f6;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
+  box-shadow: 0 0.5rem 1.25rem rgb(0 0 0 / 12%);
   cursor: pointer;
 }
 
@@ -113,44 +125,77 @@
 }
 
 .myPageScope .profileBasicInfo {
-  margin-top: 20px;
+  margin-top: 1.25rem;
   text-align: center;
 }
 
 .myPageScope .profileBasicInfo h3 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #111827;
 }
 
 .myPageScope .profileBasicInfo span {
   display: block;
-  margin-top: 8px;
+  margin-top: 0.5rem;
   color: #6b7280;
 }
 
 .myPageScope .creditInfo {
-  margin-top: 20px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #f9fafb;
+  margin-top: 1.25rem;
+  padding: 0.875rem;
   border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #f9fafb;
   color: #111827;
   font-weight: 700;
 }
 
+.myPageScope .myPageMenu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.myPageScope .myPageMenuBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #525252;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.myPageScope .myPageMenuBtn:hover,
+.myPageScope .myPageMenuBtn.active {
+  background: #111111;
+  color: white;
+}
+
+.myPageScope .myPagePanel {
+  min-width: 0;
+}
+
 .myPageScope .infoForm {
-  padding: 28px;
+  padding: 1.75rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .myPageScope .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .myPageScope .formGroup label {
@@ -161,11 +206,12 @@
 
 .myPageScope .infoForm input,
 .myPageScope .infoForm select {
-  height: 48px;
-  padding: 0 14px;
+  height: 3rem;
+  padding: 0 0.875rem;
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: white;
+  color: #111827;
 }
 
 .myPageScope .infoForm input:focus,
@@ -183,28 +229,30 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .myPageScope .formActions {
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
-  padding-top: 20px;
+  padding-top: 1.25rem;
   border-top: 1px solid #e5e7eb;
 }
 
-.myPageScope .editActions {
+.myPageScope .editActions,
+.myPageScope .dangerActions {
   display: flex;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .myPageScope .editBtn,
-.myPageScope .saveBtn {
-  height: 44px;
-  padding: 0 20px;
+.myPageScope .saveBtn,
+.myPageScope .gradeViewBtn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: #111111;
   color: white;
   font-weight: 700;
@@ -212,54 +260,90 @@
 }
 
 .myPageScope .editBtn:hover,
-.myPageScope .saveBtn:hover {
+.myPageScope .saveBtn:hover,
+.myPageScope .gradeViewBtn:hover {
   background: #2d2d2d;
 }
 
-.myPageScope .cancelBtn {
-  height: 44px;
-  padding: 0 20px;
+.myPageScope .cancelBtn,
+.myPageScope .myPageLogoutBtn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: white;
+  color: #111827;
   cursor: pointer;
 }
 
+.myPageScope .gradeAccessPanel,
 .myPageScope .dangerZone {
-  grid-column: 2;
-  padding: 24px 28px;
+  padding: 1.75rem;
 }
 
+.myPageScope .panelHead {
+  margin-bottom: 1.25rem;
+}
+
+.myPageScope .gradeAccessPanel h4,
 .myPageScope .dangerZone h4 {
   margin: 0;
-  color: #dc2626;
+  color: #111827;
+  font-size: 1.125rem;
 }
 
+.myPageScope .gradeAccessPanel p,
 .myPageScope .dangerZone p {
-  margin: 10px 0 20px;
+  margin: 0.5rem 0 0;
   color: #6b7280;
 }
 
-.myPageScope .dangerActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+.myPageScope .gradeMetricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.myPageScope .myPageLogoutBtn {
-  height: 42px;
-  padding: 0 18px;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
+.myPageScope .gradeMetric {
+  padding: 1.125rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
+  background: #f9fafb;
+}
+
+.myPageScope .gradeMetric span,
+.myPageScope .gradeMetric small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.myPageScope .gradeMetric strong {
+  display: block;
+  margin-top: 0.625rem;
+  color: #111827;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.myPageScope .gradeMetric small {
+  margin-top: 0.375rem;
+}
+
+.myPageScope .dangerZone h4 {
+  color: #dc2626;
+}
+
+.myPageScope .dangerActions {
+  justify-content: flex-end;
+  margin-top: 1.25rem;
 }
 
 .myPageScope .withdrawBtn {
-  height: 42px;
-  padding: 0 18px;
+  height: 2.75rem;
+  padding: 0 1.25rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: #dc2626;
   color: white;
   cursor: pointer;
@@ -270,18 +354,20 @@
     grid-template-columns: 1fr;
   }
 
-  .myPageScope .profileSection {
+  .myPageScope .myPageSide {
     position: static;
-  }
-
-  .myPageScope .dangerZone {
-    grid-column: auto;
   }
 }
 
 @media (max-width: 640px) {
+  .myPageScope .myPageHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .myPageScope .infoForm,
-  .myPageScope .formGrid {
+  .myPageScope .formGrid,
+  .myPageScope .gradeMetricGrid {
     grid-template-columns: 1fr;
   }
 
