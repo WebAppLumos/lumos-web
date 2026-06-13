@@ -123,15 +123,7 @@ export function buildCoursesOnBoard(courses, entries, timetableId) {
       const course = courseById.get(courseId)
       if (!course) return null
 
-      const schedules = timetableEntries
-        .filter((entry) => entry.courseId === courseId)
-        .filter((entry) => entry.dayOfWeek >= 1 && entry.dayOfWeek <= 5)
-        .map((entry) => ({
-          entryId: entry.id,
-          day: apiDayToUi(entry.dayOfWeek),
-          startTime: formatTime(entry.startTime),
-          endTime: formatTime(entry.endTime),
-        }))
+      const schedules = buildSchedulesFromEntries(timetableEntries, courseId)
 
       return { ...course, schedules }
     })
@@ -158,6 +150,59 @@ export function getTodayCourses(courses, entries, timetableId) {
 function timeToNumber(time) {
   const [hours, minutes] = time.split(':').map(Number)
   return hours + minutes / 60
+}
+
+export const TIMETABLE_GRID_START_HOUR = 9
+export const TIMETABLE_HOUR_HEIGHT_REM = 3.75
+
+/** 시간표 그리드(9시 시작, 1시간=3.75rem)에 맞춰 블록 위치를 계산합니다. */
+export function slotStyleFromTimes(start, end) {
+  const topRem = (timeToNumber(start) - TIMETABLE_GRID_START_HOUR) * TIMETABLE_HOUR_HEIGHT_REM
+  const heightRem = (timeToNumber(end) - timeToNumber(start)) * TIMETABLE_HOUR_HEIGHT_REM
+  return {
+    top: `${Math.max(topRem, 0)}rem`,
+    height: `${Math.max(heightRem, 0.5)}rem`,
+  }
+}
+
+/** Edward 등에서 같은 요일에 쪼개진 entry를 하나의 수업 시간으로 합칩니다. */
+export function mergeSchedulesByDay(schedules) {
+  const byDay = new Map()
+
+  for (const schedule of schedules) {
+    const existing = byDay.get(schedule.day)
+    if (!existing) {
+      byDay.set(schedule.day, { ...schedule })
+      continue
+    }
+
+    if (timeToNumber(schedule.startTime) < timeToNumber(existing.startTime)) {
+      existing.startTime = schedule.startTime
+      if (schedule.entryId != null) existing.entryId = schedule.entryId
+    }
+    if (timeToNumber(schedule.endTime) > timeToNumber(existing.endTime)) {
+      existing.endTime = schedule.endTime
+    }
+  }
+
+  return [...byDay.values()].sort(
+    (a, b) => a.day - b.day || timeToNumber(a.startTime) - timeToNumber(b.startTime),
+  )
+}
+
+export function buildSchedulesFromEntries(entries, courseId) {
+  const normalizedCourseId = Number(courseId)
+  const schedules = entries
+    .filter((entry) => Number(entry.courseId) === normalizedCourseId)
+    .filter((entry) => Number(entry.dayOfWeek) >= 1 && Number(entry.dayOfWeek) <= 5)
+    .map((entry) => ({
+      entryId: entry.id,
+      day: apiDayToUi(entry.dayOfWeek),
+      startTime: formatTime(entry.startTime),
+      endTime: formatTime(entry.endTime),
+    }))
+
+  return mergeSchedulesByDay(schedules)
 }
 
 export async function fetchSemesters() {
