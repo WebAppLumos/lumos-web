@@ -241,6 +241,91 @@ export async function fetchEntriesForSemester(semesterId, timetables) {
   return results.flat()
 }
 
+export function buildTimetableSessionSnapshot({
+  semesterId,
+  timetableId,
+  view = 'info',
+  semesters,
+  timetables,
+  courses,
+  entries,
+  allSemesterEntries,
+  notes,
+  selectedCourseId = '',
+}) {
+  const semesterTimetables = timetables.filter((t) => t.semesterId === semesterId)
+  const semesterCourses = courses.filter((c) => c.semesterId === semesterId)
+  const dashboardTimetable = pickDashboardTimetable(semesterTimetables, allSemesterEntries)
+  const todayCourses = dashboardTimetable
+    ? getTodayCourses(semesterCourses, allSemesterEntries, dashboardTimetable.id)
+    : []
+
+  return {
+    semesterId,
+    timetableId,
+    view,
+    semesters,
+    timetables,
+    courses,
+    entries,
+    allSemesterEntries,
+    notes,
+    selectedCourseId,
+    todayCourses,
+    isWeekend: isWeekendToday(),
+  }
+}
+
+export async function fetchInitialTimetableSession() {
+  const semesters = await fetchSemesters()
+  const activeSemester = semesters.find((s) => s.isActive) ?? semesters[0]
+
+  if (!activeSemester) {
+    return buildTimetableSessionSnapshot({
+      semesterId: null,
+      timetableId: null,
+      semesters,
+      timetables: [],
+      courses: [],
+      entries: [],
+      allSemesterEntries: [],
+      notes: [],
+    })
+  }
+
+  const semesterId = activeSemester.id
+  const [timetables, courses] = await Promise.all([
+    fetchTimetables(semesterId),
+    fetchCourses(semesterId),
+  ])
+
+  const timetableId = timetables[0]?.id ?? null
+  let allSemesterEntries = []
+  let entries = []
+  let notes = []
+
+  if (timetables.length > 0) {
+    allSemesterEntries = await fetchEntriesForSemester(semesterId, timetables)
+
+    if (timetableId) {
+      entries = allSemesterEntries.filter((entry) => entry.timetableId === timetableId)
+      const courseIds = [...new Set(entries.map((entry) => entry.courseId))]
+      notes = await fetchNotesForCourses(courseIds)
+    }
+  }
+
+  return buildTimetableSessionSnapshot({
+    semesterId,
+    timetableId,
+    semesters,
+    timetables,
+    courses,
+    entries,
+    allSemesterEntries,
+    notes,
+  })
+}
+
 export async function fetchDashboardTimetableData() {
   const semesters = await fetchSemesters()
   const semester = pickDashboardSemester(semesters)
