@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react'
 import DashboardNav from '../../components/Dashboard/DashboardNav'
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 import ScholarshipHero from '../../components/Scholarship/ScholarshipHero'
 import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
 import ScholarshipResult from '../../components/Scholarship/ScholarshipResult'
 import certificationsData from '../../lib/certifications.json'
+import '../Dashboard/Dashboard.css'
 import './Scholarship.css'
 
 export default function Scholarship() {
@@ -108,10 +110,6 @@ export default function Scholarship() {
   }, [userProfile])
 
   const handleStartCuration = () => {
-    if (!user) {
-      alert('로그인이 필요한 서비스입니다.')
-      return
-    }
     setShowProfile(true)
     setShowResults(false)
   }
@@ -156,6 +154,25 @@ export default function Scholarship() {
   const handleSave = () => {
     setShowResults(true)
     setShowProfile(false)
+  }
+
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <DashboardNav user={null} />
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">장학금</h1>
+                <p className="dashboardSubtitle">내 조건에 맞는 장학금 추천을 확인하세요</p>
+              </div>
+            </div>
+            <DashboardLoginCard description="장학금 추천과 맞춤 정보를 확인하려면 로그인해주세요." />
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (

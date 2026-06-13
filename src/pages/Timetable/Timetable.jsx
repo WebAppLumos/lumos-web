@@ -5,6 +5,7 @@ import {
   apiDayToUi,
   buildCoursesOnBoard,
   buildSchedulesFromEntries,
+  buildTimetableSessionSnapshot,
   createEntry,
   createNote,
   createTimetable,
@@ -15,7 +16,6 @@ import {
   fetchEntries,
   fetchEntriesForSemester,
   fetchNotesForCourses,
-  fetchSemesters,
   fetchTimetables,
   formatTime,
   mapCourse,
@@ -28,6 +28,12 @@ import {
   updateSemester,
   updateTimetable,
 } from '../../lib/timetableApi'
+import {
+  clearTimetableSession,
+  ensureTimetableSession,
+  getTimetableSession,
+  setTimetableSession,
+} from '../../lib/timetableSession'
 
 import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
 import TimetableControls from '../../components/Timetable/TimetableControls'
@@ -41,22 +47,37 @@ import '../Dashboard/Dashboard.css'
 import './Timetable.css'
 
 export default function Timetable() {
+  const session = getTimetableSession()
+
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('lumos_user_info')
     return storedUser ? JSON.parse(storedUser) : null
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => !session)
   const [error, setError] = useState('')
-  const [semesterId, setSemesterId] = useState(null)
-  const [timetableId, setTimetableId] = useState(null)
-  const [view, setView] = useState('info')
-  const [semesters, setSemesters] = useState([])
-  const [timetables, setTimetables] = useState([])
-  const [courses, setCourses] = useState([])
-  const [entries, setEntries] = useState([])
-  const [allSemesterEntries, setAllSemesterEntries] = useState([])
-  const [notes, setNotes] = useState([])
-  const [selectedCourseId, setSelectedCourseId] = useState('')
+  const [semesterId, setSemesterId] = useState(() => session?.semesterId ?? null)
+  const [timetableId, setTimetableId] = useState(() => session?.timetableId ?? null)
+  const [view, setView] = useState(() => session?.view ?? 'info')
+  const [semesters, setSemesters] = useState(() => session?.semesters ?? [])
+  const [timetables, setTimetables] = useState(() => session?.timetables ?? [])
+  const [courses, setCourses] = useState(() => session?.courses ?? [])
+  const [entries, setEntries] = useState(() => session?.entries ?? [])
+  const [allSemesterEntries, setAllSemesterEntries] = useState(() => session?.allSemesterEntries ?? [])
+  const [notes, setNotes] = useState(() => session?.notes ?? [])
+  const [selectedCourseId, setSelectedCourseId] = useState(() => session?.selectedCourseId ?? '')
+
+  const applySession = useCallback((nextSession) => {
+    setSemesters(nextSession.semesters)
+    setSemesterId(nextSession.semesterId)
+    setTimetableId(nextSession.timetableId)
+    setView(nextSession.view ?? 'info')
+    setTimetables(nextSession.timetables)
+    setCourses(nextSession.courses)
+    setEntries(nextSession.entries)
+    setAllSemesterEntries(nextSession.allSemesterEntries)
+    setNotes(nextSession.notes)
+    setSelectedCourseId(nextSession.selectedCourseId ?? '')
+  }, [])
 
   const loadSemesterData = useCallback(async (nextSemesterId, preferredTimetableId) => {
     const [nextTimetables, nextCourses] = await Promise.all([
@@ -109,37 +130,75 @@ export default function Timetable() {
     }
   }, [])
 
-  const loadInitialData = useCallback(async () => {
+  useEffect(() => {
+    if (!user) {
+      clearTimetableSession()
+      setLoading(false)
+      return
+    }
+
+    const cached = getTimetableSession()
+    if (cached) {
+      applySession(cached)
+      setLoading(false)
+      return
+    }
+
+    let cancelled = false
     setLoading(true)
     setError('')
-    try {
-      const nextSemesters = await fetchSemesters()
-      setSemesters(nextSemesters)
 
-      const activeSemester = nextSemesters.find((s) => s.isActive) ?? nextSemesters[0]
-      if (!activeSemester) {
-        setSemesterId(null)
-        setTimetableId(null)
-        return
-      }
+    ensureTimetableSession()
+      .then((nextSession) => {
+        if (cancelled) return
+        applySession(nextSession)
+      })
+      .catch((err) => {
+        console.error(err)
+        if (!cancelled) {
+          setError('시간표 데이터를 불러오지 못했습니다.')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
 
-      setSemesterId(activeSemester.id)
-      await loadSemesterData(activeSemester.id)
-    } catch (err) {
-      console.error(err)
-      setError('시간표 데이터를 불러오지 못했습니다.')
-    } finally {
-      setLoading(false)
+    return () => {
+      cancelled = true
     }
-  }, [loadSemesterData])
+  }, [user, applySession])
 
   useEffect(() => {
-    if (user) {
-      loadInitialData()
-    } else {
-      setLoading(false)
-    }
-  }, [user, loadInitialData])
+    if (!user || loading) return
+
+    setTimetableSession(buildTimetableSessionSnapshot({
+      semesterId,
+      timetableId,
+      view,
+      semesters,
+      timetables,
+      courses,
+      entries,
+      allSemesterEntries,
+      notes,
+      selectedCourseId,
+    }))
+  }, [
+    user,
+    loading,
+    semesterId,
+    timetableId,
+    view,
+    semesters,
+    timetables,
+    courses,
+    entries,
+    allSemesterEntries,
+    notes,
+    selectedCourseId,
+  ])
 
   const reloadTimetableEntries = useCallback(async (targetTimetableId) => {
     const timetableEntries = await fetchEntries(targetTimetableId)
@@ -446,9 +505,14 @@ export default function Timetable() {
       <div className="dashboardPage">
         <DashboardNav user={user} />
         <main className="dashboardMain">
-          <div className="Timetable">
-            <TimetableHeader />
-            <DashboardLoginCard />
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">시간표 & 일정 관리</h1>
+                <p className="dashboardSubtitle">학기별 시간표와 수업을 관리합니다</p>
+              </div>
+            </div>
+            <DashboardLoginCard description="시간표와 수업 일정을 확인하려면 로그인해주세요." />
           </div>
         </main>
       </div>
@@ -462,10 +526,15 @@ export default function Timetable() {
         <div className="Timetable">
           <TimetableHeader />
 
-          {loading && <p className="timetableStatus">시간표를 불러오는 중...</p>}
-          {!loading && error && <p className="timetableStatus">{error}</p>}
+          {loading && (
+            <div className="timetableStatus timetableStatus--loading" aria-live="polite" aria-busy="true">
+              <span className="timetableStatusSpinner" aria-hidden="true" />
+              <span>시간표를 불러오는 중...</span>
+            </div>
+          )}
+          {!loading && error && <p className="timetableStatus timetableStatus--error">{error}</p>}
           {!loading && !error && semesters.length === 0 && (
-            <p className="timetableStatus">등록된 학기가 없습니다. EDWARD 동기화 후 다시 확인해주세요.</p>
+            <p className="timetableStatus timetableStatus--empty">등록된 학기가 없습니다. EDWARD 동기화 후 다시 확인해주세요.</p>
           )}
 
           {!loading && !error && semesters.length > 0 && (

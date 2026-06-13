@@ -54,11 +54,19 @@ function Schedule() {
 
   if (!user) {
     return (
-      <div className="dashboardPage scheduleDashboardPage">
+      <div className="dashboardPage">
         <DashboardNav user={null} />
         <main className="dashboardMain">
-          <div className="Dashboard scheduleDashboard">
-            <DashboardLoginCard />
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">학사 및 개인 일정</h1>
+                <p className="dashboardSubtitle">
+                  중요한 학사 일정과 나의 개인 일정을 한눈에 관리하세요
+                </p>
+              </div>
+            </div>
+            <DashboardLoginCard description="일정과 캘린더를 확인하려면 로그인해주세요." />
           </div>
         </main>
       </div>

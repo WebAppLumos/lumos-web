@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { CalendarClock } from 'lucide-react'
+import { CalendarClock, CalendarOff, Coffee } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
-export default function TodayTimetableWidget({ DAYS, courses, isEditing, isWeekend }) {
+export default function TodayTimetableWidget({ DAYS, courses, isEditing, isWeekend, isLoading }) {
   const emptyMessage = isWeekend
     ? '오늘은 주말입니다.'
     : '오늘 예정된 수업이 없습니다.'
@@ -19,8 +19,20 @@ export default function TodayTimetableWidget({ DAYS, courses, isEditing, isWeeke
       </div>
 
       <div className="cardContent">
-        {courses.length === 0 ? (
-          <p className="classEmpty">{emptyMessage}</p>
+        {isLoading ? (
+          <div className="classLoading" aria-live="polite" aria-busy="true">
+            <span className="classLoadingSpinner" aria-hidden="true" />
+            <span className="classLoadingText">로딩 중...</span>
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="classEmpty">
+            {isWeekend ? (
+              <Coffee className="classEmptyIcon" size={28} strokeWidth={1.8} aria-hidden="true" />
+            ) : (
+              <CalendarOff className="classEmptyIcon" size={28} strokeWidth={1.8} aria-hidden="true" />
+            )}
+            <p className="classEmptyText">{emptyMessage}</p>
+          </div>
         ) : (
           <ul className="classList">
             {courses.map((course) => (

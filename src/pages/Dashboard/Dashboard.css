@@ -1,3 +1,6 @@
+@import '../../components/Dashboard/DashboardHeader.css';
+@import '../../components/Dashboard/DashboardLoginCard.css';
+
 .dashboardPage {
   min-height: 100vh;
   background: #fff;
@@ -54,6 +57,29 @@
   width: 100%;
 }
 
+.Dashboard .widgetItem--editable {
+  cursor: grab;
+}
+
+.Dashboard .widgetItem--editable.dragging {
+  opacity: 0.55;
+  cursor: grabbing;
+}
+
+.Dashboard .widgetItem--editable.dragOver {
+  outline: 2px dashed #171717;
+  outline-offset: 0.25rem;
+  border-radius: 1rem;
+}
+
+.Dashboard .widgetGrid--editing .widgetItem--editable .dashboardCard {
+  pointer-events: none;
+}
+
+.Dashboard .widgetGrid--editing .widgetItem--editable .widgetRemoveBtn {
+  pointer-events: auto;
+}
+
 .Dashboard .widgetRemoveBtn {
   position: absolute;
   top: -0.75rem;
@@ -77,5 +103,36 @@
 .Dashboard .widgetRemoveBtn:hover {
   background: #dc2626;
   transform: scale(1.05);
+}
+
+.Dashboard .dashboardInitialLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  min-height: calc(100vh - 8rem);
+  color: #737373;
+}
+
+.Dashboard .dashboardInitialLoadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e5e5;
+  border-top-color: #171717;
+  border-radius: 50%;
+  animation: dashboardInitialSpin 0.75s linear infinite;
+}
+
+.Dashboard .dashboardInitialLoadingText {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@keyframes dashboardInitialSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 

@@ -179,3 +179,61 @@
 .Dashboard .summaryWidget-campus-map .summaryList li::before {
   background: #f97316;
 }
+
+.Dashboard .classLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 7rem;
+  color: #737373;
+}
+
+.Dashboard .classLoadingSpinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #e5e5e5;
+  border-top-color: #171717;
+  border-radius: 50%;
+  animation: timetableWidgetSpin 0.75s linear infinite;
+}
+
+.Dashboard .classLoadingText {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.Dashboard .classEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 7rem;
+  padding: 1.25rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.875rem;
+  background: #fafafa;
+  text-align: center;
+}
+
+.Dashboard .classEmptyIcon {
+  flex-shrink: 0;
+  color: #737373;
+}
+
+.Dashboard .classEmptyText {
+  margin: 0;
+  color: #525252;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@keyframes timetableWidgetSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

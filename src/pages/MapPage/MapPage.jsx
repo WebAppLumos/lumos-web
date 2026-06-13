@@ -1,7 +1,9 @@
 import DashboardNav from "../../components/Dashboard/DashboardNav";
+import DashboardLoginCard from "../../components/Dashboard/DashboardLoginCard";
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from "react-leaflet";
 import { mockCourses } from "../../lib/mock-data";
 import "leaflet/dist/leaflet.css";
+import "../Dashboard/Dashboard.css";
 import "./MapPage.css";
 import Category from "../../components/Map/Category";
 import PlaceList from "../../components/Map/PlaceList";
@@ -43,7 +45,11 @@ function RouteMap(props) {
 
 
 function MapPage() {
-  
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('lumos_user_info');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   const [ category, setCategory] = useState("전체");   // 현재 카테고리
   const [ search, setSearch] = useState("");         // 검색어
   const [ selectedPosition, setSelectedPosition ] = useState([35.8532, 128.4913]); // 지도 중심 위치
@@ -175,10 +181,29 @@ function MapPage() {
    nextClassTime = Math.max(1, Math.round(distance / 80));
   }
 
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <DashboardNav user={null} />
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">교내시설</h1>
+                <p className="dashboardSubtitle">필요한 교내시설을 확인해보세요</p>
+              </div>
+            </div>
+            <DashboardLoginCard description="캠퍼스맵과 시설 정보를 확인하려면 로그인해주세요." />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
 
 return (
   <>
-    <DashboardNav />
+    <DashboardNav user={user} onLogout={() => setUser(null)} />
 
     <div className="mapContainer">
       {/* 가운데 */} <div className="centerBox">

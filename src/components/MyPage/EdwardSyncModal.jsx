@@ -115,7 +115,8 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         </div>
 
         <div className="edwardSyncNotice">
-          EDWARD 비밀번호는 Lumos 서버로 전송되지 않습니다. 같은 브라우저에서 EDWARD에 로그인되어 있어야 합니다.
+          EDWARD 비밀번호는 Lumos 서버로 전송되지 않습니다. <br/>
+          같은 브라우저에서 EDWARD에 로그인되어 있어야 합니다.
         </div>
 
         <div className="edwardSyncFieldRow">
