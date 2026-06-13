@@ -1,19 +1,17 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   CalendarDays,
   ClipboardCheck,
   GraduationCap,
   MapPinned,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import { DAYS } from '../../lib/mock-data'
 import {
-  DAYS,
-  mockCourses,
-  mockSemesters,
-  mockTimetableEntries,
-  mockTimetables,
-} from '../../lib/mock-data'
+  fetchDashboardTimetableData,
+  getTodayCourses,
+} from '../../lib/timetableApi'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
@@ -116,13 +114,14 @@ function DashboardSummaryWidget({ summary, type, isEditing }) {
   )
 }
 
-function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing }) {
+function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing, isWeekend }) {
   if (widget.type === 'timetable') {
     return (
       <TodayTimetableWidget
         DAYS={DAYS}
         courses={todayCourses}
         isEditing={isEditing}
+        isWeekend={isWeekend}
       />
     )
   }
@@ -144,22 +143,48 @@ export default function Dashboard() {
   })
   const [widgets, setWidgets] = useState(dashboardWidgets) // 대시보드 위젯 표시 상태
   const [isEditing, setIsEditing] = useState(false) // 위젯 편집 모드
+  const [todayCourses, setTodayCourses] = useState([])
+  const [isWeekend, setIsWeekend] = useState(false)
+  const location = useLocation()
 
-  // 현재 학기의 기본 시간표에 포함된 수업만 대시보드에 표시
-  const todayCourses = useMemo(() => {
-    const semesterId = mockSemesters.find((s) => s.isActive)?.id ?? mockSemesters[0].id
-    const timetableId = mockTimetables.find((t) => (
-      t.semesterId === semesterId && t.isDefault
-    ))?.id ?? mockTimetables[0].id
+  useEffect(() => {
+    if (!user) {
+      setTodayCourses([])
+      setIsWeekend(false)
+      return
+    }
 
-    const courseIds = mockTimetableEntries
-      .filter((entry) => entry.timetableId === timetableId)
-      .map((entry) => entry.courseId)
+    let cancelled = false
 
-    return mockCourses
-      .filter((course) => course.semesterId === semesterId && courseIds.includes(course.id))
-      .slice(0, 4)
-  }, [])
+    const loadTodayTimetable = async () => {
+      try {
+        const { courses, entries, timetableId, isWeekend: weekendToday } =
+          await fetchDashboardTimetableData()
+
+        if (cancelled || !timetableId) {
+          if (!cancelled) {
+            setTodayCourses([])
+            setIsWeekend(weekendToday)
+          }
+          return
+        }
+
+        setTodayCourses(getTodayCourses(courses, entries, timetableId))
+        setIsWeekend(weekendToday)
+      } catch (err) {
+        console.error(err)
+        if (!cancelled) {
+          setTodayCourses([])
+          setIsWeekend(false)
+        }
+      }
+    }
+
+    loadTodayTimetable()
+    return () => {
+      cancelled = true
+    }
+  }, [user, location.pathname])
 
   const visibleWidgets = widgets.filter((widget) => widget.visible)
 
@@ -223,7 +248,7 @@ export default function Dashboard() {
                     </button>
                   )}
 
-                  {renderDashboardWidget(widget, { DAYS, todayCourses, isEditing })}
+                  {renderDashboardWidget(widget, { DAYS, todayCourses, isEditing, isWeekend })}
                 </div>
               ))}
             </div>
