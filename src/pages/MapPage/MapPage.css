@@ -1,270 +1,264 @@
-/* 전체 레이아웃 */
 
-.mapPage {
-  height: 100vh;
-  overflow: hidden;
-  box-sizing: border-box;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-.mapPage *,
-.mapPage *::before,
-.mapPage *::after {
-  box-sizing: border-box;
-}
-
-.mapPage .mapContainer {
+/* 전체 */
+.mapContainer {
   display: flex;
-
   width: 100%;
-
-  height: calc(100vh - 4rem);
-
-  overflow: hidden;
+  height: calc(100vh - 80px);
 }
 
-
-/* 가운데 영역 */
-
-.mapPage .centerBox {
+/* 가운데 */
+.centerBox {
   flex: 1;
-
   padding: 30px;
-
   display: flex;
-
   flex-direction: column;
-
-  height: 100%;
-
-  overflow: hidden;
 }
 
-
-/* 위 제목 */
-
-.mapPage .topBox {
+/* 제목 */
+.topBox {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
 }
 
-
-.mapPage .titleBox p {
-  color: gray;
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.titleBox h1 {
+  margin: 0;
+}
 
-/* 검색창 */
+.titleBox p {
+  margin: 0;
+  color: #777;
+}
 
-.mapPage .search {
+/* 검색 */
+.search {
   width: 250px;
-
   height: 45px;
-
+  border: 1px solid #ddd;
   border-radius: 12px;
-
-  border: 1px solid #b5d49d;
-
   padding-left: 15px;
-
   font-size: 15px;
 }
 
-
 /* 카테고리 */
-
-.mapPage .categoryBox {
+.categoryBox {
   display: flex;
-
   gap: 15px;
-
   margin-top: 30px;
-
   margin-bottom: 20px;
 }
 
-
-.mapPage .category {
+.category {
   border: none;
-
   background: none;
-
-  font-size: 17px;
-
   cursor: pointer;
-
-  color: gray;
+  font-size: 16px;
+  color: #888;
 }
 
-
-.mapPage .activeCategory {
-  color: #5d8f3b;
-
-  font-weight: bold;
+.activeCategory {
+  color: #000;
+  font-weight: 700;
 }
-
 
 /* 지도 */
-
-.mapPage .mapBox {
+.mapBox {
   flex: 1;
-
-  min-height: 0;
-
+  min-height: 500px;
   border-radius: 20px;
-
   overflow: hidden;
 }
 
-
-/* 오른쪽 영역 */
-
-.mapPage .rightBox {
-  width: 320px;
-
-  background-color: white;
-
-  padding: 30px 20px;
-
-  box-shadow: -2px 0 10px rgba(0,0,0,0.05);
-
-  display: flex;
-
-  flex-direction: column;
+.leaflet-container {
+  width: 100%;
+  height: 100%;
 }
 
+/* 오른쪽 */
+.rightBox {
+  width: 340px;
+  background: white;
+  padding: 30px 20px;
+  border-left: 1px solid #eee;
 
-/* 시설 리스트 */
+  display: flex;
+  flex-direction: column;
 
-.mapPage .placeList {
+  height: calc(100vh - 80px);
+}
+
+.rightBox h1 {
+  margin-top: 0;
+}
+
+/* 리스트 */
+.placeList {
   flex: 1;
-
   overflow-y: auto;
-
   margin-top: 20px;
 }
 
-
-/* 시설 카드 */
-
-.mapPage .placeBox {
-  background-color: #f8f8f8;
-
+/* 카드 */
+.placeBox {
+  background: #f7f7f7;
   border-radius: 15px;
-
-  padding: 15px;
-
+  padding: 18px;
   margin-bottom: 15px;
-
   cursor: pointer;
 }
 
-
-.mapPage .placeBox:hover {
-  background-color: #efefef;
+.placeBox:hover {
+  background: #efefef;
 }
 
-
-/* 선택된 시설 */
-
-.mapPage .activePlace {
-  border: 2px solid #5d8f3b;
+.activePlace {
+  border: 2px solid #000;
 }
 
-
-/* 다음 수업 */
-
-.mapPage .nextClass {
-  background-color: #f3f3f3;
-
-  border-radius: 15px;
-
-  padding: 20px;
-
-  margin-top: 20px;
+.placeBox h3 {
+  margin-top: 0;
 }
 
-
-/* 반응형 */
-
-@media (max-width: 1200px) {
-
-  .mapPage .rightBox {
-    display: none;
-  }
-
-}
-
-
-@media (max-width: 900px) {
-
-  .mapPage .mapContainer {
-    flex-direction: column;
-  }
-
-}
-
-.mapPage .routeButton {
-
+/* 버튼 */
+.routeButton {
   width: 100%;
-
   margin-top: 10px;
-
   padding: 10px;
 
   border: none;
-
   border-radius: 10px;
 
-  background-color: #5d8f3b;
-
+  background: #111;
   color: white;
 
   cursor: pointer;
 }
 
-.mapPage .routeButton.active {
-
-  background-color: #888;
+.routeButton.active {
+  background: #666;
 }
 
-.mapPage .routeButton:hover {
-
+.routeButton:hover {
   opacity: 0.9;
 }
 
-.mapPage .routeWrapper {
+/* 툴팁 */
+.routeWrapper {
   position: relative;
 }
 
-.mapPage .routeTooltip {
+.routeTooltip {
   position: absolute;
-
   bottom: 60px;
   left: 50%;
-
   transform: translateX(-50%);
 
-  background-color: #333;
+  background: #222;
   color: white;
 
   padding: 8px 12px;
-
   border-radius: 8px;
 
   font-size: 14px;
-
   white-space: nowrap;
 
   opacity: 0;
   visibility: hidden;
-
   transition: 0.2s;
 }
 
-.mapPage .routeWrapper:hover .routeTooltip {
+.routeWrapper:hover .routeTooltip {
   opacity: 1;
   visibility: visible;
+}
+
+/* 다음 수업 */
+.nextClass {
+  background: #575757;
+  color: white;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.nextClass h3 {
+  margin-top: 0;
+}
+
+/* ===================== */
+/* 반응형 */
+/* ===================== */
+
+@media (max-width: 1200px) {
+  .mapContainer {
+    flex-direction: column;
+  }
+
+  .centerBox {
+    width: 100%;
+  }
+
+  .mapBox {
+    height: 600px;
+    flex: none;
+  }
+
+  .rightBox {
+    width: 100%;
+    height: auto;
+    border-left: none;
+    padding-top: 20px;
+  }
+
+  .placeList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+
+    flex: none;
+    overflow: visible;
+  }
+
+  .placeBox {
+    margin-bottom: 0;
+  }
+
+  .nextClass {
+    background: #111;
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .placeList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .topBox {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .placeList {
+    grid-template-columns: 1fr;
+  }
 }
