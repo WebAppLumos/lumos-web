@@ -1,0 +1,179 @@
+/* Override shared Dashboard class to allow wider layout */
+.dashboardMain .Dashboard {
+  max-width: 85rem;
+}
+
+.Dashboard .dashboardTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+}
+
+.Dashboard .dashboardSubtitle {
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+}
+
+.schedule-page {
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.schedule-filter-bar {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e5e5e5;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.search-form {
+  display: flex;
+  flex: 1;
+  gap: 1rem;
+}
+
+.search-form input {
+  flex: 1;
+  padding: 0 1.25rem;
+  height: 3.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: #171717;
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.05);
+}
+
+.search-form button {
+  height: 3.5rem;
+  padding: 0 2rem;
+  background: #171717;
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-form button:hover {
+  background: #404040;
+}
+
+.schedule-filter-bar select {
+  height: 3.5rem;
+  padding: 0 1.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #171717;
+  min-width: 12rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-filter-bar select:focus {
+  outline: none;
+  border-color: #171717;
+}
+
+.schedule-content {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.calendar-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-area {
+  width: 26rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .schedule-content {
+    flex-direction: column;
+  }
+  
+  .todo-area {
+    width: 100%;
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .schedule-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .schedule-page {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Login Required (Empty State) Styling */
+.schedule-page .myPageContainer.empty {
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  min-height: 14rem;
+  padding: 3rem 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.625rem;
+  border-style: dashed;
+  background: #fafafa;
+  color: #737373;
+  text-align: center;
+}
+
+.schedule-page .myPageContainer.empty h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #171717;
+}
+
+.schedule-page .myPageContainer.empty p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.schedule-page .editBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0 1.5rem;
+  margin-top: 1rem;
+  border: 1px solid #171717;
+  border-radius: 0.5rem;
+  background: #171717;
+  color: #fafafa;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-page .editBtn:hover {
+  background: #404040;
+  border-color: #404040;
+}
