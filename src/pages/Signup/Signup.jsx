@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  deleteUser
+} from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import api from '../../lib/api'
 import './Signup.css'
@@ -21,10 +24,69 @@ export default function Signup() {
   const [showPw2, setShowPw2] = useState(false)
 
   const [hint, setHint] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const getTrimmedSignupForm = () => ({
+    name: name.trim(),
+    email: email.trim(),
+    department: department.trim(),
+    studentNumber: studentNumber.trim(),
+    phoneNumber: phoneNumber.trim()
+  })
+
+  const getSignupErrorMessage = (error) => {
+    const firebaseMessages = {
+      'auth/email-already-in-use': '이미 가입된 이메일입니다. 로그인해 주세요.',
+      'auth/invalid-email': '이메일 형식을 확인해 주세요.',
+      'auth/invalid-credential': '이미 가입된 이메일이거나 비밀번호가 일치하지 않습니다.',
+      'auth/weak-password': '비밀번호는 최소 6자 이상이어야 합니다.',
+      'auth/wrong-password': '이미 가입된 이메일이거나 비밀번호가 일치하지 않습니다.',
+      'auth/network-request-failed': '네트워크 연결을 확인해 주세요.'
+    }
+
+    if (error.code && firebaseMessages[error.code]) {
+      return firebaseMessages[error.code]
+    }
+
+    const serverMessage = error.response?.data?.message
+    if (serverMessage) {
+      return serverMessage
+    }
+
+    if (error.response?.status === 401) {
+      return '인증에 실패했습니다. 다시 시도해 주세요.'
+    }
+
+    if (error.response?.status === 409) {
+      return '이미 등록된 회원 정보가 있습니다.'
+    }
+
+    return '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+  }
+
+  const validateSignupForm = ({ studentNumber }) => {
+    if (!/^\d{7}$/.test(studentNumber)) {
+      return '학번은 숫자 7자리로 입력해 주세요. 예: 2024001'
+    }
+
+    return ''
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setHint('')
+
+    if (isSubmitting) {
+      return
+    }
+
+    const form = getTrimmedSignupForm()
+    const validationMessage = validateSignupForm(form)
+
+    if (validationMessage) {
+      setHint(validationMessage)
+      return
+    }
 
     if (password !== password2) {
       setHint('비밀번호가 일치하지 않습니다.')
@@ -36,33 +98,48 @@ export default function Signup() {
       return
     }
 
+    setIsSubmitting(true)
+
+    let rollbackFirebaseUser = null
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        email,
+        form.email,
         password
       )
+      rollbackFirebaseUser = userCredential.user
 
-      const uid = userCredential.user.uid
+      const idToken = await userCredential.user.getIdToken()
 
-      await api.post('/api/users', {
-        userId: uid,
-        email,
-        name,
-        major: department,
+      const response = await api.post('/api/auth/login', {
+        idToken,
+        name: form.name,
+        department: form.department,
         grade: Number(grade),
-        studentNumber,
-        phoneNumber
+        studentNumber: form.studentNumber,
+        phoneNumber: form.phoneNumber
       })
+
+      localStorage.setItem('lumos_uid', userCredential.user.uid)
+      localStorage.setItem('lumos_user_info', JSON.stringify(response.data.user))
 
       window.alert('회원가입 성공!')
       navigate('/')
     } catch (error) {
       console.error(error)
-      window.alert(
-        '회원가입 실패: ' +
-          (error.response?.data || '서버 오류가 발생했습니다.')
-      )
+
+      if (rollbackFirebaseUser && error.response) {
+        try {
+          await deleteUser(rollbackFirebaseUser)
+        } catch (deleteError) {
+          console.error('Failed to rollback Firebase user:', deleteError)
+        }
+      }
+
+      setHint(getSignupErrorMessage(error))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -104,9 +181,12 @@ export default function Signup() {
             id="su-std"
             className="input"
             type="text"
-            placeholder="20260000"
+            placeholder="2024001"
             value={studentNumber}
             onChange={(e) => setStudentNumber(e.target.value)}
+            inputMode="numeric"
+            pattern="\d{7}"
+            maxLength={7}
             required
           />
 
@@ -212,8 +292,8 @@ export default function Signup() {
             </button>
           </div>
 
-          <button type="submit" className="submit">
-            회원가입
+          <button type="submit" className="submit" disabled={isSubmitting}>
+            {isSubmitting ? '처리 중...' : '회원가입'}
           </button>
         </form>
 

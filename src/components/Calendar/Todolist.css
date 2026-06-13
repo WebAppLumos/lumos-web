@@ -1,4 +1,4 @@
-.todo-card {
+.calendar-todo-card {
   min-height: 20rem;
   display: flex;
   flex-direction: column;
@@ -9,7 +9,7 @@
   box-shadow: 0 1rem 3rem rgb(0 0 0 / 8%);
 }
 
-.todo-card h3 {
+.calendar-todo-card h3 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -21,7 +21,7 @@
   background: #fafafa;
 }
 
-.week-info {
+.calendar-todo-card .week-info {
   font-size: 0.875rem;
   color: #737373;
   padding: 1rem 1.75rem;
@@ -29,7 +29,7 @@
   font-weight: 600;
 }
 
-.todo-list {
+.calendar-todo-card .todo-list {
   list-style: none;
   padding: 1.75rem;
   margin: 0;
@@ -37,7 +37,7 @@
   overflow-y: auto;
 }
 
-.todo-list li {
+.calendar-todo-card .todo-list li {
   padding: 1.25rem;
   background: #fff;
   border: 1px solid #e5e5e5;
@@ -46,28 +46,28 @@
   transition: all 0.2s;
 }
 
-.todo-list li:hover {
+.calendar-todo-card .todo-list li:hover {
   border-color: #d4d4d4;
   background: #fafafa;
   transform: translateX(4px);
 }
 
-.todo-list li.completed {
+.calendar-todo-card .todo-list li.completed {
   opacity: 0.6;
 }
 
-.todo-list li.completed .todo-text {
+.calendar-todo-card .todo-list li.completed .todo-text {
   text-decoration: line-through;
   color: #737373;
 }
 
-.todo-item-content {
+.calendar-todo-card .todo-item-content {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.todo-list input[type="checkbox"] {
+.calendar-todo-card .todo-list input[type="checkbox"] {
   appearance: none;
   width: 1.25rem;
   height: 1.25rem;
@@ -79,12 +79,12 @@
   flex-shrink: 0;
 }
 
-.todo-list input[type="checkbox"]:checked {
+.calendar-todo-card .todo-list input[type="checkbox"]:checked {
   background-color: #171717;
   border-color: #171717;
 }
 
-.todo-list input[type="checkbox"]:checked::after {
+.calendar-todo-card .todo-list input[type="checkbox"]:checked::after {
   content: '✓';
   color: white;
   position: absolute;
@@ -95,14 +95,14 @@
   font-weight: bold;
 }
 
-.todo-text-wrapper {
+.calendar-todo-card .todo-text-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
 }
 
-.todo-date {
+.calendar-todo-card .todo-date {
   font-size: 0.75rem;
   font-weight: 700;
   color: #171717;
@@ -113,7 +113,7 @@
   text-transform: uppercase;
 }
 
-.todo-text {
+.calendar-todo-card .todo-text {
   font-size: 1rem;
   color: #171717;
   font-weight: 600;
@@ -121,7 +121,7 @@
   line-height: 1.5;
 }
 
-.empty-msg {
+.calendar-todo-card .empty-msg {
   text-align: center;
   color: #737373;
   padding: 4rem 0;
@@ -129,20 +129,20 @@
 }
 
 /* Scrollbar Styling */
-.todo-list::-webkit-scrollbar {
+.calendar-todo-card .todo-list::-webkit-scrollbar {
   width: 4px;
 }
 
-.todo-list::-webkit-scrollbar-track {
+.calendar-todo-card .todo-list::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.todo-list::-webkit-scrollbar-thumb {
+.calendar-todo-card .todo-list::-webkit-scrollbar-thumb {
   background: #e5e5e5;
   border-radius: 10px;
 }
 
-.todo-list::-webkit-scrollbar-thumb:hover {
+.calendar-todo-card .todo-list::-webkit-scrollbar-thumb:hover {
   background: #d4d4d4;
 }
 

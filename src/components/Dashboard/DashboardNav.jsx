@@ -7,6 +7,10 @@ import './DashboardNav.css'
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
+  const profileImage = user?.profileImage
+  const avatarInitial = user?.name?.[0] || ''
+  const canShowProfileImage = profileImage && failedAvatarSrc !== profileImage
 
   const handleLogout = () => {
     localStorage.removeItem('lumos_user_info')
@@ -109,7 +113,16 @@ export default function DashboardNav({ user, onLogout }) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               aria-label="사용자 메뉴"
             >
-              {user.name?.[0] || ''}
+              {canShowProfileImage ? (
+                <img
+                  src={profileImage}
+                  alt=""
+                  className="navAvatarImage"
+                  onError={() => setFailedAvatarSrc(profileImage)}
+                />
+              ) : (
+                avatarInitial
+              )}
             </button>
 
 

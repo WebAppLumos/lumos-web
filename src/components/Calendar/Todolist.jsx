@@ -43,7 +43,7 @@ function TodoList({ items = [], fetchData }) {
   };
 
   return (
-    <div className="todo-card">
+    <div className="todo-card calendar-todo-card">
       <h3>Weekly Todo</h3>
       <div className="week-info">
         {start.toLocaleDateString()} ~ {end.toLocaleDateString()}

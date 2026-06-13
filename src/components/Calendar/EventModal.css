@@ -12,7 +12,7 @@
   z-index: 1000;
 }
 
-.event-modal-content {
+.event-modal-content.calendar-event-modal {
   background: white;
   width: 95%;
   max-width: 32rem;
@@ -26,21 +26,21 @@
   border: 1px solid #e5e5e5;
 }
 
-.modal-header {
+.calendar-event-modal .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.modal-header h3 {
+.calendar-event-modal .modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
   color: #171717;
 }
 
-.close-btn {
+.calendar-event-modal .close-btn {
   background: #f5f5f5;
   border: none;
   width: 2rem;
@@ -55,18 +55,18 @@
   transition: all 0.2s;
 }
 
-.close-btn:hover {
+.calendar-event-modal .close-btn:hover {
   background: #e5e5e5;
   color: #171717;
 }
 
-.event-list {
+.calendar-event-modal .event-list {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 1.5rem;
 }
 
-.event-item {
+.calendar-event-modal .event-item {
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 0.75rem;
@@ -78,21 +78,21 @@
   transition: all 0.2s;
 }
 
-.event-item:hover {
+.calendar-event-modal .event-item:hover {
   border-color: #d4d4d4;
   background: #fafafa;
 }
 
-.event-item.admin-event {
+.calendar-event-modal .event-item.admin-event {
   background: #fafafa;
   border-left: 4px solid #171717;
 }
 
-.event-info {
+.calendar-event-modal .event-info {
   flex: 1;
 }
 
-.event-title {
+.calendar-event-modal .event-title {
   display: block;
   font-size: 1rem;
   font-weight: 600;
@@ -100,14 +100,14 @@
   margin-bottom: 0.25rem;
 }
 
-.event-content {
+.calendar-event-modal .event-content {
   font-size: 0.875rem;
   color: #737373;
   margin: 0;
   line-height: 1.5;
 }
 
-.priority-badge {
+.calendar-event-modal .priority-badge {
   font-size: 0.625rem;
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
@@ -118,17 +118,17 @@
   letter-spacing: 0.025em;
 }
 
-.priority-badge.HIGH { background: #fee2e2; color: #ef4444; }
-.priority-badge.MEDIUM { background: #fef3c7; color: #d97706; }
-.priority-badge.LOW { background: #dcfce7; color: #10b981; }
+.calendar-event-modal .priority-badge.HIGH { background: #fee2e2; color: #ef4444; }
+.calendar-event-modal .priority-badge.MEDIUM { background: #fef3c7; color: #d97706; }
+.calendar-event-modal .priority-badge.LOW { background: #dcfce7; color: #10b981; }
 
-.event-actions {
+.calendar-event-modal .event-actions {
   display: flex;
   gap: 0.5rem;
   margin-left: 1rem;
 }
 
-.event-actions button {
+.calendar-event-modal .event-actions button {
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   border: 1px solid #e5e5e5;
@@ -140,27 +140,27 @@
   transition: all 0.2s;
 }
 
-.event-actions button:hover {
+.calendar-event-modal .event-actions button:hover {
   background: #f5f5f5;
   color: #171717;
   border-color: #d4d4d4;
 }
 
-.event-form {
+.calendar-event-modal .event-form {
   border-top: 1px solid #e5e5e5;
   padding-top: 1.5rem;
 }
 
-.event-form h4 {
+.calendar-event-modal .event-form h4 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 700;
   color: #171717;
 }
 
-.event-form input,
-.event-form textarea,
-.event-form select {
+.calendar-event-modal .event-form input,
+.calendar-event-modal .event-form textarea,
+.calendar-event-modal .event-form select {
   width: 100%;
   padding: 0.625rem 0.875rem;
   border: 1px solid #e5e5e5;
@@ -173,31 +173,31 @@
   color: #171717;
 }
 
-.event-form input:focus,
-.event-form textarea:focus,
-.event-form select:focus {
+.calendar-event-modal .event-form input:focus,
+.calendar-event-modal .event-form textarea:focus,
+.calendar-event-modal .event-form select:focus {
   outline: none;
   border-color: #171717;
 }
 
-.event-form textarea {
+.calendar-event-modal .event-form textarea {
   height: 6rem;
   resize: none;
   line-height: 1.5;
 }
 
-.form-row {
+.calendar-event-modal .form-row {
   display: flex;
   gap: 0.75rem;
 }
 
-.form-actions {
+.calendar-event-modal .form-actions {
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
 }
 
-.submit-btn {
+.calendar-event-modal .submit-btn {
   flex: 2;
   background: #171717;
   color: #fff;
@@ -210,11 +210,11 @@
   transition: all 0.2s;
 }
 
-.submit-btn:hover {
+.calendar-event-modal .submit-btn:hover {
   background: #404040;
 }
 
-.cancel-btn {
+.calendar-event-modal .cancel-btn {
   flex: 1;
   background: #fff;
   color: #737373;
@@ -227,12 +227,12 @@
   transition: all 0.2s;
 }
 
-.cancel-btn:hover {
+.calendar-event-modal .cancel-btn:hover {
   background: #f5f5f5;
   color: #171717;
 }
 
-.empty-msg {
+.calendar-event-modal .empty-msg {
   text-align: center;
   color: #737373;
   padding: 2rem 0;
@@ -241,15 +241,15 @@
 }
 
 /* Scrollbar Styling */
-.event-list::-webkit-scrollbar {
+.calendar-event-modal .event-list::-webkit-scrollbar {
   width: 4px;
 }
 
-.event-list::-webkit-scrollbar-track {
+.calendar-event-modal .event-list::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.event-list::-webkit-scrollbar-thumb {
+.calendar-event-modal .event-list::-webkit-scrollbar-thumb {
   background: #e5e5e5;
   border-radius: 10px;
 }

@@ -1,412 +1,288 @@
-.myPageContainer {
-  max-width: 900px;
+.myPageScope {
+  width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 36px 0 64px;
 }
 
-.myPageContainer.empty {
-  text-align: center;
-  padding: 120px 20px;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
-
-.myPageHeader {
+.myPageScope .myPageHeader {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 40px;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 32px;
+  border-radius: 20px;
+  background: #111111;
+  color: #ffffff;
 }
 
-.myPageHeaderText {
-  text-align: left;
-}
-
-.myPageHeader h2 {
-  font-size: 2.5rem;
+.myPageScope .myPageHeader h2 {
+  margin: 0;
+  font-size: 2rem;
   font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
 }
 
-.myPageHeader p {
-  color: #666;
-  font-size: 1.1rem;
+.myPageScope .myPageHeader p {
+  margin-top: 8px;
+  color: #d1d5db;
 }
 
-.edwardSyncBtn {
-  display: inline-flex;
+.myPageScope .edwardSyncBtn {
+  display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #404040;
+  border-radius: 999px;
+  background: #1f1f1f;
   color: white;
-  font-size: 0.95rem;
-  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(74, 144, 226, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: 0.2s;
 }
 
-.edwardSyncBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(74, 144, 226, 0.28);
+.myPageScope .edwardSyncBtn:hover {
+  background: #2f2f2f;
 }
 
-.myPageContent {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 30px;
-  padding: 50px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+.myPageScope .myPageContent {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
 }
 
-.profileSection {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  margin-bottom: 48px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #f0f0f0;
+.myPageScope .profileSection,
+.myPageScope .infoForm,
+.myPageScope .dangerZone {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
 }
 
-.profileImageWrapper {
-  width: 120px;
-  height: 120px;
-  border-radius: 40px;
+.myPageScope .profileSection {
+  position: sticky;
+  top: 90px;
+  padding: 28px;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
-.profileImageWrapper:hover {
-  transform: translateY(-5px);
+.myPageScope .profileSection::before {
+  content: "";
+  display: block;
+  height: 90px;
+  margin: -28px -28px 0;
+  background: #111111;
 }
 
-.imageOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.2s;
+.myPageScope .profileImageWrapper {
+  width: 130px;
+  height: 130px;
+  margin: -65px auto 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 5px solid white;
+  background: #f3f4f6;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
 }
 
-.profileImageWrapper:hover .imageOverlay {
-  opacity: 1;
-}
-
-.profileImage {
+.myPageScope .profileImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.profileBasicInfo h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-}
-
-.profileBasicInfo span {
-  display: block;
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.creditInfo {
-  background: #f0f7ff;
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  color: #4a90e2;
-  font-weight: 500;
-}
-
-.creditInfo strong {
-  font-weight: 800;
-}
-
-.summarySection {
-  margin-bottom: 48px;
-}
-
-.weeklySummary {
-  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-  border-radius: 20px;
-  padding: 24px;
-  border: 1px solid #eef2f8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-}
-
-.weeklySummary h4 {
-  margin: 0 0 16px 0;
-  color: #1e293b;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.summaryList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.summaryList li {
-  background: white;
-  padding: 12px 16px;
-  border-radius: 14px;
+.myPageScope .imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 55%);
+  color: white;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.95rem;
-  color: #475569;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.summaryList li.empty {
-  color: #94a3b8;
   justify-content: center;
-  padding: 24px;
+  opacity: 0;
+  transition: 0.2s;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.myPageScope .profileImageWrapper:hover .imageOverlay {
+  opacity: 1;
 }
 
-.dot.HIGH { background: #ff4d4d; box-shadow: 0 0 8px rgba(255, 77, 77, 0.4); }
-.dot.MEDIUM { background: #ffb84d; box-shadow: 0 0 8px rgba(255, 184, 77, 0.4); }
-.dot.LOW { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
+.myPageScope .profileBasicInfo {
+  margin-top: 20px;
+  text-align: center;
+}
 
-.infoForm {
+.myPageScope .profileBasicInfo h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.myPageScope .profileBasicInfo span {
+  display: block;
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.myPageScope .creditInfo {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  font-weight: 700;
+}
+
+.myPageScope .infoForm {
+  padding: 28px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
-.formGroup {
+.myPageScope .formGroup {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.myPageScope .formGroup label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.myPageScope .infoForm input,
+.myPageScope .infoForm select {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: white;
+}
+
+.myPageScope .infoForm input:focus,
+.myPageScope .infoForm select:focus {
+  outline: none;
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 8%);
+}
+
+.myPageScope .disabledInput {
+  background: #f3f4f6 !important;
+}
+
+.myPageScope .formGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.myPageScope .formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.myPageScope .editActions {
+  display: flex;
   gap: 10px;
 }
 
-.formGroup label {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #444;
-  margin-left: 4px;
-}
-
-.infoForm input,
-.infoForm select {
-  padding: 14px 20px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  font-size: 1rem;
-  background: #fcfdfe;
-  transition: all 0.2s;
-  color: #334155;
-}
-
-.infoForm input:focus,
-.infoForm select:focus {
-  outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
-  background: white;
-}
-
-.infoForm input:disabled,
-.infoForm select:disabled {
-  background-color: #f8fafc;
-  color: #94a3b8;
-  border-color: #f1f5f9;
-  cursor: not-allowed;
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  grid-column: 1 / -1;
-}
-
-.formActions {
-  grid-column: 1 / -1;
-  margin-top: 24px;
-}
-
-.editBtn, .saveBtn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 18px;
-  font-weight: 800;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.myPageScope .editBtn,
+.myPageScope .saveBtn {
+  height: 44px;
+  padding: 0 20px;
   border: none;
-}
-
-.editBtn {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border-radius: 12px;
+  background: #111111;
   color: white;
-  box-shadow: 0 10px 20px rgba(74, 144, 226, 0.2);
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.editBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px rgba(74, 144, 226, 0.3);
+.myPageScope .editBtn:hover,
+.myPageScope .saveBtn:hover {
+  background: #2d2d2d;
 }
 
-.editActions {
+.myPageScope .cancelBtn {
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+}
+
+.myPageScope .dangerZone {
+  grid-column: 2;
+  padding: 24px 28px;
+}
+
+.myPageScope .dangerZone h4 {
+  margin: 0;
+  color: #dc2626;
+}
+
+.myPageScope .dangerZone p {
+  margin: 10px 0 20px;
+  color: #6b7280;
+}
+
+.myPageScope .dangerActions {
   display: flex;
-  gap: 16px;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
-.saveBtn {
-  flex: 2;
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-  color: white;
-  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
+.myPageScope .myPageLogoutBtn {
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
 }
 
-.saveBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px rgba(46, 204, 113, 0.3);
-}
-
-.cancelBtn {
-  flex: 1;
-  background: #f1f5f9;
-  color: #64748b;
+.myPageScope .withdrawBtn {
+  height: 42px;
+  padding: 0 18px;
   border: none;
-  padding: 16px;
-  border-radius: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancelBtn:hover {
-  background: #e2e8f0;
-}
-
-.dangerZone {
-  margin-top: 64px;
-  padding: 32px;
-  background: #fff5f5;
-  border-radius: 24px;
-  border: 1px solid #ffebeb;
-}
-
-.dangerZone h4 {
-  color: #e53e3e;
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin: 0 0 8px 0;
-}
-
-.dangerZone p {
-  font-size: 0.9rem;
-  color: #9b2c2c;
-  margin-bottom: 24px;
-  opacity: 0.8;
-}
-
-.dangerActions {
-  display: flex;
-  gap: 12px;
-}
-
-.myPageLogoutBtn {
-  padding: 12px 24px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.myPageLogoutBtn:hover {
-  background: #f1f5f9;
-  color: #1a1a1a;
-  border-color: #cbd5e1;
-}
-
-.withdrawBtn {
-  padding: 12px 24px;
-  background: white;
-  color: #e53e3e;
-  border: 1px solid #feb2b2;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.withdrawBtn:hover {
-  background: #e53e3e;
+  border-radius: 12px;
+  background: #dc2626;
   color: white;
-  border-color: #e53e3e;
-  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2);
+  cursor: pointer;
 }
 
-
-@media (max-width: 640px) {
-  .myPageHeader {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .edwardSyncBtn {
-    justify-content: center;
-  }
-
-  .infoForm {
+@media (max-width: 900px) {
+  .myPageScope .myPageContent {
     grid-template-columns: 1fr;
   }
-  
-  .profileSection {
+
+  .myPageScope .profileSection {
+    position: static;
+  }
+
+  .myPageScope .dangerZone {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .myPageScope .infoForm,
+  .myPageScope .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .myPageScope .editActions,
+  .myPageScope .dangerActions {
     flex-direction: column;
-    text-align: center;
-  }
-  
-  .myPageLogoutBtn {
-    margin: 0 auto;
-  }
-  
-  .myPageContent {
-    padding: 30px 20px;
   }
 }
