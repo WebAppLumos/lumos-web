@@ -1,4 +1,4 @@
-import certificationsData from '../../lib/certifications.json'
+import certificationsData from '../../data/certifications.json'
 
 export default function ScholarshipForm({ 
   userProfile, 

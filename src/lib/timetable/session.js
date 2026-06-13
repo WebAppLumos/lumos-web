@@ -1,4 +1,4 @@
-import { fetchInitialTimetableSession } from './timetableApi'
+import { fetchInitialTimetableSession } from './api'
 
 let cache = null
 let inflight = null

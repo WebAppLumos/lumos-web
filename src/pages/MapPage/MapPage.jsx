@@ -139,7 +139,7 @@ function MapPage() {
 
         const bTime =
         Number( b.schedules.find((s) =>s.day === currentDay)?.startTime.split(":")[0]) * 60 +
-        Number(b.schedules.find((s) =>s.day === currentDay)?.startTime.split(":")[1]);
+        Number(b.schedules.find((s) => s.day === currentDay)?.startTime.split(":")[1]);
         return aTime - bTime;
       });
 
