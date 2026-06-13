@@ -7,7 +7,7 @@ import {
   pingExtension,
   syncTimetableViaExtension,
 } from '../../lib/edwardExtension'
-import { clearTimetableSession } from '../../lib/timetableSession'
+import { clearTimetableSession } from '../../lib/timetable/session'
 import './EdwardSyncModal.css'
 
 const TERM_OPTIONS = [

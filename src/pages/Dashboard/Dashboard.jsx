@@ -1,41 +1,42 @@
 import { Link } from 'react-router-dom'
 import {
-  CalendarDays,
   ClipboardCheck,
   GraduationCap,
   MapPinned,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
-import { DAYS } from '../../lib/mock-data'
+import { DAYS } from '../../lib/timetable/constants'
 import {
   DEFAULT_DASHBOARD_WIDGETS,
   fetchDashboardWidgets,
+  getCachedDashboardWidgets,
   saveDashboardWidgets,
+  setCachedDashboardWidgets,
 } from '../../lib/dashboardApi'
+import {
+  clearCalendarSession,
+  ensureCalendarSession,
+  getCalendarSession,
+} from '../../lib/calendar/session'
 import {
   clearTimetableSession,
   ensureTimetableSession,
   getTimetableSession,
-} from '../../lib/timetableSession'
+} from '../../lib/timetable/session'
+import { getStoredUser } from '../../lib/session'
+import { useStoredUser } from '../../lib/useStoredUser'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 import DashboardNav from '../../components/Dashboard/DashboardNav'
 import DashboardWidgetEditor from '../../components/Dashboard/DashboardWidgetEditor'
+import ScheduleSummaryWidget from '../../components/Dashboard/ScheduleSummaryWidget'
 import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidget'
 
 import './Dashboard.css'
 
 const dashboardSummaries = {
-  schedule: {
-    Icon: CalendarDays,
-    title: '일정',
-    link: '/schedule',
-    linkText: '일정 보기',
-    description: '오늘 해야 할 일정과 캘린더를 확인하세요.',
-    items: ['오늘 일정 0개', '이번 주 주요 일정 확인'],
-  },
   assignment: {
     Icon: ClipboardCheck,
     title: '과제',
@@ -87,7 +88,15 @@ function DashboardSummaryWidget({ summary, type, isEditing }) {
   )
 }
 
-function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing, isWeekend, isLoadingTodayTimetable }) {
+function renderDashboardWidget(widget, {
+  DAYS,
+  todayCourses,
+  todayEvents,
+  isEditing,
+  isWeekend,
+  isLoadingTodayTimetable,
+  isLoadingSchedule,
+}) {
   if (widget.type === 'timetable') {
     return (
       <TodayTimetableWidget
@@ -96,6 +105,16 @@ function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing, isWeeken
         isEditing={isEditing}
         isWeekend={isWeekend}
         isLoading={isLoadingTodayTimetable}
+      />
+    )
+  }
+
+  if (widget.type === 'schedule') {
+    return (
+      <ScheduleSummaryWidget
+        events={todayEvents}
+        isEditing={isEditing}
+        isLoading={isLoadingSchedule}
       />
     )
   }
@@ -110,70 +129,101 @@ function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing, isWeeken
 }
 
 export default function Dashboard() {
-  const session = getTimetableSession()
+  const timetableSession = getTimetableSession()
+  const calendarSession = getCalendarSession()
 
-  const [user, setUser] = useState(() => {
-    // 원본 파일처럼 앱 로그인 상태는 localStorage의 사용자 정보로 판단
-    const storedUser = localStorage.getItem('lumos_user_info')
-    return storedUser ? JSON.parse(storedUser) : null
+  const [user, setUser] = useStoredUser()
+  const [widgets, setWidgets] = useState(() => {
+    if (!getStoredUser()) return DEFAULT_DASHBOARD_WIDGETS
+    return getCachedDashboardWidgets() ?? DEFAULT_DASHBOARD_WIDGETS
   })
-  const [widgets, setWidgets] = useState(DEFAULT_DASHBOARD_WIDGETS)
-  const [isEditing, setIsEditing] = useState(false) // 위젯 편집 모드
-  const [todayCourses, setTodayCourses] = useState(() => session?.todayCourses ?? [])
-  const [isWeekend, setIsWeekend] = useState(() => session?.isWeekend ?? false)
-  const [isLoadingTodayTimetable, setIsLoadingTodayTimetable] = useState(() => !!user && !session)
-  const [isInitialLoading, setIsInitialLoading] = useState(() => !!user && !session)
+  const [isEditing, setIsEditing] = useState(false)
+  const [todayCourses, setTodayCourses] = useState(() => timetableSession?.todayCourses ?? [])
+  const [todayEvents, setTodayEvents] = useState(() => calendarSession?.todayEvents ?? [])
+  const [isWeekend, setIsWeekend] = useState(() => timetableSession?.isWeekend ?? false)
+  const [isLoadingTodayTimetable, setIsLoadingTodayTimetable] = useState(
+    () => !!getStoredUser() && !timetableSession,
+  )
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState(
+    () => !!getStoredUser() && !calendarSession,
+  )
+  const [isInitialLoading, setIsInitialLoading] = useState(
+    () => !!getStoredUser() && (!timetableSession || !calendarSession),
+  )
   const [dragWidgetId, setDragWidgetId] = useState(null)
   const [dragOverWidgetId, setDragOverWidgetId] = useState(null)
 
   useEffect(() => {
     if (!user) {
       clearTimetableSession()
+      clearCalendarSession()
       setTodayCourses([])
+      setTodayEvents([])
       setIsWeekend(false)
       setIsLoadingTodayTimetable(false)
+      setIsLoadingSchedule(false)
       setIsInitialLoading(false)
       setWidgets(DEFAULT_DASHBOARD_WIDGETS)
       return
     }
 
-    const cached = getTimetableSession()
-    if (cached) {
-      setTodayCourses(cached.todayCourses ?? [])
-      setIsWeekend(cached.isWeekend ?? false)
+    const cachedTimetable = getTimetableSession()
+    const cachedCalendar = getCalendarSession()
+
+    if (cachedTimetable) {
+      setTodayCourses(cachedTimetable.todayCourses ?? [])
+      setIsWeekend(cachedTimetable.isWeekend ?? false)
       setIsLoadingTodayTimetable(false)
+    }
+
+    if (cachedCalendar) {
+      setTodayEvents(cachedCalendar.todayEvents ?? [])
+      setIsLoadingSchedule(false)
+    }
+
+    if (cachedTimetable && cachedCalendar) {
       setIsInitialLoading(false)
     }
 
     let cancelled = false
 
-    if (!cached) {
+    if (!cachedTimetable) {
       setIsInitialLoading(true)
       setIsLoadingTodayTimetable(true)
     }
 
+    if (!cachedCalendar) {
+      setIsInitialLoading(true)
+      setIsLoadingSchedule(true)
+    }
+
     const loadDashboardData = async () => {
       try {
-        const [nextSession, savedWidgets] = await Promise.all([
-          cached ? Promise.resolve(cached) : ensureTimetableSession(),
+        const [nextTimetable, nextCalendar, savedWidgets] = await Promise.all([
+          cachedTimetable ? Promise.resolve(cachedTimetable) : ensureTimetableSession(),
+          cachedCalendar ? Promise.resolve(cachedCalendar) : ensureCalendarSession(),
           fetchDashboardWidgets().catch(() => DEFAULT_DASHBOARD_WIDGETS),
         ])
 
         if (cancelled) return
 
-        setTodayCourses(nextSession.todayCourses ?? [])
-        setIsWeekend(nextSession.isWeekend ?? false)
+        setTodayCourses(nextTimetable.todayCourses ?? [])
+        setIsWeekend(nextTimetable.isWeekend ?? false)
+        setTodayEvents(nextCalendar.todayEvents ?? [])
         setWidgets(savedWidgets)
+        setCachedDashboardWidgets(savedWidgets)
       } catch (err) {
         console.error(err)
         if (!cancelled) {
           setTodayCourses([])
+          setTodayEvents([])
           setIsWeekend(false)
         }
       } finally {
         if (!cancelled) {
           setIsInitialLoading(false)
           setIsLoadingTodayTimetable(false)
+          setIsLoadingSchedule(false)
         }
       }
     }
@@ -192,6 +242,7 @@ export default function Dashboard() {
     try {
       const saved = await saveDashboardWidgets(nextWidgets)
       setWidgets(saved)
+      setCachedDashboardWidgets(saved)
     } catch (err) {
       console.error(err)
       setWidgets(previous)
@@ -317,9 +368,11 @@ export default function Dashboard() {
                       {renderDashboardWidget(widget, {
                         DAYS,
                         todayCourses,
+                        todayEvents,
                         isEditing,
                         isWeekend,
                         isLoadingTodayTimetable,
+                        isLoadingSchedule,
                       })}
                     </div>
                   ))}
