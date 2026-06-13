@@ -1,12 +1,12 @@
 .assignmentPage {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: rgb(255 255 255 / 96%);
 }
 
 .assignmentPage .page-container {
   display: flex;
   min-height: calc(100vh - 4rem);
-  background-color: #f9fafb;
+  background-color: rgb(255 255 255 / 96%);
 }
 
 .assignmentPage .main-content {

@@ -13,7 +13,14 @@
 }
 
 .myPageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 40px;
+}
+
+.myPageHeaderText {
   text-align: left;
 }
 
@@ -28,6 +35,28 @@
 .myPageHeader p {
   color: #666;
   font-size: 1.1rem;
+}
+
+.edwardSyncBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(74, 144, 226, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edwardSyncBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(74, 144, 226, 0.28);
 }
 
 .myPageContent {
@@ -355,6 +384,15 @@
 
 
 @media (max-width: 640px) {
+  .myPageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .edwardSyncBtn {
+    justify-content: center;
+  }
+
   .infoForm {
     grid-template-columns: 1fr;
   }

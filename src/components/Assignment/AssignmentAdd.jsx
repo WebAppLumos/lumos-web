@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './AssignmentAdd.css';
 
 export default function AssignmentAdd({ onAdd, onCancel }) {
   const [course, setCourse] = useState('');
@@ -14,7 +15,7 @@ export default function AssignmentAdd({ onAdd, onCancel }) {
     setCourse(''); setTitle(''); setDeadline('');
   };
   return (
-    <form className="toss-form" onSubmit={handleSubmit}>
+    <form className="assignmentAdd toss-form" onSubmit={handleSubmit}>
       <div className="input-group">
         <label>과목명</label>
         <input type="text" placeholder="예: 소프트웨어공학"

@@ -4,3 +4,8 @@
   padding: 2rem 1rem;
   box-sizing: border-box;
 }
+
+.timetableStatus {
+  margin: 1rem 0;
+  color: #64748b;
+}

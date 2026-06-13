@@ -2,7 +2,11 @@ import { Link } from 'react-router-dom'
 import { CalendarClock } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
-export default function TodayTimetableWidget({ DAYS, courses, isEditing }) {
+export default function TodayTimetableWidget({ DAYS, courses, isEditing, isWeekend }) {
+  const emptyMessage = isWeekend
+    ? '오늘은 주말입니다.'
+    : '오늘 예정된 수업이 없습니다.'
+
   return (
     // 오늘의 시간표 위젯 카드
     <div className={`dashboardCard ${isEditing ? 'editing' : ''}`}>
@@ -15,23 +19,27 @@ export default function TodayTimetableWidget({ DAYS, courses, isEditing }) {
       </div>
 
       <div className="cardContent">
-        <ul className="classList">
-          {courses.map((course) => (
-            <li key={course.id} className="classItem">
-              <span className="classDot" style={{ background: course.color }} />
-              <div className="classInfo">
-                <div className="className">{course.name}</div>
-                <div className="classDetails">
-                  {course.schedules
-                    .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
-                    .join(', ')}
-                  <span className="classSeparator">·</span>
-                  {course.room}
+        {courses.length === 0 ? (
+          <p className="classEmpty">{emptyMessage}</p>
+        ) : (
+          <ul className="classList">
+            {courses.map((course) => (
+              <li key={course.id} className="classItem">
+                <span className="classDot" style={{ background: course.color }} />
+                <div className="classInfo">
+                  <div className="className">{course.name}</div>
+                  <div className="classDetails">
+                    {course.schedules
+                      .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
+                      .join(', ')}
+                    <span className="classSeparator">·</span>
+                    {course.room}
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   )
