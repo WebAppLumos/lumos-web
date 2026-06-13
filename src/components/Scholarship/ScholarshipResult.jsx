@@ -59,18 +59,7 @@ export default function ScholarshipResult({
                   <span className="amount">{s.amount}</span>
                 </div>
               </div>
-              <button 
-                className="apply-btn" 
-                onClick={() => {
-                  if (s.url) {
-                    window.open(s.url, '_blank', 'noopener,noreferrer');
-                  } else {
-                    alert('상세 정보 페이지가 준비 중입니다.');
-                  }
-                }}
-              >
-                상세보기
-              </button>
+              <button className="apply-btn">상세보기</button>
             </div>
           ))
         ) : (

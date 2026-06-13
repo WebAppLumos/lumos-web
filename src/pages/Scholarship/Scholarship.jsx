@@ -39,7 +39,6 @@ export default function Scholarship() {
       provider: '한국장학재단',
       amount: '학기별 최대 260만원',
       tag: '소득연계',
-      url: 'https://www.kosaf.go.kr/ko/main.do',
       checkEligibility: (profile) => {
         const credits = parseInt(profile.credits) || 0
         const gpa = parseFloat(profile.gpa) || 0
@@ -52,7 +51,6 @@ export default function Scholarship() {
       provider: '본교',
       amount: '등록금 전액',
       tag: '성적',
-      url: 'https://janghak.kmu.ac.kr/janghak/9308/subview.do',
       checkEligibility: (profile) => {
         const credits = parseInt(profile.credits) || 0
         const gpa = parseFloat(profile.gpa) || 0
@@ -65,7 +63,6 @@ export default function Scholarship() {
       provider: '본교',
       amount: '50만원',
       tag: '자기계발',
-      url: 'https://janghak.kmu.ac.kr/janghak/9308/subview.do',
       checkEligibility: (profile) => {
         const currentToeic = parseInt(profile.toeic) || 0
         const prevToeic = parseInt(profile.prevToeic) || 0
@@ -80,7 +77,6 @@ export default function Scholarship() {
       provider: '본교',
       amount: '50만원',
       tag: '자기계발',
-      url: 'https://janghak.kmu.ac.kr/janghak/9308/subview.do',
       checkEligibility: (profile) => {
         return profile.certificates.some(cert => cert.score >= 90)
       }
@@ -91,7 +87,6 @@ export default function Scholarship() {
       provider: '본교',
       amount: '30만원',
       tag: '자기계발',
-      url: 'https://janghak.kmu.ac.kr/janghak/9308/subview.do',
       checkEligibility: (profile) => {
         return profile.certificates.some(cert => cert.score >= 70 && cert.score < 90)
       }
@@ -102,7 +97,6 @@ export default function Scholarship() {
       provider: '본교',
       amount: '20만원',
       tag: '자기계발',
-      url: 'https://janghak.kmu.ac.kr/janghak/9308/subview.do',
       checkEligibility: (profile) => {
         return profile.certificates.some(cert => cert.score >= 60 && cert.score < 70)
       }
