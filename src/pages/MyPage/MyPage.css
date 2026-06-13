@@ -76,6 +76,7 @@
 }
 
 .myPageScope .profileImageWrapper {
+  position: relative;
   width: 130px;
   height: 130px;
   margin: -65px auto 0;
@@ -84,6 +85,7 @@
   border: 5px solid white;
   background: #f3f4f6;
   box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
+  cursor: pointer;
 }
 
 .myPageScope .profileImage {
@@ -95,13 +97,15 @@
 .myPageScope .imageOverlay {
   position: absolute;
   inset: 0;
+  border-radius: 50%;
   background: rgb(0 0 0 / 55%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: 0.2s;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 
 .myPageScope .profileImageWrapper:hover .imageOverlay {

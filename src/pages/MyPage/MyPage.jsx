@@ -58,7 +58,14 @@ export default function MyPage() {
 
       if (activeSemester) {
         const courseRes = await api.get(`/api/semesters/${activeSemester.id}/courses`);
-        const credits = courseRes.data.reduce((acc, curr) => acc + (curr.credit || 0), 0);
+        const seenCourseIds = new Set();
+        const credits = courseRes.data.reduce((acc, curr) => {
+          if (seenCourseIds.has(curr.id)) {
+            return acc;
+          }
+          seenCourseIds.add(curr.id);
+          return acc + (Number(curr.credit) || 0);
+        }, 0);
         setTotalCredits(credits);
       }
     } catch (err) {
