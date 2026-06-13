@@ -183,7 +183,11 @@ export default function TimetableGrid({
                         <div className="blockName">{course.name}</div>
                         {view === 'info' && (
                           <>
-                            <div className="blockMeta">{course.room}</div>
+                            <div className="blockMeta">
+                              {[course.room, course.credit != null ? `${course.credit}학점` : null]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </div>
                             <div className="blockMeta">
                               {sc.startTime} - {sc.endTime}
                             </div>

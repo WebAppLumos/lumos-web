@@ -34,11 +34,19 @@ export default function TimetableCourseList({
               { // view를 수업 정보로 변경
                 view === 'info' && (
                   <div className="listMeta">
-                    {c.professor} · {c.room}
+                    {[
+                      c.professor,
+                      c.isOnline ? '온라인' : c.room,
+                      c.credit != null ? `${c.credit}학점` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                     <br />
-                    {c.schedules
-                      .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
-                      .join(', ')}
+                    {c.isOnline
+                      ? '온라인 수업'
+                      : c.schedules
+                        .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
+                        .join(', ')}
                   </div>
               )}
 
