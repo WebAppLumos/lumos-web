@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 
 
@@ -42,6 +43,8 @@ import './Schedule.css'
 
 
 function Schedule() {
+  const [searchParams] = useSearchParams()
+  const initialKeyword = searchParams.get('q') ?? ''
 
   const calendarSession = getCalendarSession()
 
@@ -57,9 +60,9 @@ function Schedule() {
 
   const [modalOpen, setModalOpen] = useState(false)
 
-  const [keyword, setKeyword] = useState('')
+  const [keyword, setKeyword] = useState(initialKeyword)
 
-  const [appliedKeyword, setAppliedKeyword] = useState('')
+  const [appliedKeyword, setAppliedKeyword] = useState(initialKeyword)
 
   const [category, setCategory] = useState('')
 
