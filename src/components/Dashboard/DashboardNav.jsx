@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { clearStoredSession } from '../../lib/session'
@@ -7,6 +7,7 @@ import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
   const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
   const profileImage = user?.profileImage
@@ -21,10 +22,19 @@ export default function DashboardNav({ user, onLogout }) {
     navigate('/')
   }
 
+  const handleBrandClick = (event) => {
+    event.preventDefault()
+    if (location.pathname === '/') {
+      window.location.reload()
+    } else {
+      window.location.href = '/'
+    }
+  }
+
   return (
     // Dashboard 상단 공통 내비게이션
     <header className="dashboardNav">
-      <Link to="/" className="navBrand">
+      <a href="/" className="navBrand" onClick={handleBrandClick}>
         <span className="navLogo" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path
@@ -44,7 +54,7 @@ export default function DashboardNav({ user, onLogout }) {
           </svg>
         </span>
         <span className="navTitle">UniDash</span>
-      </Link>
+      </a>
 
       <nav className="navLinks">
         <NavLink

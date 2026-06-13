@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { DAYS, TIME_SLOTS } from '../../lib/mock-data'
+import { useStoredUser } from '../../lib/useStoredUser'
+import { DAYS, TIME_SLOTS } from '../../lib/timetable/constants'
 import {
   apiDayToUi,
   buildCoursesOnBoard,
@@ -20,6 +21,7 @@ import {
   formatTime,
   mapCourse,
   mergeSchedulesByDay,
+  pruneNotesByEntries,
   reorderSemesters,
   reorderTimetables,
   slotStyleFromTimes,
@@ -27,13 +29,13 @@ import {
   updateNote,
   updateSemester,
   updateTimetable,
-} from '../../lib/timetableApi'
+} from '../../lib/timetable/api'
 import {
   clearTimetableSession,
   ensureTimetableSession,
   getTimetableSession,
   setTimetableSession,
-} from '../../lib/timetableSession'
+} from '../../lib/timetable/session'
 
 import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
 import TimetableControls from '../../components/Timetable/TimetableControls'
@@ -50,10 +52,7 @@ import './Timetable.css'
 export default function Timetable() {
   const session = getTimetableSession()
 
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('lumos_user_info')
-    return storedUser ? JSON.parse(storedUser) : null
-  })
+  const [user, setUser] = useStoredUser()
   const [loading, setLoading] = useState(() => !session)
   const [error, setError] = useState('')
   const [semesterId, setSemesterId] = useState(() => session?.semesterId ?? null)
@@ -125,8 +124,10 @@ export default function Timetable() {
       const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
       const nextNotes = await fetchNotesForCourses(courseIds)
       setNotes((prev) => {
-        const others = prev.filter((note) => !courseIds.includes(note.course_id))
-        return [...others, ...nextNotes]
+        const mergedEntries = semesterEntries
+        const pruned = pruneNotesByEntries(prev, mergedEntries)
+        const kept = pruned.filter((note) => !courseIds.includes(note.course_id))
+        return [...kept, ...nextNotes]
       })
     }
   }, [])
@@ -203,20 +204,25 @@ export default function Timetable() {
 
   const reloadTimetableEntries = useCallback(async (targetTimetableId) => {
     const timetableEntries = await fetchEntries(targetTimetableId)
+    const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
+    const fetchedNotes = courseIds.length > 0 ? await fetchNotesForCourses(courseIds) : []
+
     setEntries((prev) => {
       const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
       return [...others, ...timetableEntries]
     })
+
     setAllSemesterEntries((prev) => {
       const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
-      return [...others, ...timetableEntries]
-    })
+      const merged = [...others, ...timetableEntries]
 
-    const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
-    const nextNotes = await fetchNotesForCourses(courseIds)
-    setNotes((prev) => {
-      const others = prev.filter((note) => !courseIds.includes(note.course_id))
-      return [...others, ...nextNotes]
+      setNotes((prevNotes) => {
+        const pruned = pruneNotesByEntries(prevNotes, merged)
+        const kept = pruned.filter((note) => !courseIds.includes(note.course_id))
+        return [...kept, ...fetchedNotes]
+      })
+
+      return merged
     })
   }, [])
 
@@ -396,17 +402,20 @@ export default function Timetable() {
       await Promise.all(targetTimetableIds.map((id) => deleteTimetable(id)))
 
       const remaining = timetables.filter((t) => !targetTimetableIds.includes(t.id))
+      const nextAllSemesterEntries = allSemesterEntries.filter(
+        (entry) => !targetTimetableIds.includes(entry.timetableId),
+      )
+
       setTimetables(remaining)
       setEntries((prev) => prev.filter((entry) => !targetTimetableIds.includes(entry.timetableId)))
-      setAllSemesterEntries((prev) => prev.filter((entry) => !targetTimetableIds.includes(entry.timetableId)))
+      setAllSemesterEntries(nextAllSemesterEntries)
+      setNotes((prev) => pruneNotesByEntries(prev, nextAllSemesterEntries))
 
       if (targetTimetableIds.includes(timetableId)) {
         const nextSelected = remaining.find((t) => t.semesterId === semesterId)
         setTimetableId(nextSelected?.id ?? null)
         if (nextSelected?.id) {
           await reloadTimetableEntries(nextSelected.id)
-        } else {
-          setNotes([])
         }
       }
     } catch (err) {
@@ -470,8 +479,12 @@ export default function Timetable() {
     try {
       await Promise.all(targetEntries.map((entry) => deleteEntry(entry.id)))
       const targetIds = new Set(targetEntries.map((entry) => entry.id))
-      setEntries((prev) => prev.filter((entry) => !targetIds.has(entry.id)))
-      setAllSemesterEntries((prev) => prev.filter((entry) => !targetIds.has(entry.id)))
+      const nextEntries = entries.filter((entry) => !targetIds.has(entry.id))
+      const nextAllSemesterEntries = allSemesterEntries.filter((entry) => !targetIds.has(entry.id))
+
+      setEntries(nextEntries)
+      setAllSemesterEntries(nextAllSemesterEntries)
+      setNotes((prev) => pruneNotesByEntries(prev, nextAllSemesterEntries))
     } catch (err) {
       console.error(err)
       window.alert('수업을 시간표에서 제거하지 못했습니다.')
@@ -519,7 +532,7 @@ export default function Timetable() {
           <div className="Dashboard">
             <div className="dashboardHeader">
               <div>
-                <h1 className="dashboardTitle">시간표 & 일정 관리</h1>
+                <h1 className="dashboardTitle">시간표 관리</h1>
                 <p className="dashboardSubtitle">학기별 시간표와 수업을 관리합니다</p>
               </div>
             </div>
@@ -554,7 +567,7 @@ export default function Timetable() {
                 DAYS={DAYS}
                 semesterId={semesterId}
                 timetableId={timetableId}
-                mockSemesters={sortedSemesters}
+                semesters={sortedSemesters}
                 semTimetables={semTimetables}
                 availableCourses={availableCourses}
                 selectedCourseId={selectedAvailableCourseId}
@@ -572,11 +585,6 @@ export default function Timetable() {
 
               <TimetableTabs view={view} setView={setView} />
 
-              <TimetableOnlineCourses
-                onlineCourses={onlineCourses}
-                onDeleteCourse={onDeleteCourse}
-              />
-
               <TimetableGrid
                 DAYS={DAYS}
                 TIME_SLOTS={TIME_SLOTS}
@@ -591,6 +599,11 @@ export default function Timetable() {
                 onAddNote={onAddNote}
                 onDeleteNotes={onDeleteNotes}
                 onUpdateNote={onUpdateNote}
+              />
+
+              <TimetableOnlineCourses
+                onlineCourses={onlineCourses}
+                onDeleteCourse={onDeleteCourse}
               />
 
               <TimetableCourseList

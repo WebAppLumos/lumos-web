@@ -4,7 +4,9 @@ import { RefreshCw } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 import { deleteUser, signOut } from 'firebase/auth';
 import api from '../../lib/api';
-import { clearStoredSession } from '../../lib/session';
+import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
+import { clearStoredSession, setStoredUser } from '../../lib/session';
+import { useStoredUser } from '../../lib/useStoredUser';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
@@ -13,10 +15,7 @@ import './MyPage.css';
 export default function MyPage() {
   const fileInputRef = useRef(null);
 
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('lumos_user_info');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useStoredUser();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -53,21 +52,8 @@ export default function MyPage() {
 
   const fetchSemesterCredits = async () => {
     try {
-      const semRes = await api.get('/api/semesters');
-      const activeSemester = semRes.data.find((s) => s.isActive) || semRes.data[0];
-
-      if (activeSemester) {
-        const courseRes = await api.get(`/api/semesters/${activeSemester.id}/courses`);
-        const seenCourseIds = new Set();
-        const credits = courseRes.data.reduce((acc, curr) => {
-          if (seenCourseIds.has(curr.id)) {
-            return acc;
-          }
-          seenCourseIds.add(curr.id);
-          return acc + (Number(curr.credit) || 0);
-        }, 0);
-        setTotalCredits(credits);
-      }
+      const credits = await fetchActiveSemesterCredits();
+      setTotalCredits(credits);
     } catch (err) {
       console.error(err);
     }
@@ -109,7 +95,7 @@ export default function MyPage() {
 
         const updatedUser = res.data;
 
-        localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
+        setStoredUser(updatedUser);
         setUser(updatedUser);
         setFormData((prev) => ({
           ...prev,
@@ -143,7 +129,7 @@ export default function MyPage() {
       const response = await api.patch('/api/users/me', formData);
       const updatedUser = response.data;
 
-      localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
+      setStoredUser(updatedUser);
       setUser(updatedUser);
       setIsEditing(false);
 
