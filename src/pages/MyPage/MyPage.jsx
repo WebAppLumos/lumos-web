@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RefreshCw } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 import { deleteUser } from 'firebase/auth';
 import api from '../../lib/api';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
+import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
 export default function MyPage() {
@@ -28,6 +30,7 @@ export default function MyPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [totalCredits, setTotalCredits] = useState(0);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -193,9 +196,25 @@ export default function MyPage() {
       <main className="dashboardMain">
         <div className="myPageContainer">
           <div className="myPageHeader">
-            <h2>마이페이지</h2>
-            <p>회원님의 정보를 확인하고 수정할 수 있습니다.</p>
+            <div className="myPageHeaderText">
+              <h2>마이페이지</h2>
+              <p>회원님의 정보를 확인하고 수정할 수 있습니다.</p>
+            </div>
+            <button
+              type="button"
+              className="edwardSyncBtn"
+              onClick={() => setSyncModalOpen(true)}
+            >
+              <RefreshCw size={16} aria-hidden="true" />
+              EDWARD 동기화
+            </button>
           </div>
+
+          <EdwardSyncModal
+            open={syncModalOpen}
+            onClose={() => setSyncModalOpen(false)}
+            onSuccess={fetchSemesterCredits}
+          />
 
           <div className="myPageContent">
             <div className="profileSection">
