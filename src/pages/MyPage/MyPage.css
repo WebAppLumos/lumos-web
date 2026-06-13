@@ -1,7 +1,7 @@
 .myPageScope {
   width: min(64rem, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 0 0 4rem;
+  padding: 0 0 3rem;
 }
 
 .myPageScope .myPageHeader {
@@ -9,23 +9,25 @@
   justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding: 1.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.625rem;
+  margin-bottom: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
   background: #111111;
-  color: #ffffff;
+  color: white;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 14%);
 }
 
 .myPageScope .myPageHeader h2 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 800;
+  color: white;
 }
 
 .myPageScope .myPageHeader p {
   margin: 0.5rem 0 0;
-  color: #d1d5db;
+  color: #d4d4d4;
+  font-size: 0.9375rem;
 }
 
 .myPageScope .edwardSyncBtn {
@@ -34,24 +36,26 @@
   gap: 0.5rem;
   height: 2.75rem;
   padding: 0 1rem;
-  border: 1px solid #404040;
-  border-radius: 0.5rem;
-  background: #1f1f1f;
-  color: white;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 0.625rem;
+  background: white;
+  color: #111111;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.2s;
   white-space: nowrap;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 18%);
 }
 
 .myPageScope .edwardSyncBtn:hover {
-  background: #2f2f2f;
+  background: #f5f5f5;
+  transform: translateY(-1px);
 }
 
 .myPageScope .myPageContent {
   display: grid;
-  grid-template-columns: 17.5rem minmax(0, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: 1rem;
   align-items: start;
 }
 
@@ -69,34 +73,24 @@
 .myPageScope .gradeAccessPanel,
 .myPageScope .dangerZone {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.625rem;
-  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 6%);
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 4%);
 }
 
 .myPageScope .profileSection {
-  padding: 1.5rem;
-  overflow: hidden;
-}
-
-.myPageScope .profileSection::before {
-  content: "";
-  display: block;
-  height: 5.5rem;
-  margin: -1.5rem -1.5rem 0;
-  background: #111111;
+  padding: 1.25rem;
 }
 
 .myPageScope .profileImageWrapper {
   position: relative;
-  width: 7.5rem;
-  height: 7.5rem;
-  margin: -3.75rem auto 0;
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto;
   border-radius: 50%;
   overflow: hidden;
-  border: 0.25rem solid white;
+  border: 1px solid #e5e5e5;
   background: #f3f4f6;
-  box-shadow: 0 0.5rem 1.25rem rgb(0 0 0 / 12%);
   cursor: pointer;
 }
 
@@ -144,10 +138,10 @@
 
 .myPageScope .creditInfo {
   margin-top: 1.25rem;
-  padding: 0.875rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: #f9fafb;
+  padding: 0.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.625rem;
+  background: #fafafa;
   color: #111827;
   font-weight: 700;
 }
@@ -155,7 +149,7 @@
 .myPageScope .myPageMenu {
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .myPageScope .myPageMenuBtn {
@@ -164,12 +158,12 @@
   gap: 0.625rem;
   width: 100%;
   min-height: 2.75rem;
-  padding: 0 0.875rem;
+  padding: 0 0.75rem;
   border: none;
   border-radius: 0.5rem;
   background: transparent;
   color: #525252;
-  font-weight: 700;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -177,8 +171,8 @@
 
 .myPageScope .myPageMenuBtn:hover,
 .myPageScope .myPageMenuBtn.active {
-  background: #111111;
-  color: white;
+  background: #f5f5f5;
+  color: #171717;
 }
 
 .myPageScope .myPagePanel {
@@ -186,10 +180,10 @@
 }
 
 .myPageScope .infoForm {
-  padding: 1.75rem;
+  padding: 1.25rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .myPageScope .formGroup {
@@ -201,14 +195,14 @@
 .myPageScope .formGroup label {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #374151;
+  color: #525252;
 }
 
 .myPageScope .infoForm input,
 .myPageScope .infoForm select {
   height: 3rem;
   padding: 0 0.875rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d4d4d4;
   border-radius: 0.5rem;
   background: white;
   color: #111827;
@@ -218,7 +212,7 @@
 .myPageScope .infoForm select:focus {
   outline: none;
   border-color: #111111;
-  box-shadow: 0 0 0 3px rgb(0 0 0 / 8%);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 6%);
 }
 
 .myPageScope .disabledInput {
@@ -229,7 +223,7 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .myPageScope .formActions {
@@ -237,7 +231,7 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 1.25rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e5e5e5;
 }
 
 .myPageScope .editActions,
@@ -252,7 +246,7 @@
   height: 2.75rem;
   padding: 0 1.25rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
   background: #111111;
   color: white;
   font-weight: 700;
@@ -270,7 +264,7 @@
   height: 2.75rem;
   padding: 0 1.25rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
   background: white;
   color: #111827;
   cursor: pointer;
@@ -278,56 +272,185 @@
 
 .myPageScope .gradeAccessPanel,
 .myPageScope .dangerZone {
-  padding: 1.75rem;
+  padding: 1.5rem;
 }
 
 .myPageScope .panelHead {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .myPageScope .gradeAccessPanel h4,
 .myPageScope .dangerZone h4 {
   margin: 0;
   color: #111827;
-  font-size: 1.125rem;
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .myPageScope .gradeAccessPanel p,
 .myPageScope .dangerZone p {
   margin: 0.5rem 0 0;
   color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.myPageScope .gradeViewBtn {
+  height: 3rem;
+  padding: 0 1.5rem;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 12%);
 }
 
 .myPageScope .gradeMetricGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 1rem;
+}
+
+.myPageScope .gradeDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .myPageScope .gradeMetric {
-  padding: 1.125rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.625rem;
-  background: #f9fafb;
+  padding: 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.875rem;
+  background: #fafafa;
 }
 
 .myPageScope .gradeMetric span,
 .myPageScope .gradeMetric small {
   display: block;
   color: #6b7280;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .myPageScope .gradeMetric strong {
   display: block;
-  margin-top: 0.625rem;
+  margin-top: 0.375rem;
   color: #111827;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   line-height: 1;
 }
 
 .myPageScope .gradeMetric small {
-  margin-top: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.myPageScope .semesterGradeTableCard,
+.myPageScope .semesterGradeChart {
+  padding: 1.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 4%);
+}
+
+.myPageScope .semesterGradeHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.myPageScope .semesterGradeHead h5 {
+  margin: 0;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.myPageScope .semesterGradeHead span {
+  color: #737373;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.myPageScope .semesterGradeTableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.myPageScope .semesterGradeTable {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.myPageScope .semesterGradeTable th,
+.myPageScope .semesterGradeTable td {
+  padding: 0.75rem 0.625rem;
+  border-bottom: 1px solid #eeeeee;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.myPageScope .semesterGradeTable th {
+  background: #f9fafb;
+  color: #525252;
+  font-weight: 700;
+}
+
+.myPageScope .semesterGradeTable td {
+  color: #111827;
+  font-weight: 500;
+}
+
+.myPageScope .semesterGradeTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.myPageScope .gradeLineChart {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.myPageScope .gradeLineChart svg {
+  display: block;
+  width: 100%;
+  min-width: 34rem;
+  height: auto;
+}
+
+.myPageScope .gradeGridLine {
+  stroke: #eeeeee;
+  stroke-width: 1;
+}
+
+.myPageScope .gradeLine {
+  fill: none;
+  stroke: #111111;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.myPageScope .gradePoint {
+  fill: #111111;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.myPageScope .gradeAxisText,
+.myPageScope .gradeValueText,
+.myPageScope .gradeSemesterText {
+  fill: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.myPageScope .gradeValueText,
+.myPageScope .gradeSemesterText {
+  text-anchor: middle;
+}
+
+.myPageScope .gradeValueText {
+  fill: #111827;
 }
 
 .myPageScope .dangerZone h4 {
@@ -343,7 +466,7 @@
   height: 2.75rem;
   padding: 0 1.25rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
   background: #dc2626;
   color: white;
   cursor: pointer;

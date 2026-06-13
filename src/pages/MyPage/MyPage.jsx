@@ -10,6 +10,26 @@ import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
+const semesterGradeData = [
+  { academicYear: '2023', term: '1학기', label: '23-1', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2023', term: '2학기', label: '23-2', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2024', term: '1학기', label: '24-1', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2024', term: '2학기', label: '24-2', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2025', term: '1학기', label: '25-1', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2025', term: '2학기', label: '25-2', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2026', term: '1학기', label: '26-1', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+  { academicYear: '2026', term: '2학기', label: '26-2', completedCredits: 0, registeredCredits: 0, gpa: 0, academicWarning: false },
+];
+
+const totalCompletedCredits = semesterGradeData.reduce(
+  (sum, item) => sum + item.completedCredits,
+  0,
+);
+const averageGpa = semesterGradeData.length
+  ? semesterGradeData.reduce((sum, item) => sum + item.gpa, 0) / semesterGradeData.length
+  : 0;
+const academicWarningCount = semesterGradeData.filter((item) => item.academicWarning).length;
+
 export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -87,7 +107,7 @@ export default function MyPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
+      alert('이미지 파일만 업로드할 수 있습니다.');
       return;
     }
 
@@ -208,7 +228,7 @@ export default function MyPage() {
           <div className="myPageHeader">
             <div className="myPageHeaderText">
               <h2>마이페이지</h2>
-              <p>내 정보, 성적, 계정 설정을 한 곳에서 관리합니다.</p>
+              <p>회원 정보와 학업 정보를 확인하고 필요한 설정을 관리합니다.</p>
             </div>
 
             <button
@@ -253,7 +273,7 @@ export default function MyPage() {
                   <span>{user.major || user.department || ''}</span>
 
                   <div className="creditInfo">
-                    이번 학기 신청 학점: <strong>{totalCredits}학점</strong>
+                    이번 학기 신청 학점 <strong>{totalCredits}</strong>
                   </div>
                 </div>
               </div>
@@ -397,7 +417,7 @@ export default function MyPage() {
                 <section className="gradeAccessPanel">
                   <div className="panelHead">
                     <h4>성적 정보</h4>
-                    <p>민감한 정보이므로 성적 보기 버튼을 누른 뒤 표시합니다.</p>
+                    <p>성적 정보는 민감한 정보이므로 확인 버튼을 누른 뒤 표시됩니다.</p>
                   </div>
 
                   {!showGradeDetails ? (
@@ -409,24 +429,117 @@ export default function MyPage() {
                       성적 보기
                     </button>
                   ) : (
-                    <div className="gradeMetricGrid">
-                      <div className="gradeMetric">
-                        <span>전체 평점</span>
-                        <strong>0.00</strong>
-                        <small>/ 4.50</small>
+                    <div className="gradeDetails">
+                      <div className="gradeMetricGrid">
+                        <div className="gradeMetric">
+                          <span>총 취득학점</span>
+                          <strong>{totalCompletedCredits}</strong>
+                          <small>학점</small>
+                        </div>
+
+                        <div className="gradeMetric">
+                          <span>평균학점</span>
+                          <strong>{averageGpa.toFixed(2)}</strong>
+                          <small>/ 4.50</small>
+                        </div>
+
+                        <div className="gradeMetric">
+                          <span>학사경고</span>
+                          <strong>{academicWarningCount}</strong>
+                          <small>회</small>
+                        </div>
                       </div>
 
-                      <div className="gradeMetric">
-                        <span>전공 평점</span>
-                        <strong>0.00</strong>
-                        <small>/ 4.50</small>
-                      </div>
+                      <section className="semesterGradeTableCard">
+                        <div className="semesterGradeHead">
+                          <h5>학기별 성적</h5>
+                          <span>백엔드 연동 전 기본값</span>
+                        </div>
 
-                      <div className="gradeMetric">
-                        <span>취득 학점</span>
-                        <strong>0</strong>
-                        <small>학점</small>
-                      </div>
+                        <div className="semesterGradeTableWrap">
+                          <table className="semesterGradeTable">
+                            <thead>
+                              <tr>
+                                <th>학년도</th>
+                                <th>학기</th>
+                                <th>이수학점</th>
+                                <th>수강신청학점</th>
+                                <th>평균학점</th>
+                                <th>학사경고</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {semesterGradeData.map((item) => (
+                                <tr key={`${item.academicYear}-${item.term}`}>
+                                  <td>{item.academicYear}</td>
+                                  <td>{item.term}</td>
+                                  <td>{item.completedCredits}</td>
+                                  <td>{item.registeredCredits}</td>
+                                  <td>{item.gpa.toFixed(2)}</td>
+                                  <td>{item.academicWarning ? '대상' : '없음'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+
+                      <section className="semesterGradeChart">
+                        <div className="semesterGradeHead">
+                          <h5>학기별 평균학점 추이</h5>
+                          <span>GPA / 4.50</span>
+                        </div>
+
+                        <div className="gradeLineChart">
+                          <svg viewBox="0 0 700 220" role="img" aria-label="학기별 평균학점 선 그래프">
+                            {[0, 1.5, 3, 4.5].map((value) => {
+                              const y = 180 - (value / 4.5) * 150;
+                              return (
+                                <g key={value}>
+                                  <line
+                                    className="gradeGridLine"
+                                    x1="40"
+                                    y1={y}
+                                    x2="680"
+                                    y2={y}
+                                  />
+                                  <text className="gradeAxisText" x="8" y={y + 4}>
+                                    {value.toFixed(value === 0 ? 0 : 1)}
+                                  </text>
+                                </g>
+                              );
+                            })}
+
+                            <polyline
+                              className="gradeLine"
+                              points={semesterGradeData
+                                .map((item, index) => {
+                                  const x = 60 + index * (600 / (semesterGradeData.length - 1));
+                                  const y = 180 - (item.gpa / 4.5) * 150;
+                                  return `${x},${y}`;
+                                })
+                                .join(' ')}
+                            />
+
+                            {semesterGradeData.map((item, index) => {
+                              const x = 60 + index * (600 / (semesterGradeData.length - 1));
+                              const y = 180 - (item.gpa / 4.5) * 150;
+
+                              return (
+                                <g key={item.label}>
+                                  <circle className="gradePoint" cx={x} cy={y} r="5" />
+                                  <text className="gradeValueText" x={x} y={y - 12}>
+                                    {item.gpa.toFixed(2)}
+                                  </text>
+                                  <text className="gradeSemesterText" x={x} y="206">
+                                    {item.label}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        </div>
+                      </section>
                     </div>
                   )}
                 </section>
