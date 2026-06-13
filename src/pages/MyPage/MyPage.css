@@ -1,379 +1,288 @@
-.myPageContainer {
+.myPageScope {
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 32px 0 56px;
+  padding: 36px 0 64px;
 }
 
-.myPageContainer.empty {
-  text-align: center;
-  padding: 96px 24px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-}
-
-.myPageHeader {
+.myPageScope .myPageHeader {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 24px;
   margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 32px;
+  border-radius: 20px;
+  background: #111111;
+  color: #ffffff;
 }
 
-.myPageHeaderText {
-  text-align: left;
-}
-
-.myPageHeader h2 {
+.myPageScope .myPageHeader h2 {
   margin: 0;
-  color: #111827;
-  font-size: 1.75rem;
-  font-weight: 750;
-  letter-spacing: 0;
+  font-size: 2rem;
+  font-weight: 800;
 }
 
-.myPageHeader p {
-  margin: 6px 0 0;
-  color: #6b7280;
-  font-size: 0.95rem;
+.myPageScope .myPageHeader p {
+  margin-top: 8px;
+  color: #d1d5db;
 }
 
-.edwardSyncBtn {
-  display: inline-flex;
+.myPageScope .edwardSyncBtn {
+  display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  color: #111827;
-  font-size: 0.9rem;
-  font-weight: 650;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #404040;
+  border-radius: 999px;
+  background: #1f1f1f;
+  color: white;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-.edwardSyncBtn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+.myPageScope .edwardSyncBtn:hover {
+  background: #2f2f2f;
 }
 
-.myPageContent {
+.myPageScope .myPageContent {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: 320px 1fr;
   gap: 24px;
 }
 
-.profileSection,
-.infoForm,
-.dangerZone {
-  background: #fff;
+.myPageScope .profileSection,
+.myPageScope .infoForm,
+.myPageScope .dangerZone {
+  background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
 }
 
-.profileSection {
+.myPageScope .profileSection {
   position: sticky;
-  top: 88px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 20px;
-  padding: 24px;
+  top: 90px;
+  padding: 28px;
+  overflow: hidden;
 }
 
-.profileImageWrapper {
-  position: relative;
-  width: 128px;
-  height: 128px;
-  margin: 0 auto;
-  border: 1px solid #e5e7eb;
+.myPageScope .profileSection::before {
+  content: "";
+  display: block;
+  height: 90px;
+  margin: -28px -28px 0;
+  background: #111111;
+}
+
+.myPageScope .profileImageWrapper {
+  width: 130px;
+  height: 130px;
+  margin: -65px auto 0;
   border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
+  border: 5px solid white;
   background: #f3f4f6;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
 }
 
-.imageOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgb(17 24 39 / 58%);
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 650;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.profileImageWrapper:hover .imageOverlay {
-  opacity: 1;
-}
-
-.profileImage {
+.myPageScope .profileImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.profileBasicInfo {
+.myPageScope .imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 55%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.myPageScope .profileImageWrapper:hover .imageOverlay {
+  opacity: 1;
+}
+
+.myPageScope .profileBasicInfo {
+  margin-top: 20px;
   text-align: center;
 }
 
-.profileBasicInfo h3 {
+.myPageScope .profileBasicInfo h3 {
   margin: 0;
-  color: #111827;
-  font-size: 1.25rem;
-  font-weight: 750;
-}
-
-.profileBasicInfo span {
-  display: block;
-  margin-top: 6px;
-  color: #6b7280;
-  font-size: 0.92rem;
-}
-
-.creditInfo {
-  margin-top: 18px;
-  padding: 12px;
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.creditInfo strong {
+  font-size: 1.4rem;
   font-weight: 800;
+  color: #111827;
 }
 
-.summarySection,
-.weeklySummary,
-.summaryList,
-.summaryList li,
-.summaryList li.empty,
-.dot {
-  display: none;
+.myPageScope .profileBasicInfo span {
+  display: block;
+  margin-top: 8px;
+  color: #6b7280;
 }
 
-.infoForm {
+.myPageScope .creditInfo {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  font-weight: 700;
+}
+
+.myPageScope .infoForm {
+  padding: 28px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 20px;
-  padding: 24px;
+  gap: 20px;
 }
 
-.formGroup {
+.myPageScope .formGroup {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.formGroup label {
-  color: #374151;
-  font-size: 0.86rem;
+.myPageScope .formGroup label {
+  font-size: 0.9rem;
   font-weight: 700;
+  color: #374151;
 }
 
-.infoForm input,
-.infoForm select {
-  width: 100%;
-  min-height: 42px;
-  padding: 0 12px;
+.myPageScope .infoForm input,
+.myPageScope .infoForm select {
+  height: 48px;
+  padding: 0 14px;
   border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  color: #111827;
-  font-size: 0.95rem;
-  box-sizing: border-box;
+  border-radius: 12px;
+  background: white;
 }
 
-.infoForm input:focus,
-.infoForm select:focus {
+.myPageScope .infoForm input:focus,
+.myPageScope .infoForm select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 8%);
 }
 
-.infoForm input:disabled,
-.infoForm select:disabled,
-.infoForm .disabledInput {
-  background-color: #f9fafb;
-  color: #6b7280;
-  cursor: not-allowed;
+.myPageScope .disabledInput {
+  background: #f3f4f6 !important;
 }
 
-.formGrid {
+.myPageScope .formGrid {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-column: 1 / -1;
   gap: 20px;
 }
 
-.formActions {
+.myPageScope .formActions {
+  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
-  grid-column: 1 / -1;
-  margin-top: 8px;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
 }
 
-.editBtn,
-.saveBtn,
-.cancelBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.editBtn,
-.saveBtn {
-  border: 1px solid #111827;
-  background: #111827;
-  color: #fff;
-}
-
-.editBtn:hover,
-.saveBtn:hover {
-  background: #374151;
-}
-
-.editActions {
+.myPageScope .editActions {
   display: flex;
   gap: 10px;
 }
 
-.cancelBtn {
+.myPageScope .editBtn,
+.myPageScope .saveBtn {
+  height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 12px;
+  background: #111111;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.myPageScope .editBtn:hover,
+.myPageScope .saveBtn:hover {
+  background: #2d2d2d;
+}
+
+.myPageScope .cancelBtn {
+  height: 44px;
+  padding: 0 20px;
   border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
 }
 
-.cancelBtn:hover {
-  background: #f9fafb;
-}
-
-.dangerZone {
+.myPageScope .dangerZone {
   grid-column: 2;
-  margin-top: 0;
-  padding: 22px 24px;
-  border-color: #fecaca;
-  background: #fff;
+  padding: 24px 28px;
 }
 
-.dangerZone h4 {
+.myPageScope .dangerZone h4 {
   margin: 0;
-  color: #991b1b;
-  font-size: 1rem;
-  font-weight: 800;
+  color: #dc2626;
 }
 
-.dangerZone p {
-  margin: 8px 0 18px;
-  color: #7f1d1d;
-  font-size: 0.88rem;
-  line-height: 1.55;
+.myPageScope .dangerZone p {
+  margin: 10px 0 20px;
+  color: #6b7280;
 }
 
-.dangerActions {
+.myPageScope .dangerActions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
-.myPageLogoutBtn,
-.withdrawBtn {
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
+.myPageScope .myPageLogoutBtn {
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: white;
   cursor: pointer;
 }
 
-.myPageLogoutBtn {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
-}
-
-.myPageLogoutBtn:hover {
-  background: #f9fafb;
-}
-
-.withdrawBtn {
-  border: 1px solid #dc2626;
-  background: #fff;
-  color: #dc2626;
-}
-
-.withdrawBtn:hover {
+.myPageScope .withdrawBtn {
+  height: 42px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
   background: #dc2626;
-  color: #fff;
+  color: white;
+  cursor: pointer;
 }
 
 @media (max-width: 900px) {
-  .myPageContainer {
-    width: min(100% - 32px, 720px);
-    padding-top: 24px;
-  }
-
-  .myPageHeader {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .edwardSyncBtn {
-    width: 100%;
-  }
-
-  .myPageContent {
+  .myPageScope .myPageContent {
     grid-template-columns: 1fr;
   }
 
-  .profileSection {
+  .myPageScope .profileSection {
     position: static;
   }
 
-  .dangerZone {
+  .myPageScope .dangerZone {
     grid-column: auto;
   }
 }
 
 @media (max-width: 640px) {
-  .myPageContainer {
-    width: min(100% - 24px, 520px);
-  }
-
-  .infoForm,
-  .formGrid {
+  .myPageScope .infoForm,
+  .myPageScope .formGrid {
     grid-template-columns: 1fr;
   }
 
-  .dangerActions,
-  .editActions {
+  .myPageScope .editActions,
+  .myPageScope .dangerActions {
     flex-direction: column;
-    width: 100%;
-  }
-
-  .formActions,
-  .dangerActions {
-    align-items: stretch;
   }
 }

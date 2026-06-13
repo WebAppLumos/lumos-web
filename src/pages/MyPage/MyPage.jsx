@@ -10,8 +10,8 @@ import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
 export default function MyPage() {
-
   const fileInputRef = useRef(null);
+
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('lumos_user_info');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -24,7 +24,7 @@ export default function MyPage() {
     phoneNumber: '',
     studentNumber: '',
     email: '',
-    profileImage: ''
+    profileImage: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -43,21 +43,19 @@ export default function MyPage() {
         phoneNumber: user.phoneNumber || '',
         studentNumber: user.studentNumber || '',
         email: user.email || '',
-        profileImage: user.profileImage || ''
+        profileImage: user.profileImage || '',
       });
+
       fetchSemesterCredits();
     }
   }, [user]);
 
   const fetchSemesterCredits = async () => {
-
     try {
-      // 1. 활성 학기 찾기
       const semRes = await api.get('/api/semesters');
-      const activeSemester = semRes.data.find(s => s.isActive) || semRes.data[0];
-      
+      const activeSemester = semRes.data.find((s) => s.isActive) || semRes.data[0];
+
       if (activeSemester) {
-        // 2. 해당 학기의 수업들 가져오기
         const courseRes = await api.get(`/api/semesters/${activeSemester.id}/courses`);
         const credits = courseRes.data.reduce((acc, curr) => acc + (curr.credit || 0), 0);
         setTotalCredits(credits);
@@ -81,63 +79,66 @@ export default function MyPage() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 파일 타입 검사
     if (!file.type.startsWith('image/')) {
       alert('이미지 파일만 업로드 가능합니다.');
       return;
     }
 
-    // 파일 크기 제한 (예: 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('파일 크기는 5MB 이하여야 합니다.');
       return;
     }
 
-    // 💡 실제 구현 시에는 여기서 서버나 Firebase Storage에 파일을 업로드하고
-    // 받은 URL을 DB에 저장해야 합니다.
-    // 현재는 미리보기용으로만 처리하거나 업로드 로직을 추가할 수 있습니다.
-    
     const reader = new FileReader();
+
     reader.onloadend = async () => {
       const base64String = reader.result;
-      
+
       try {
-        const res = await api.patch(
-          '/api/users/me/profile-image',
-          { profileImage: base64String }
-        );
-        
+        const res = await api.patch('/api/users/me/profile-image', {
+          profileImage: base64String,
+        });
+
         const updatedUser = res.data;
+
         localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        setFormData(prev => ({ ...prev, profileImage: updatedUser.profileImage }));
+        setFormData((prev) => ({
+          ...prev,
+          profileImage: updatedUser.profileImage,
+        }));
+
         alert('프로필 이미지가 변경 및 저장되었습니다.');
       } catch (error) {
         console.error('Image upload failed:', error);
         alert('이미지 저장에 실패했습니다.');
       }
     };
+
     reader.readAsDataURL(file);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const response = await api.patch('/api/users/me', formData);
-      
       const updatedUser = response.data;
+
       localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
       setUser(updatedUser);
       setIsEditing(false);
+
       alert('회원 정보가 수정되었습니다.');
     } catch (error) {
       console.error('Update failed:', error);
@@ -148,14 +149,15 @@ export default function MyPage() {
   };
 
   const handleWithdrawal = async () => {
-    if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터와 계정이 영구적으로 삭제됩니다.')) return;
-    
+    if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터와 계정이 영구적으로 삭제됩니다.')) {
+      return;
+    }
+
     try {
-      // 1. 우리 백엔드 데이터 먼저 삭제
       await api.delete('/api/users/me');
 
-      // 2. Firebase 계정 삭제
       const currentUser = auth.currentUser;
+
       if (currentUser) {
         await deleteUser(currentUser);
       }
@@ -166,13 +168,16 @@ export default function MyPage() {
       window.location.href = '/';
     } catch (error) {
       console.error('Withdrawal failed:', error);
-      
-      // Firebase 보안 정책상 '최근 로그인'이 필요한 경우
+
       if (error.code === 'auth/requires-recent-login') {
         alert('보안을 위해 다시 로그인한 후 탈퇴를 진행해 주세요.');
-        handleLogout(); // 로그아웃 시켜서 다시 로그인 유도
+        handleLogout();
       } else {
-        alert('탈퇴 처리에 실패했습니다. (사유: ' + (error.response?.data?.message || error.message) + ')');
+        alert(
+          '탈퇴 처리에 실패했습니다. (사유: ' +
+            (error.response?.data?.message || error.message) +
+            ')'
+        );
       }
     }
   };
@@ -193,13 +198,15 @@ export default function MyPage() {
   return (
     <div className="dashboardPage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
+
       <main className="dashboardMain">
-        <div className="myPageContainer">
+        <div className="myPageContainer myPageScope">
           <div className="myPageHeader">
             <div className="myPageHeaderText">
               <h2>마이페이지</h2>
               <p>회원님의 정보를 확인하고 수정할 수 있습니다.</p>
             </div>
+
             <button
               type="button"
               className="edwardSyncBtn"
@@ -218,29 +225,28 @@ export default function MyPage() {
 
           <div className="myPageContent">
             <div className="profileSection">
-              {/* 숨겨진 파일 입력 필드 */}
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                style={{ display: 'none' }} 
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
                 accept="image/*"
                 onChange={handleFileChange}
               />
-              <div 
-                className="profileImageWrapper" 
-                onClick={handleProfileImageClick}
-                style={{ cursor: 'pointer' }}
-              >
-                <img 
-                  src={formData.profileImage || 'https://via.placeholder.com/150'} 
-                  alt="프로필" 
+
+              <div className="profileImageWrapper" onClick={handleProfileImageClick}>
+                <img
+                  src={formData.profileImage || 'https://via.placeholder.com/150'}
+                  alt="프로필"
                   className="profileImage"
                 />
+
                 <div className="imageOverlay">변경</div>
               </div>
+
               <div className="profileBasicInfo">
                 <h3>{user.name}</h3>
                 <span>{user.major}</span>
+
                 <div className="creditInfo">
                   이번 학기 신청 학점: <strong>{totalCredits}학점</strong>
                 </div>
@@ -248,25 +254,24 @@ export default function MyPage() {
             </div>
 
             <form className="infoForm" onSubmit={handleSubmit}>
-
               <div className="formGroup">
                 <label>이름</label>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   disabled={!isEditing}
                 />
               </div>
 
               <div className="formGroup">
                 <label>전공</label>
-                <input 
-                  type="text" 
-                  name="major" 
-                  value={formData.major} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  name="major"
+                  value={formData.major}
+                  onChange={handleChange}
                   disabled={!isEditing}
                 />
               </div>
@@ -274,10 +279,10 @@ export default function MyPage() {
               <div className="formGrid">
                 <div className="formGroup">
                   <label>학년</label>
-                  <select 
-                    name="grade" 
-                    value={formData.grade} 
-                    onChange={handleChange} 
+                  <select
+                    name="grade"
+                    value={formData.grade}
+                    onChange={handleChange}
                     disabled={!isEditing}
                   >
                     <option value={1}>1학년</option>
@@ -286,13 +291,14 @@ export default function MyPage() {
                     <option value={4}>4학년</option>
                   </select>
                 </div>
+
                 <div className="formGroup">
                   <label>학번</label>
-                  <input 
-                    type="text" 
-                    name="studentNumber" 
-                    value={formData.studentNumber} 
-                    disabled={true} // 학번은 수정 불가
+                  <input
+                    type="text"
+                    name="studentNumber"
+                    value={formData.studentNumber}
+                    disabled
                     className="disabledInput"
                   />
                 </div>
@@ -300,23 +306,23 @@ export default function MyPage() {
 
               <div className="formGroup">
                 <label>이메일</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={formData.email} 
-                  disabled={true} // 이메일은 수정 불가
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  disabled
                   className="disabledInput"
                 />
               </div>
 
               <div className="formGroup">
                 <label>전화번호</label>
-                <input 
-                  type="text" 
-                  name="phoneNumber" 
-                  value={formData.phoneNumber} 
-                  onChange={handleChange} 
-                  disabled={true} 
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  disabled
                   className="disabledInput"
                   placeholder="010-0000-0000"
                 />
@@ -324,25 +330,22 @@ export default function MyPage() {
 
               <div className="formActions">
                 {!isEditing ? (
-                  <button 
-                    type="button" 
-                    className="editBtn" 
+                  <button
+                    type="button"
+                    className="editBtn"
                     onClick={() => setIsEditing(true)}
                   >
                     정보 수정하기
                   </button>
                 ) : (
                   <div className="editActions">
-                    <button 
-                      type="submit" 
-                      className="saveBtn" 
-                      disabled={loading}
-                    >
+                    <button type="submit" className="saveBtn" disabled={loading}>
                       {loading ? '저장 중...' : '저장하기'}
                     </button>
-                    <button 
-                      type="button" 
-                      className="cancelBtn" 
+
+                    <button
+                      type="button"
+                      className="cancelBtn"
                       onClick={() => setIsEditing(false)}
                     >
                       취소
@@ -354,13 +357,21 @@ export default function MyPage() {
 
             <div className="dangerZone">
               <h4>계정 관리</h4>
-              <p>계정에서 로그아웃하거나 탈퇴할 수 있습니다. 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.</p>
+              <p>
+                계정에서 로그아웃하거나 탈퇴할 수 있습니다. 탈퇴 시 모든 데이터가
+                영구적으로 삭제됩니다.
+              </p>
+
               <div className="dangerActions">
-                <button className="myPageLogoutBtn" onClick={handleLogout}>로그아웃</button>
-                <button className="withdrawBtn" onClick={handleWithdrawal}>회원 탈퇴</button>
+                <button className="myPageLogoutBtn" onClick={handleLogout}>
+                  로그아웃
+                </button>
+
+                <button className="withdrawBtn" onClick={handleWithdrawal}>
+                  회원 탈퇴
+                </button>
               </div>
             </div>
-
           </div>
         </div>
       </main>
