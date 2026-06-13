@@ -9,11 +9,25 @@ import {
 } from '../../lib/edwardExtension'
 import './EdwardSyncModal.css'
 
+const TERM_OPTIONS = [
+  { value: '1', label: '1학기' },
+  { value: '2', label: '2학기' },
+  { value: '3', label: '하계학기' },
+  { value: '4', label: '동계학기' },
+]
+
+function guessDefaultTermCode() {
+  const month = new Date().getMonth() + 1
+  return month >= 3 && month <= 8 ? '1' : '2'
+}
+
 export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   const [syncing, setSyncing] = useState(false)
   const [error, setError] = useState('')
   const [extensionReady, setExtensionReady] = useState(false)
   const [checkingExtension, setCheckingExtension] = useState(false)
+  const [year, setYear] = useState(() => new Date().getFullYear())
+  const [termCode, setTermCode] = useState(guessDefaultTermCode)
 
   useEffect(() => {
     if (!open) {
@@ -21,6 +35,8 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
     }
 
     setError('')
+    setYear(new Date().getFullYear())
+    setTermCode(guessDefaultTermCode())
     setCheckingExtension(true)
     pingExtension()
       .then(({ installed }) => setExtensionReady(installed))
@@ -44,10 +60,19 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       return
     }
 
+    const parsedYear = Number.parseInt(String(year), 10)
+    if (!Number.isFinite(parsedYear) || parsedYear < 2000 || parsedYear > 2100) {
+      setError('올바른 학년도를 입력해 주세요.')
+      return
+    }
+
     setSyncing(true)
     try {
       const token = await user.getIdToken()
-      const result = await syncTimetableViaExtension(token)
+      const result = await syncTimetableViaExtension(token, {
+        year: parsedYear,
+        termCode,
+      })
 
       alert(
         `${result.semesterTitle} 시간표 동기화가 완료되었습니다.\n`
@@ -93,6 +118,36 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
           EDWARD 비밀번호는 Lumos 서버로 전송되지 않습니다. 같은 브라우저에서 EDWARD에 로그인되어 있어야 합니다.
         </div>
 
+        <div className="edwardSyncFieldRow">
+          <div className="edwardSyncField">
+            <label htmlFor="edwardSyncYear">학년도</label>
+            <input
+              id="edwardSyncYear"
+              type="number"
+              min="2000"
+              max="2100"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              disabled={syncing}
+            />
+          </div>
+          <div className="edwardSyncField">
+            <label htmlFor="edwardSyncTerm">학기</label>
+            <select
+              id="edwardSyncTerm"
+              value={termCode}
+              onChange={(e) => setTermCode(e.target.value)}
+              disabled={syncing}
+            >
+              {TERM_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <ol className="edwardSyncSteps">
           <li>Lumos EDWARD Sync 확장 프로그램 설치</li>
           <li>
@@ -102,7 +157,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
               edward.kmu.ac.kr 열기
             </button>
           </li>
-          <li>아래 동기화 버튼 클릭</li>
+          <li>학년도·학기를 선택한 뒤 동기화 버튼을 클릭</li>
         </ol>
 
         {!isExtensionConfigured() && (

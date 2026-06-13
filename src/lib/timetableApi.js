@@ -67,22 +67,26 @@ export function colorForCourseId(id) {
   return COURSE_COLORS[Number(id) % COURSE_COLORS.length]
 }
 
-export function mapSemester(semester) {
+export function mapSemester(semester, index = 0) {
+  const sortOrder = semester.sortOrder ?? index
   return {
     id: semester.id,
     name: semester.title,
     isActive: semester.isActive,
     startDate: semester.startDate,
     endDate: semester.endDate,
+    sortOrder,
   }
 }
 
 export function mapTimetable(timetable, index = 0) {
+  const sortOrder = timetable.sortOrder ?? index
   return {
     id: timetable.id,
     semesterId: timetable.semesterId,
     name: timetable.title,
-    isDefault: index === 0,
+    sortOrder,
+    isDefault: sortOrder === 0,
   }
 }
 
@@ -123,15 +127,7 @@ export function buildCoursesOnBoard(courses, entries, timetableId) {
       const course = courseById.get(courseId)
       if (!course) return null
 
-      const schedules = timetableEntries
-        .filter((entry) => entry.courseId === courseId)
-        .filter((entry) => entry.dayOfWeek >= 1 && entry.dayOfWeek <= 5)
-        .map((entry) => ({
-          entryId: entry.id,
-          day: apiDayToUi(entry.dayOfWeek),
-          startTime: formatTime(entry.startTime),
-          endTime: formatTime(entry.endTime),
-        }))
+      const schedules = buildSchedulesFromEntries(timetableEntries, courseId)
 
       return { ...course, schedules }
     })
@@ -160,9 +156,62 @@ function timeToNumber(time) {
   return hours + minutes / 60
 }
 
+export const TIMETABLE_GRID_START_HOUR = 9
+export const TIMETABLE_HOUR_HEIGHT_REM = 3.75
+
+/** 시간표 그리드(9시 시작, 1시간=3.75rem)에 맞춰 블록 위치를 계산합니다. */
+export function slotStyleFromTimes(start, end) {
+  const topRem = (timeToNumber(start) - TIMETABLE_GRID_START_HOUR) * TIMETABLE_HOUR_HEIGHT_REM
+  const heightRem = (timeToNumber(end) - timeToNumber(start)) * TIMETABLE_HOUR_HEIGHT_REM
+  return {
+    top: `${Math.max(topRem, 0)}rem`,
+    height: `${Math.max(heightRem, 0.5)}rem`,
+  }
+}
+
+/** Edward 등에서 같은 요일에 쪼개진 entry를 하나의 수업 시간으로 합칩니다. */
+export function mergeSchedulesByDay(schedules) {
+  const byDay = new Map()
+
+  for (const schedule of schedules) {
+    const existing = byDay.get(schedule.day)
+    if (!existing) {
+      byDay.set(schedule.day, { ...schedule })
+      continue
+    }
+
+    if (timeToNumber(schedule.startTime) < timeToNumber(existing.startTime)) {
+      existing.startTime = schedule.startTime
+      if (schedule.entryId != null) existing.entryId = schedule.entryId
+    }
+    if (timeToNumber(schedule.endTime) > timeToNumber(existing.endTime)) {
+      existing.endTime = schedule.endTime
+    }
+  }
+
+  return [...byDay.values()].sort(
+    (a, b) => a.day - b.day || timeToNumber(a.startTime) - timeToNumber(b.startTime),
+  )
+}
+
+export function buildSchedulesFromEntries(entries, courseId) {
+  const normalizedCourseId = Number(courseId)
+  const schedules = entries
+    .filter((entry) => Number(entry.courseId) === normalizedCourseId)
+    .filter((entry) => Number(entry.dayOfWeek) >= 1 && Number(entry.dayOfWeek) <= 5)
+    .map((entry) => ({
+      entryId: entry.id,
+      day: apiDayToUi(entry.dayOfWeek),
+      startTime: formatTime(entry.startTime),
+      endTime: formatTime(entry.endTime),
+    }))
+
+  return mergeSchedulesByDay(schedules)
+}
+
 export async function fetchSemesters() {
   const { data } = await api.get('/api/semesters')
-  return data.map(mapSemester)
+  return data.map((semester, index) => mapSemester(semester, index))
 }
 
 export async function fetchTimetables(semesterId) {
@@ -231,6 +280,11 @@ export async function updateSemester(semesterId, title) {
   return mapSemester(data)
 }
 
+export async function reorderSemesters(semesterIds) {
+  const { data } = await api.put('/api/semesters/reorder', { semesterIds })
+  return data.map((semester, index) => mapSemester(semester, index))
+}
+
 export async function updateTimetable(timetableId, title) {
   const { data } = await api.patch(`/api/timetables/${timetableId}`, { title })
   return mapTimetable(data)
@@ -243,6 +297,13 @@ export async function createTimetable(semesterId, title) {
 
 export async function deleteTimetable(timetableId) {
   await api.delete(`/api/timetables/${timetableId}`)
+}
+
+export async function reorderTimetables(semesterId, timetableIds) {
+  const { data } = await api.put(`/api/semesters/${semesterId}/timetables/reorder`, {
+    timetableIds,
+  })
+  return data.map((timetable, index) => mapTimetable(timetable, index))
 }
 
 export async function createEntry(timetableId, { courseId, dayOfWeek, startTime, endTime }) {
