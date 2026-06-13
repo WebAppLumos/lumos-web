@@ -4,6 +4,7 @@ import { DAYS, TIME_SLOTS } from '../../lib/mock-data'
 import {
   apiDayToUi,
   buildCoursesOnBoard,
+  buildSchedulesFromEntries,
   createEntry,
   createNote,
   createTimetable,
@@ -18,6 +19,8 @@ import {
   fetchTimetables,
   formatTime,
   mapCourse,
+  mergeSchedulesByDay,
+  slotStyleFromTimes,
   uiDayToApi,
   updateNote,
   updateSemester,
@@ -34,17 +37,6 @@ import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 
 import '../Dashboard/Dashboard.css'
 import './Timetable.css'
-
-function timeToNumber(t) {
-  const [h, m] = t.split(':').map(Number)
-  return h + m / 60
-}
-
-function slotStyle(start, end) {
-  const top = (timeToNumber(start) - 9) * 60
-  const height = (timeToNumber(end) - timeToNumber(start)) * 60
-  return { top: `${top}px`, height: `${height}px` }
-}
 
 export default function Timetable() {
   const [user, setUser] = useState(() => {
@@ -187,14 +179,7 @@ export default function Timetable() {
       .filter((course) => !onBoardIds.has(course.id))
       .map((course) => {
         const mapped = mapCourse(course)
-        const schedules = allSemesterEntries
-          .filter((entry) => entry.courseId === course.id)
-          .filter((entry) => entry.dayOfWeek >= 1 && entry.dayOfWeek <= 5)
-          .map((entry) => ({
-            day: apiDayToUi(entry.dayOfWeek),
-            startTime: formatTime(entry.startTime),
-            endTime: formatTime(entry.endTime),
-          }))
+        const schedules = buildSchedulesFromEntries(allSemesterEntries, course.id)
         return { ...mapped, schedules }
       })
   }, [semesterCourses, entries, timetableId, allSemesterEntries])
@@ -302,14 +287,18 @@ export default function Timetable() {
     }
 
     const templates = allSemesterEntries
-      .filter((entry) => entry.courseId === course.id)
-      .filter((entry) => entry.dayOfWeek >= 1 && entry.dayOfWeek <= 5)
+      .filter((entry) => Number(entry.courseId) === Number(course.id))
+      .filter((entry) => Number(entry.dayOfWeek) >= 1 && Number(entry.dayOfWeek) <= 5)
 
     const slots = templates.length > 0
-      ? templates.map((entry) => ({
-          dayOfWeek: entry.dayOfWeek,
+      ? mergeSchedulesByDay(templates.map((entry) => ({
+          day: apiDayToUi(entry.dayOfWeek),
           startTime: formatTime(entry.startTime),
           endTime: formatTime(entry.endTime),
+        }))).map((schedule) => ({
+          dayOfWeek: uiDayToApi(schedule.day),
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
         }))
       : [{ dayOfWeek: uiDayToApi(0), startTime: '09:00', endTime: '10:30' }]
 
@@ -444,7 +433,7 @@ export default function Timetable() {
                 coursesOnBoard={coursesOnBoard}
                 notes={notes}
                 view={view}
-                slotStyle={slotStyle}
+                slotStyle={slotStyleFromTimes}
                 onDeleteCourse={onDeleteCourse}
                 onAddNote={onAddNote}
                 onDeleteNotes={onDeleteNotes}
