@@ -7,6 +7,7 @@ import {
   pingExtension,
   syncTimetableViaExtension,
 } from '../../lib/edwardExtension'
+import { clearTimetableSession } from '../../lib/timetableSession'
 import './EdwardSyncModal.css'
 
 const TERM_OPTIONS = [
@@ -78,6 +79,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         `${result.semesterTitle} 시간표 동기화가 완료되었습니다.\n`
         + `수업 ${result.courseCount}개, 시간표 슬롯 ${result.entryCount}개를 가져왔습니다.`,
       )
+      clearTimetableSession()
       onSuccess?.()
       onClose()
     } catch (err) {

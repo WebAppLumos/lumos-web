@@ -26,8 +26,12 @@ export default function TimetableControls({
     const scheduleText = course.schedules
       .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
       .join(', ')
+    const creditText = course.credit != null ? `${course.credit}학점` : null
+    const locationText = course.isOnline ? '온라인' : course.room
 
-    return `${course.name} · ${course.room} · ${scheduleText}`
+    return [course.name, course.professor, locationText, creditText, scheduleText]
+      .filter(Boolean)
+      .join(' · ')
   }
 
   // 현재 모달에서 선택된 수업 정보

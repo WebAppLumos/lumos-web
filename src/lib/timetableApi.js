@@ -97,6 +97,8 @@ export function mapCourse(course) {
     name: course.title,
     professor: course.professor ?? '',
     room: course.classroom ?? '',
+    credit: course.credit ?? null,
+    isOnline: Boolean(course.isOnline),
     difficulty: course.difficultyLevel ?? 3,
     color: colorForCourseId(course.id),
     schedules: [],

@@ -39,6 +39,7 @@ import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
 import TimetableControls from '../../components/Timetable/TimetableControls'
 import TimetableGrid from '../../components/Timetable/TimetableGrid'
 import TimetableHeader from '../../components/Timetable/TimetableHeader'
+import TimetableOnlineCourses from '../../components/Timetable/TimetableOnlineCourses'
 import TimetableTabs from '../../components/Timetable/TimetableTabs'
 import DashboardNav from '../../components/Dashboard/DashboardNav'
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
@@ -227,6 +228,16 @@ export default function Timetable() {
   const coursesOnBoard = useMemo(
     () => buildCoursesOnBoard(semesterCourses, entries, timetableId),
     [semesterCourses, entries, timetableId],
+  )
+
+  const onlineCourses = useMemo(
+    () => coursesOnBoard.filter((course) => course.isOnline),
+    [coursesOnBoard],
+  )
+
+  const inPersonCourses = useMemo(
+    () => coursesOnBoard.filter((course) => !course.isOnline),
+    [coursesOnBoard],
   )
 
   const availableCourses = useMemo(() => {
@@ -561,13 +572,18 @@ export default function Timetable() {
 
               <TimetableTabs view={view} setView={setView} />
 
+              <TimetableOnlineCourses
+                onlineCourses={onlineCourses}
+                onDeleteCourse={onDeleteCourse}
+              />
+
               <TimetableGrid
                 DAYS={DAYS}
                 TIME_SLOTS={TIME_SLOTS}
                 semester={semester}
                 timetable={timetable}
                 semTimetables={semTimetables}
-                coursesOnBoard={coursesOnBoard}
+                coursesOnBoard={inPersonCourses}
                 notes={notes}
                 view={view}
                 slotStyle={slotStyleFromTimes}
