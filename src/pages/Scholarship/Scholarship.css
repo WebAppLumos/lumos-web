@@ -28,7 +28,7 @@
 }
 
 .scholarshipPage .curation-start-btn {
-  background-color: #aa3bff;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -40,7 +40,7 @@
 }
 
 .scholarshipPage .curation-start-btn:hover {
-  background-color: #8e2edb;
+  background-color: #333333;
   transform: translateY(-2px);
 }
 
@@ -91,7 +91,7 @@
 
 .scholarshipPage .save-btn {
   flex: 2;
-  background-color: #aa3bff;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 0.8rem;
@@ -194,8 +194,8 @@
 
 .scholarshipPage .edit-profile-btn:hover {
   background-color: #f4f3ec;
-  border-color: #aa3bff;
-  color: #aa3bff;
+  border-color: #000000;
+  color: #000000;
 }
 
 .scholarshipPage .scholarship-list {
@@ -219,8 +219,8 @@
 }
 
 .scholarshipPage .scholarship-card:hover {
-  box-shadow: 0 12px 30px rgba(170, 59, 255, 0.08);
-  border-color: #aa3bff44;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: #00000044;
   transform: scale(1.01);
 }
 
@@ -228,8 +228,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #aa3bff15;
-  color: #aa3bff;
+  background-color: #00000015;
+  color: #000000;
   font-size: 0.75rem;
   font-weight: 800;
   padding: 0.3rem 1rem;
@@ -259,7 +259,7 @@
 }
 
 .scholarshipPage .amount {
-  color: #aa3bff;
+  color: #000000;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -272,7 +272,7 @@
 }
 
 .scholarshipPage .apply-btn {
-  background-color: #aa3bff;
+  background-color: #000000;
   color: white;
   border: none;
   padding: 0.8rem 1.8rem;
@@ -284,8 +284,8 @@
 }
 
 .scholarshipPage .apply-btn:hover {
-  background-color: #8e2edb;
-  box-shadow: 0 4px 12px rgba(170, 59, 255, 0.3);
+  background-color: #333333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .scholarshipPage .back-to-home {
@@ -293,7 +293,7 @@
   margin: 0 auto;
   background: none;
   border: none;
-  color: #9c94a8;
+  color: #888888;
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;

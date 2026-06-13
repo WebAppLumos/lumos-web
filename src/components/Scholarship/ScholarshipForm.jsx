@@ -79,7 +79,7 @@ export default function ScholarshipForm({
                 border: '1px solid #dee2e6'
               }}>
                 <div style={{ fontSize: '0.9rem' }}>
-                  <strong style={{ color: '#aa3bff' }}>{cert.name}</strong> 
+                  <strong style={{ color: '#000000' }}>{cert.name}</strong> 
                   <span style={{ marginLeft: '10px', color: '#6b6375' }}>({cert.date})</span>
                 </div>
                 <button 
@@ -101,11 +101,11 @@ export default function ScholarshipForm({
           <div className="add-cert-form" style={{ 
             marginTop: '1rem', 
             padding: '1rem', 
-            border: '1px dashed #aa3bff', 
+            border: '1px dashed #000000', 
             borderRadius: '8px',
-            backgroundColor: '#aa3bff05'
+            backgroundColor: '#00000005'
           }}>
-            <h4 style={{ margin: '0 0 0.8rem 0', color: '#aa3bff' }}>새 자격증 추가</h4>
+            <h4 style={{ margin: '0 0 0.8rem 0', color: '#000000' }}>새 자격증 추가</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <select 
                 value={selectedCertId} 
@@ -128,7 +128,7 @@ export default function ScholarshipForm({
                   onClick={handleAddCertificate}
                   style={{ 
                     padding: '0.6rem 1.2rem', 
-                    backgroundColor: '#aa3bff', 
+                    backgroundColor: '#000000', 
                     color: 'white', 
                     border: 'none', 
                     borderRadius: '4px', 

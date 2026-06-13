@@ -25,13 +25,13 @@ export default function ScholarshipResult({
             {userProfile.certificates.length > 0 ? (
               userProfile.certificates.map((cert, index) => (
                 <span key={index} style={{ 
-                  backgroundColor: '#aa3bff10', 
-                  color: '#aa3bff', 
+                  backgroundColor: '#00000010', 
+                  color: '#000000', 
                   padding: '0.3rem 0.8rem', 
                   borderRadius: '20px', 
                   fontSize: '0.85rem', 
                   fontWeight: '600',
-                  border: '1px solid #aa3bff30'
+                  border: '1px solid #00000030'
                 }}>
                   {cert.name} ({cert.date})
                 </span>
