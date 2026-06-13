@@ -24,7 +24,7 @@ export default function MyPage() {
     phoneNumber: '',
     studentNumber: '',
     email: '',
-    profileImageUrl: ''
+    profileImage: ''
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +43,7 @@ export default function MyPage() {
         phoneNumber: user.phoneNumber || '',
         studentNumber: user.studentNumber || '',
         email: user.email || '',
-        profileImageUrl: user.profileImageUrl || ''
+        profileImage: user.profileImage || ''
       });
       fetchSemesterCredits();
     }
@@ -104,13 +104,13 @@ export default function MyPage() {
       try {
         const res = await api.patch(
           '/api/users/me/profile-image',
-          { profileImageUrl: base64String }
+          { profileImage: base64String }
         );
         
         const updatedUser = res.data;
         localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        setFormData(prev => ({ ...prev, profileImageUrl: updatedUser.profileImageUrl }));
+        setFormData(prev => ({ ...prev, profileImage: updatedUser.profileImage }));
         alert('프로필 이미지가 변경 및 저장되었습니다.');
       } catch (error) {
         console.error('Image upload failed:', error);
@@ -232,7 +232,7 @@ export default function MyPage() {
                 style={{ cursor: 'pointer' }}
               >
                 <img 
-                  src={formData.profileImageUrl || 'https://via.placeholder.com/150'} 
+                  src={formData.profileImage || 'https://via.placeholder.com/150'} 
                   alt="프로필" 
                   className="profileImage"
                 />
