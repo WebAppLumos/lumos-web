@@ -3,12 +3,14 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { clearStoredSession } from '../../lib/session'
+import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
   const profileImage = user?.profileImage
   const avatarInitial = user?.name?.[0] || ''
@@ -96,7 +98,12 @@ export default function DashboardNav({ user, onLogout }) {
       </nav>
 
       <div className="navActions">
-        <button type="button" className="navIconBtn" aria-label="검색">
+        <button
+          type="button"
+          className="navIconBtn"
+          aria-label="검색"
+          onClick={() => setIsSearchOpen(true)}
+        >
           <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
             <circle
               cx="11"
@@ -180,6 +187,8 @@ export default function DashboardNav({ user, onLogout }) {
           </>
         )}
       </div>
+
+      <GlobalSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   )
 }
