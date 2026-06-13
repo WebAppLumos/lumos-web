@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { GripVertical } from 'lucide-react'
 import './TimetableControls.css'
 
 export default function TimetableControls({
@@ -17,6 +18,8 @@ export default function TimetableControls({
   onRenameTimetable,
   onAddTimetable,
   onDeleteTimetables,
+  onReorderSemesters,
+  onReorderTimetables,
 }) {
   // 수업 선택 모달에 표시할 수업 정보 문구 생성
   const formatCourseOption = (course) => {
@@ -29,7 +32,7 @@ export default function TimetableControls({
 
   // 현재 모달에서 선택된 수업 정보
   const selectedCourse = availableCourses.find(
-    (course) => course.id === selectedCourseId,
+    (course) => Number(course.id) === Number(selectedCourseId),
   )
   const selectedSemester = mockSemesters.find((s) => s.id === semesterId)
   const selectedTimetable = semTimetables.find((t) => t.id === timetableId)
@@ -41,6 +44,11 @@ export default function TimetableControls({
   const [selectedTimetableIds, setSelectedTimetableIds] = useState([])
   const [isAddTimetableOpen, setIsAddTimetableOpen] = useState(false)
   const [newTimetableName, setNewTimetableName] = useState('')
+  const [dragItemId, setDragItemId] = useState(null)
+  const [dragOverItemId, setDragOverItemId] = useState(null)
+
+  const selectorItems = selectorType === 'semester' ? mockSemesters : semTimetables
+  const canReorder = selectorType === 'semester' || selectorType === 'timetable'
 
   // 선택한 수업을 추가한 뒤 모달 닫기
   const handleAddCourse = () => {
@@ -97,6 +105,50 @@ export default function TimetableControls({
     setSelectedTimetableIds([])
     setIsAddTimetableOpen(false)
     setNewTimetableName('')
+    setDragItemId(null)
+    setDragOverItemId(null)
+  }
+
+  const handleItemDragStart = (event, itemId) => {
+    setDragItemId(itemId)
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', String(itemId))
+  }
+
+  const handleItemDragOver = (event, itemId) => {
+    event.preventDefault()
+    if (itemId !== dragItemId) {
+      setDragOverItemId(itemId)
+    }
+  }
+
+  const handleItemDrop = (event, targetId) => {
+    event.preventDefault()
+    const sourceId = dragItemId
+    setDragItemId(null)
+    setDragOverItemId(null)
+
+    if (!sourceId || sourceId === targetId) return
+
+    const ids = selectorItems.map((item) => item.id)
+    const fromIndex = ids.indexOf(sourceId)
+    const toIndex = ids.indexOf(targetId)
+    if (fromIndex < 0 || toIndex < 0) return
+
+    const nextIds = [...ids]
+    nextIds.splice(fromIndex, 1)
+    nextIds.splice(toIndex, 0, sourceId)
+
+    if (selectorType === 'semester') {
+      onReorderSemesters(nextIds)
+    } else {
+      onReorderTimetables(nextIds)
+    }
+  }
+
+  const clearItemDrag = () => {
+    setDragItemId(null)
+    setDragOverItemId(null)
   }
 
   return (
@@ -144,8 +196,11 @@ export default function TimetableControls({
           <div className="courseModalHead">
             <div>
               <h2>{selectorType === 'semester' ? '학기 선택' : '시간표 선택'}</h2>
+              {selectorType === 'semester' && (
+                <p className="selectorModalSub">드래그하여 학기 순서를 변경할 수 있습니다.</p>
+              )}
               {selectorType === 'timetable' && (
-                <p className="selectorModalSub">시간표를 추가하거나 선택한 시간표를 삭제할 수 있습니다.</p>
+                <p className="selectorModalSub">드래그하여 순서를 변경하거나, 시간표를 추가·삭제할 수 있습니다.</p>
               )}
             </div>
             <div className="selectorHeadActions">
@@ -187,13 +242,27 @@ export default function TimetableControls({
               </div>
             )}
 
-            {(selectorType === 'semester' ? mockSemesters : semTimetables).map((item) => {
+            {selectorItems.map((item) => {
               const isSelected = selectorType === 'semester'
                 ? item.id === semesterId
                 : item.id === timetableId
 
               return (
-                <div key={item.id} className={`selectorOption ${isSelected ? 'active' : ''}`}>
+                <div
+                  key={item.id}
+                  className={[
+                    'selectorOption',
+                    isSelected ? 'active' : '',
+                    canReorder && dragOverItemId === item.id ? 'dragOver' : '',
+                    canReorder && dragItemId === item.id ? 'dragging' : '',
+                  ].filter(Boolean).join(' ')}
+                  onDragOver={canReorder
+                    ? (event) => handleItemDragOver(event, item.id)
+                    : undefined}
+                  onDrop={canReorder
+                    ? (event) => handleItemDrop(event, item.id)
+                    : undefined}
+                >
                   {renamingId === item.id ? (
                     <div className="selectorRenameRow">
                       <input
@@ -220,6 +289,18 @@ export default function TimetableControls({
                     </div>
                   ) : (
                     <>
+                      {canReorder && (
+                        <button
+                          type="button"
+                          className="selectorDragHandle"
+                          draggable
+                          onDragStart={(event) => handleItemDragStart(event, item.id)}
+                          onDragEnd={clearItemDrag}
+                          aria-label={`${item.name} 순서 변경`}
+                        >
+                          <GripVertical size={16} aria-hidden="true" />
+                        </button>
+                      )}
                       {selectorType === 'timetable' && (
                         <input
                           type="checkbox"
@@ -320,7 +401,7 @@ export default function TimetableControls({
                     type="radio"
                     name="course"
                     value={course.id}
-                    checked={selectedCourseId === course.id}
+                    checked={Number(selectedCourseId) === Number(course.id)}
                     // 현재 시간표에 추가할 수업 선택
                     onChange={onChangeCourse}
                   />

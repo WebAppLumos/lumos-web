@@ -20,6 +20,8 @@ import {
   formatTime,
   mapCourse,
   mergeSchedulesByDay,
+  reorderSemesters,
+  reorderTimetables,
   slotStyleFromTimes,
   uiDayToApi,
   updateNote,
@@ -184,11 +186,20 @@ export default function Timetable() {
       })
   }, [semesterCourses, entries, timetableId, allSemesterEntries])
 
-  const semester = semesters.find((s) => s.id === semesterId)
+  const sortedSemesters = useMemo(
+    () => [...semesters].sort((a, b) => a.sortOrder - b.sortOrder),
+    [semesters],
+  )
+
+  const semester = sortedSemesters.find((s) => s.id === semesterId)
   const timetable = timetables.find((t) => t.id === timetableId)
-  const semTimetables = timetables.filter((t) => t.semesterId === semesterId)
-  const selectedAvailableCourseId = availableCourses.some((c) => c.id === selectedCourseId)
-    ? selectedCourseId
+  const semTimetables = timetables
+    .filter((t) => t.semesterId === semesterId)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+  const selectedAvailableCourseId = availableCourses.some(
+    (course) => Number(course.id) === Number(selectedCourseId),
+  )
+    ? Number(selectedCourseId)
     : availableCourses[0]?.id ?? ''
 
   const onChangeSemester = async (nextSemesterId) => {
@@ -208,6 +219,29 @@ export default function Timetable() {
     } catch (err) {
       console.error(err)
       window.alert('시간표 데이터를 불러오지 못했습니다.')
+    }
+  }
+
+  const onReorderSemesters = async (orderedIds) => {
+    if (orderedIds.length === 0) return
+
+    const previous = [...semesters]
+    const optimistic = orderedIds
+      .map((id, index) => {
+        const semesterItem = previous.find((s) => s.id === id)
+        return semesterItem ? { ...semesterItem, sortOrder: index } : null
+      })
+      .filter(Boolean)
+
+    setSemesters(optimistic)
+
+    try {
+      const reordered = await reorderSemesters(orderedIds)
+      setSemesters(reordered)
+    } catch (err) {
+      console.error(err)
+      setSemesters(previous)
+      window.alert('학기 순서를 변경하지 못했습니다.')
     }
   }
 
@@ -250,6 +284,38 @@ export default function Timetable() {
     } catch (err) {
       console.error(err)
       window.alert('시간표를 추가하지 못했습니다.')
+    }
+  }
+
+  const onReorderTimetables = async (orderedIds) => {
+    if (orderedIds.length === 0) return
+
+    const previous = timetables.filter((t) => t.semesterId === semesterId)
+    const optimistic = orderedIds
+      .map((id, index) => {
+        const timetable = previous.find((t) => t.id === id)
+        return timetable ? { ...timetable, sortOrder: index, isDefault: index === 0 } : null
+      })
+      .filter(Boolean)
+
+    setTimetables((prev) => {
+      const others = prev.filter((t) => t.semesterId !== semesterId)
+      return [...others, ...optimistic]
+    })
+
+    try {
+      const reordered = await reorderTimetables(semesterId, orderedIds)
+      setTimetables((prev) => {
+        const others = prev.filter((t) => t.semesterId !== semesterId)
+        return [...others, ...reordered]
+      })
+    } catch (err) {
+      console.error(err)
+      setTimetables((prev) => {
+        const others = prev.filter((t) => t.semesterId !== semesterId)
+        return [...others, ...previous]
+      })
+      window.alert('시간표 순서를 변경하지 못했습니다.')
     }
   }
 
@@ -408,18 +474,20 @@ export default function Timetable() {
                 DAYS={DAYS}
                 semesterId={semesterId}
                 timetableId={timetableId}
-                mockSemesters={semesters}
+                mockSemesters={sortedSemesters}
                 semTimetables={semTimetables}
                 availableCourses={availableCourses}
                 selectedCourseId={selectedAvailableCourseId}
                 onChangeSemester={onChangeSemester}
                 onChangeTimetable={onChangeTimetable}
-                onChangeCourse={(e) => setSelectedCourseId(e.target.value)}
+                onChangeCourse={(e) => setSelectedCourseId(Number(e.target.value))}
                 onAddCourse={onAddCourse}
                 onRenameSemester={onRenameSemester}
                 onRenameTimetable={onRenameTimetable}
                 onAddTimetable={onAddTimetable}
                 onDeleteTimetables={onDeleteTimetables}
+                onReorderSemesters={onReorderSemesters}
+                onReorderTimetables={onReorderTimetables}
               />
 
               <TimetableTabs view={view} setView={setView} />

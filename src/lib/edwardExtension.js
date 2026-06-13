@@ -52,7 +52,7 @@ export async function pingExtension() {
 
 
 
-export async function syncTimetableViaExtension(token) {
+export async function syncTimetableViaExtension(token, { year, termCode } = {}) {
 
   if (!hasExtensionApi() || !EXTENSION_ID) {
 
@@ -75,6 +75,10 @@ export async function syncTimetableViaExtension(token) {
         token,
 
         apiBaseUrl: API_BASE_URL,
+
+        year,
+
+        termCode,
 
       },
 

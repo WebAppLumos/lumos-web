@@ -67,22 +67,26 @@ export function colorForCourseId(id) {
   return COURSE_COLORS[Number(id) % COURSE_COLORS.length]
 }
 
-export function mapSemester(semester) {
+export function mapSemester(semester, index = 0) {
+  const sortOrder = semester.sortOrder ?? index
   return {
     id: semester.id,
     name: semester.title,
     isActive: semester.isActive,
     startDate: semester.startDate,
     endDate: semester.endDate,
+    sortOrder,
   }
 }
 
 export function mapTimetable(timetable, index = 0) {
+  const sortOrder = timetable.sortOrder ?? index
   return {
     id: timetable.id,
     semesterId: timetable.semesterId,
     name: timetable.title,
-    isDefault: index === 0,
+    sortOrder,
+    isDefault: sortOrder === 0,
   }
 }
 
@@ -207,7 +211,7 @@ export function buildSchedulesFromEntries(entries, courseId) {
 
 export async function fetchSemesters() {
   const { data } = await api.get('/api/semesters')
-  return data.map(mapSemester)
+  return data.map((semester, index) => mapSemester(semester, index))
 }
 
 export async function fetchTimetables(semesterId) {
@@ -276,6 +280,11 @@ export async function updateSemester(semesterId, title) {
   return mapSemester(data)
 }
 
+export async function reorderSemesters(semesterIds) {
+  const { data } = await api.put('/api/semesters/reorder', { semesterIds })
+  return data.map((semester, index) => mapSemester(semester, index))
+}
+
 export async function updateTimetable(timetableId, title) {
   const { data } = await api.patch(`/api/timetables/${timetableId}`, { title })
   return mapTimetable(data)
@@ -288,6 +297,13 @@ export async function createTimetable(semesterId, title) {
 
 export async function deleteTimetable(timetableId) {
   await api.delete(`/api/timetables/${timetableId}`)
+}
+
+export async function reorderTimetables(semesterId, timetableIds) {
+  const { data } = await api.put(`/api/semesters/${semesterId}/timetables/reorder`, {
+    timetableIds,
+  })
+  return data.map((timetable, index) => mapTimetable(timetable, index))
 }
 
 export async function createEntry(timetableId, { courseId, dayOfWeek, startTime, endTime }) {
