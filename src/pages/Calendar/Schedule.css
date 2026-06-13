@@ -1,23 +1,11 @@
-/* Override shared Dashboard class to allow wider layout */
+/* Logged-in schedule uses a wider layout than the default dashboard shell */
 .scheduleDashboardPage .dashboardMain .scheduleDashboard {
   max-width: 85rem;
 }
 
-.scheduleDashboard .dashboardTitle {
-  font-size: 2.25rem;
-  font-weight: 800;
-}
-
-.scheduleDashboard .dashboardSubtitle {
-  font-size: 1.125rem;
-  margin-top: 0.5rem;
-}
-
 .schedule-page {
-  padding: 2rem 0;
   width: 100%;
 }
-
 .schedule-page .schedule-filter-bar {
   display: flex;
   gap: 1.5rem;
@@ -122,10 +110,6 @@
   .schedule-page .schedule-filter-bar {
     flex-direction: column;
     align-items: stretch;
-  }
-  
-  .schedule-page {
-    padding: 1.5rem 1rem;
   }
 }
 
