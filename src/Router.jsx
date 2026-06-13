@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Timetable from './pages/Timetable/Timetable'
-import Schedule from './pages/Schedule/Schedule'
+import Schedule from './pages/Calendar/Schedule'
 import Assignment from './pages/Assignment/Assignment'
 import Scholarship from './pages/Scholarship/Scholarship'
 import MapPage from './pages/MapPage/MapPage'
