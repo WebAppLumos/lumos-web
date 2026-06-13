@@ -54,10 +54,10 @@ function Schedule() {
 
   if (!user) {
     return (
-      <div className="dashboardPage">
+      <div className="dashboardPage scheduleDashboardPage">
         <DashboardNav user={null} />
         <main className="dashboardMain">
-          <div className="Dashboard">
+          <div className="Dashboard scheduleDashboard">
             <DashboardLoginCard />
           </div>
         </main>
@@ -67,11 +67,11 @@ function Schedule() {
 
 
   return (
-    <div className="dashboardPage">
+    <div className="dashboardPage scheduleDashboardPage">
       <DashboardNav user={user} onLogout={() => setUser(null)} />
       
       <main className="dashboardMain">
-        <div className="Dashboard">
+        <div className="Dashboard scheduleDashboard">
           <div className="dashboardHeader">
             <div>
               <h1 className="dashboardTitle">학사 및 개인 일정</h1>

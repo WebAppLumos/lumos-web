@@ -35,20 +35,22 @@ function Calendar({ onDateClick, events = [] }) {
   })).filter(Boolean);
 
   return (
-    <FullCalendar
-      plugins={[dayGridPlugin, interactionPlugin]}
-      initialView="dayGridMonth"
-      headerToolbar={{
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,dayGridWeek'
-      }}
+    <div className="calendar-scope">
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,dayGridWeek'
+        }}
       eventOrder="-priorityWeight" // 높은 우선순위가 위로 오도록 설정
-      events={calendarEvents}
-      dateClick={(info) => onDateClick?.(info.dateStr)}
-      height="auto"
-      aspectRatio={1.5}
-    />
+        events={calendarEvents}
+        dateClick={(info) => onDateClick?.(info.dateStr)}
+        height="auto"
+        aspectRatio={1.5}
+      />
+    </div>
   );
 }
 

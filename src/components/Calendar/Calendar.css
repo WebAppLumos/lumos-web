@@ -1,5 +1,5 @@
 /* FullCalendar General Container */
-.fc {
+.calendar-scope .fc {
   background: white;
   padding: 2rem;
   border-radius: 1.25rem;
@@ -8,17 +8,17 @@
 }
 
 /* Toolbar Styling */
-.fc .fc-toolbar {
+.calendar-scope .fc .fc-toolbar {
   margin-bottom: 2rem !important;
 }
 
-.fc .fc-toolbar-title {
+.calendar-scope .fc .fc-toolbar-title {
   font-size: 1.75rem !important;
   font-weight: 800 !important;
   color: #171717 !important;
 }
 
-.fc .fc-button {
+.calendar-scope .fc .fc-button {
   background: #fff !important;
   border: 1px solid #e5e5e5 !important;
   color: #171717 !important;
@@ -32,33 +32,33 @@
   box-shadow: none !important;
 }
 
-.fc .fc-button:hover {
+.calendar-scope .fc .fc-button:hover {
   background: #f5f5f5 !important;
   border-color: #d4d4d4 !important;
 }
 
-.fc .fc-button-primary:not(:disabled).fc-button-active,
-.fc .fc-button-primary:not(:disabled):active {
+.calendar-scope .fc .fc-button-primary:not(:disabled).fc-button-active,
+.calendar-scope .fc .fc-button-primary:not(:disabled):active {
   background: #171717 !important;
   border-color: #171717 !important;
   color: #fff !important;
 }
 
 /* Grid Styling */
-.fc-theme-standard td, .fc-theme-standard th {
+.calendar-scope .fc-theme-standard td, .calendar-scope .fc-theme-standard th {
   border: 1px solid #f0f0f0 !important;
 }
 
-.fc-theme-standard .fc-scrollgrid {
+.calendar-scope .fc-theme-standard .fc-scrollgrid {
   border: none !important;
 }
 
-.fc .fc-col-header-cell {
+.calendar-scope .fc .fc-col-header-cell {
   background: #fafafa;
   padding: 1.25rem 0 !important;
 }
 
-.fc .fc-col-header-cell-cushion {
+.calendar-scope .fc .fc-col-header-cell-cushion {
   font-size: 0.875rem;
   font-weight: 700;
   color: #525252;
@@ -67,12 +67,12 @@
 }
 
 /* Day Cell Styling */
-.fc .fc-daygrid-day-top {
+.calendar-scope .fc .fc-daygrid-day-top {
   flex-direction: row !important;
   padding: 0.75rem 1rem;
 }
 
-.fc .fc-daygrid-day-number {
+.calendar-scope .fc .fc-daygrid-day-number {
   font-size: 1.125rem;
   font-weight: 600;
   color: #404040;
@@ -80,17 +80,17 @@
   border-radius: 0.5rem;
 }
 
-.fc .fc-day-today {
+.calendar-scope .fc .fc-day-today {
   background-color: #fafafa !important;
 }
 
-.fc .fc-day-today .fc-daygrid-day-number {
+.calendar-scope .fc .fc-day-today .fc-daygrid-day-number {
   background: #171717;
   color: white;
 }
 
 /* Event Styling */
-.fc-event {
+.calendar-scope .fc-event {
   border: none !important;
   padding: 0.375rem 0.625rem !important;
   border-radius: 0.5rem !important;
@@ -101,23 +101,23 @@
   transition: transform 0.2s, box-shadow 0.2s !important;
 }
 
-.fc-event:hover {
+.calendar-scope .fc-event:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-.fc-h-event .fc-event-title {
+.calendar-scope .fc-h-event .fc-event-title {
   padding: 0 !important;
 }
 
 /* Popover Styling (for +more events) */
-.fc .fc-more-popover {
+.calendar-scope .fc .fc-more-popover {
   border-radius: 0.75rem !important;
   box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 15%) !important;
   border: 1px solid #e5e5e5 !important;
 }
 
-.fc .fc-more-popover .fc-popover-header {
+.calendar-scope .fc .fc-more-popover .fc-popover-header {
   background: #fafafa !important;
   border-top-left-radius: 0.75rem !important;
   border-top-right-radius: 0.75rem !important;

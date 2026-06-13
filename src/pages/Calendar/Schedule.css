@@ -1,14 +1,14 @@
 /* Override shared Dashboard class to allow wider layout */
-.dashboardMain .Dashboard {
+.scheduleDashboardPage .dashboardMain .scheduleDashboard {
   max-width: 85rem;
 }
 
-.Dashboard .dashboardTitle {
+.scheduleDashboard .dashboardTitle {
   font-size: 2.25rem;
   font-weight: 800;
 }
 
-.Dashboard .dashboardSubtitle {
+.scheduleDashboard .dashboardSubtitle {
   font-size: 1.125rem;
   margin-top: 0.5rem;
 }
@@ -18,7 +18,7 @@
   width: 100%;
 }
 
-.schedule-filter-bar {
+.schedule-page .schedule-filter-bar {
   display: flex;
   gap: 1.5rem;
   margin-bottom: 2.5rem;
@@ -30,13 +30,13 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-.search-form {
+.schedule-page .search-form {
   display: flex;
   flex: 1;
   gap: 1rem;
 }
 
-.search-form input {
+.schedule-page .search-form input {
   flex: 1;
   padding: 0 1.25rem;
   height: 3.5rem;
@@ -47,13 +47,13 @@
   transition: all 0.2s;
 }
 
-.search-form input:focus {
+.schedule-page .search-form input:focus {
   outline: none;
   border-color: #171717;
   box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.05);
 }
 
-.search-form button {
+.schedule-page .search-form button {
   height: 3.5rem;
   padding: 0 2rem;
   background: #171717;
@@ -66,11 +66,11 @@
   transition: all 0.2s;
 }
 
-.search-form button:hover {
+.schedule-page .search-form button:hover {
   background: #404040;
 }
 
-.schedule-filter-bar select {
+.schedule-page .schedule-filter-bar select {
   height: 3.5rem;
   padding: 0 1.25rem;
   border: 1px solid #e5e5e5;
@@ -84,23 +84,23 @@
   transition: all 0.2s;
 }
 
-.schedule-filter-bar select:focus {
+.schedule-page .schedule-filter-bar select:focus {
   outline: none;
   border-color: #171717;
 }
 
-.schedule-content {
+.schedule-page .schedule-content {
   display: flex;
   gap: 2rem;
   align-items: flex-start;
 }
 
-.calendar-area {
+.schedule-page .calendar-area {
   flex: 1;
   min-width: 0;
 }
 
-.todo-area {
+.schedule-page .todo-area {
   width: 26rem;
   flex-shrink: 0;
   position: sticky;
@@ -108,18 +108,18 @@
 }
 
 @media (max-width: 1024px) {
-  .schedule-content {
+  .schedule-page .schedule-content {
     flex-direction: column;
   }
   
-  .todo-area {
+  .schedule-page .todo-area {
     width: 100%;
     position: static;
   }
 }
 
 @media (max-width: 640px) {
-  .schedule-filter-bar {
+  .schedule-page .schedule-filter-bar {
     flex-direction: column;
     align-items: stretch;
   }

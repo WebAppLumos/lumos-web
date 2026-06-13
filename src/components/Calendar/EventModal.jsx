@@ -105,7 +105,7 @@ function EventModal({
     <ReactModal
       isOpen={modalOpen}
       onRequestClose={closeModal}
-      className="event-modal-content"
+      className="event-modal-content calendar-event-modal"
       overlayClassName="event-modal-overlay"
     >
       <div className="modal-header">
