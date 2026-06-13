@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import './DashboardLoginCard.css'
 
-export default function DashboardLoginCard() {
+export default function DashboardLoginCard({
+  description = '대시보드의 시간표와 맞춤 정보를 확인하려면 로그인해주세요.',
+}) {
   return (
     // 로그인하지 않은 사용자에게 로그인/회원가입 진입점을 표시
     <div className="loginCard">
@@ -35,7 +37,7 @@ export default function DashboardLoginCard() {
         <div className="loginBody">
           <h2 className="loginTitle">로그인이 필요합니다</h2>
           <p className="loginText">
-            대시보드의 시간표와 맞춤 정보를 확인하려면 로그인해주세요.
+            {description}
             <br />
             아직 계정이 없으신가요? 회원가입을 진행해주세요.
           </p>

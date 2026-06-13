@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import DashboardNav from '../../components/Dashboard/DashboardNav.jsx';
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard.jsx';
 import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
 import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
 import AssignmentList from '../../components/Assignment/AssignmentList.jsx';
+import '../Dashboard/Dashboard.css';
 import './Assignment.css';
 
 const initialTasks = [
@@ -26,7 +28,7 @@ const initialTasks = [
 
 export default function Assignment() {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('unidash_user');
+    const storedUser = localStorage.getItem('lumos_user_info');
     return storedUser ? JSON.parse(storedUser) : null;
   });
   const [tasks, setTasks] = useState(initialTasks);
@@ -80,6 +82,25 @@ export default function Assignment() {
   const handleUpdateTask = (id, updatedData) => {
     setTasks(tasks.map(task => task.id === id ? { ...task, ...updatedData } : task));
   };
+
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <DashboardNav user={null} />
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">과제 알림</h1>
+                <p className="dashboardSubtitle">마감이 가까운 과제를 놓치지 않도록 관리하세요</p>
+              </div>
+            </div>
+            <DashboardLoginCard description="과제 목록과 마감 알림을 확인하려면 로그인해주세요." />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="assignmentPage">
