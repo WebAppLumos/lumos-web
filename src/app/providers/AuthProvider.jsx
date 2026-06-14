@@ -8,6 +8,8 @@ import {
 } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import api from '../../lib/api'
+import { isOrphanedBackendSessionError, recoverOrphanedFirebaseSession } from '../../lib/auth'
+import { waitForBackendSync } from '../../lib/backendSync'
 import { auth } from '../../lib/firebase'
 import {
   clearStoredSession,
@@ -26,9 +28,30 @@ export function useAuth() {
   return context
 }
 
-async function fetchProfile() {
-  const response = await api.get('/api/users/me')
+async function fetchProfile(firebaseUser) {
+  const token = await firebaseUser.getIdToken(true)
+  const response = await api.get('/api/users/me', {
+    skipSessionExpired: true,
+    authToken: token,
+  })
   return response.data
+}
+
+async function loadProfile(firebaseUser) {
+  try {
+    return await fetchProfile(firebaseUser)
+  } catch (error) {
+    const status = error.response?.status
+
+    if (status === 401) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 600)
+      })
+      return fetchProfile(firebaseUser)
+    }
+
+    throw error
+  }
 }
 
 export function AuthProvider({ children }) {
@@ -47,7 +70,7 @@ export function AuthProvider({ children }) {
       return null
     }
 
-    const profile = await fetchProfile()
+    const profile = await loadProfile(auth.currentUser)
     setStoredUser(profile)
     setUser(profile)
     return profile
@@ -69,19 +92,27 @@ export function AuthProvider({ children }) {
 
       localStorage.setItem('lumos_uid', firebaseUser.uid)
 
+      await waitForBackendSync()
+
       const cachedUser = getStoredUser()
-      if (cachedUser) {
+      if (cachedUser?.userId === firebaseUser.uid) {
         setUser(cachedUser)
       }
 
       try {
-        const profile = await fetchProfile()
+        const profile = await loadProfile(firebaseUser)
         setStoredUser(profile)
         setUser(profile)
       } catch (error) {
         console.error(error)
-        clearStoredSession()
-        setUser(null)
+
+        if (isOrphanedBackendSessionError(error)) {
+          setUser(null)
+          await recoverOrphanedFirebaseSession()
+        } else if (!getStoredUser()) {
+          clearStoredSession()
+          setUser(null)
+        }
       } finally {
         setIsLoading(false)
       }
