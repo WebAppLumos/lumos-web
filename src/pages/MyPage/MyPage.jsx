@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
+import { Award, BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
 import { deleteUser, signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
@@ -11,6 +11,7 @@ import { useStoredUser } from '../../lib/useStoredUser';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
+import CertificationManager from '../../components/MyPage/CertificationManager';
 import './MyPage.css';
 
 const emptyGradeSummary = {
