@@ -250,11 +250,13 @@ return (
         </MapContainer>
       </div>
     </div>
+    
 
     {/* 오른쪽 */} 
       <div className="rightBox">
-        <h1> {category} </h1>
-
+        <div className="listHeader">
+        <h1>{category}</h1>
+        <button className="myLocationButton" onClick={() => setSelectedPosition(myPosition)}> 내 위치 </button></div>
       {/* 시설 리스트 */}
         <PlaceList places={filteredPlaces}
           setSelectedPosition={ setSelectedPosition }

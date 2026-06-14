@@ -9,7 +9,6 @@ body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 16px;
-
   display: flex;
   gap: 24px;
 }
@@ -26,22 +25,18 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 20px;
 }
 
 .titleBox h1 {
   margin: 0;
-
   font-size: 32px;
   font-weight: 700;
-
   color: #171717;
 }
 
 .titleBox p {
   margin: 6px 0 0;
-
   font-size: 14px;
   color: #737373;
 }
@@ -50,24 +45,17 @@ body {
 .search {
   width: 280px;
   height: 48px;
-
   border: 1px solid #e5e5e5;
   border-radius: 14px;
-
   padding: 0 16px;
-
   background: white;
-
   font-size: 14px;
-
   transition: all 0.2s ease;
 }
 
 .search:focus {
   outline: none;
-
   border-color: #171717;
-
   box-shadow: 0 0 0 4px rgba(23, 23, 23, 0.08);
 }
 
@@ -75,16 +63,13 @@ body {
 .categoryBox {
   display: flex;
   gap: 16px;
-
   margin-bottom: 20px;
 }
 
 .category {
   border: none;
   background: none;
-
   cursor: pointer;
-
   font-size: 15px;
   color: #737373;
 }
@@ -97,19 +82,13 @@ body {
 /* 지도 */
 .mapBox {
   height: 520px;
-
   border: 1px solid #e5e5e5;
   border-radius: 20px;
-
   overflow: hidden;
-
   border: 1px solid #e5e5e5;
   border-radius: 20px;
-
   overflow: hidden;
-
   background: white;
-
   box-shadow:
     0 4px 12px rgba(0,0,0,0.04),
     0 12px 32px rgba(0,0,0,0.03);
@@ -123,19 +102,13 @@ body {
 /* 오른쪽 */
 .rightBox {
   width: 360px;
-
   background: white;
-
   border: 1px solid #e5e5e5;
   border-radius: 20px;
-
   padding: 20px;
-
   display: flex;
   flex-direction: column;
-
   height: 600px;
-
   box-shadow:
     0 4px 12px rgba(0,0,0,0.04),
     0 12px 32px rgba(0,0,0,0.03);
@@ -144,17 +117,14 @@ body {
 .rightBox h1 {
   margin-top: 0;
   margin-bottom: 20px;
-
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
-
   color: #171717;
 }
 
 /* 리스트 */
 .placeList {
   flex: 1;
-
   overflow-y: auto;
   padding-top: 4px;
   padding-right: 4px;
@@ -173,40 +143,30 @@ body {
 /* 카드 */
 .placeBox {
   background: white;
-
   border: 1px solid #ededed;
   border-radius: 16px;
-
   padding: 18px;
-
   margin-bottom: 14px;
-
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 
 .placeBox:hover {
   transform: translateY(-2px);
-
   border-color: #d4d4d4;
-
   box-shadow:
     0 8px 20px rgba(0,0,0,0.08);
 }
 
 .placeBox h3 {
   margin: 0 0 8px;
-
   font-size: 16px;
   font-weight: 600;
-
   color: #171717;
 }
 
 .placeBox p {
   margin: 0;
-
   color: #737373;
   font-size: 14px;
 }
@@ -218,21 +178,15 @@ body {
 /* 길찾기 */
 .routeButton {
   width: 100%;
-
   margin-top: 14px;
   padding: 12px;
-
   border: none;
   border-radius: 12px;
-
   background: #171717;
   color: white;
-
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 
@@ -251,26 +205,17 @@ body {
 
 .routeTooltip {
   position: absolute;
-
   bottom: 60px;
   left: 50%;
-
   transform: translateX(-50%);
-
   background: #171717;
   color: white;
-
   padding: 8px 12px;
-
   border-radius: 10px;
-
   font-size: 13px;
-
   white-space: nowrap;
-
   opacity: 0;
   visibility: hidden;
-
   transition: all 0.2s ease;
 }
 
@@ -282,11 +227,8 @@ body {
 /* 다음 수업 */
 .nextClass {
   margin-top: 20px;
-
   padding: 24px;
-
   border-radius: 20px;
-
   background:
     linear-gradient(
       135deg,
@@ -295,25 +237,72 @@ body {
     );
 
   color: white;
-
   flex-shrink: 0;
 }
 
 .nextClass h3 {
   margin: 0 0 14px;
-
   font-size: 20px;
   font-weight: 700;
 }
 
 .nextClass p {
   margin: 6px 0;
-
   color: rgba(255,255,255,0.75);
 }
 
+.myLocationButton {
+  margin-top: 12px;
+  width: 100px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #171717;
+  border-radius: 12px;
+  color: #171717;
+  width: 140px;
+  height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.myLocationButton:hover {
+  opacity: 0.9;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.listHeader h1 {
+  margin: 0;
+  line-height: 1;
+}
+
+.myLocationButton {
+  height: 48px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  background: white;
+  color: #171717;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 /* 반응형 */
-@media (max-width: 1200px) {
+@media (max-width: 1000px) {
   .mapContainer {
     flex-direction: column;
   }
@@ -325,19 +314,27 @@ body {
 
   .mapBox {
     width: 100%;
-    min-height: 600px;
+    height: 600px;
+  }
+
+  .placeList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    overflow: visible;
+  }
+
+  .placeBox {
+    margin-bottom: 0;
   }
 }
-
-@media (max-width: 768px) {
-  .topBox {
-    flex-direction: column;
-    align-items: flex-start;
-
-    gap: 12px;
+@media (max-width: 800px) {
+  .placeList {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .search {
-    width: 100%;
+}
+@media (max-width: 600px) {
+  .placeList {
+    grid-template-columns: 1fr;
   }
 }
