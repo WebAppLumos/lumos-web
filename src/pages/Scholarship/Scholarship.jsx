@@ -1,17 +1,14 @@
 import { useState, useMemo } from 'react'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 import ScholarshipHero from '../../components/Scholarship/ScholarshipHero'
 import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
 import ScholarshipResult from '../../components/Scholarship/ScholarshipResult'
 import certificationsData from '../../data/certifications.json'
 import { allScholarships } from '../../data/scholarships'
-import { useStoredUser } from '../../lib/useStoredUser'
-import '../Dashboard/Dashboard.css'
+import { useAuth } from '../../app/providers/AuthProvider'
 import './Scholarship.css'
 
 export default function Scholarship() {
-  const [user, setUser] = useStoredUser()
+  const { user } = useAuth()
   const [showProfile, setShowProfile] = useState(false)
   const [showResults, setShowResults] = useState(false)
 
@@ -82,28 +79,8 @@ export default function Scholarship() {
     setShowProfile(false)
   }
 
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={null} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <div className="dashboardHeader">
-              <div>
-                <h1 className="dashboardTitle">장학금</h1>
-                <p className="dashboardSubtitle">내 조건에 맞는 장학금 추천을 확인하세요</p>
-              </div>
-            </div>
-            <DashboardLoginCard description="장학금 추천과 맞춤 정보를 확인하려면 로그인해주세요." />
-          </div>
-        </main>
-      </div>
-    )
-  }
-
   return (
     <div className="scholarshipPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="scholarshipMain">
         {!showProfile && !showResults ? (
           <ScholarshipHero onStartCuration={handleStartCuration} />

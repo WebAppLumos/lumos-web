@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import PasswordInput from '../../components/auth/PasswordInput'
 import { auth } from '../../lib/firebase'
-import api from '../../lib/api'
-import { setStoredUser } from '../../lib/session'
 import './Signin.css'
 
 export default function Signin() {
@@ -11,24 +10,16 @@ export default function Signin() {
   const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
 
   const onSubmit = async (e) => {
     e.preventDefault()
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         auth,
         email,
         password
       )
-
-      const uid = userCredential.user.uid
-
-      const response = await api.get('/api/users/me')
-
-      localStorage.setItem('lumos_uid', uid)
-      setStoredUser(response.data)
 
       window.alert('로그인 성공!')
       const redirectPath = location.state?.from && location.state.from !== '/login'
@@ -75,24 +66,11 @@ export default function Signin() {
 
             <label className="label">비밀번호</label>
 
-            <div className="passwordWrap">
-              <input
-                className="input inputGrow"
-                placeholder="••••••••"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-
-              <button
-                type="button"
-                className="togglePw"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? '숨김' : '보기'}
-              </button>
-            </div>
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
             <button type="submit" className="submit">
               로그인

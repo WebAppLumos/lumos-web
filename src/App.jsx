@@ -10,6 +10,7 @@ import {
   hasStoredSession,
   SESSION_EXPIRED_EVENT,
 } from './lib/session'
+import { AuthProvider, useAuth } from './app/providers/AuthProvider'
 import Router from './Router.jsx'
 
 const publicPaths = new Set(['/login', '/signup'])
@@ -54,23 +55,21 @@ function SessionGuard() {
 }
 
 function DashboardWidgetsPrefetch() {
+  const { user } = useAuth()
+
   useEffect(() => {
-    if (!hasStoredSession()) return undefined
+    if (!user) return undefined
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) return
+    Promise.all([
+      fetchDashboardWidgets()
+        .then(setCachedDashboardWidgets)
+        .catch(() => {}),
+      ensureCalendarSession().catch(() => {}),
+      ensureTimetableSession().catch(() => {}),
+    ])
 
-      Promise.all([
-        fetchDashboardWidgets()
-          .then(setCachedDashboardWidgets)
-          .catch(() => {}),
-        ensureCalendarSession().catch(() => {}),
-        ensureTimetableSession().catch(() => {}),
-      ])
-    })
-
-    return unsubscribe
-  }, [])
+    return undefined
+  }, [user])
 
   return null
 }
@@ -78,9 +77,11 @@ function DashboardWidgetsPrefetch() {
 export default function App() {
   return (
     <BrowserRouter>
-      <SessionGuard />
-      <DashboardWidgetsPrefetch />
-      <Router />
+      <AuthProvider>
+        <SessionGuard />
+        <DashboardWidgetsPrefetch />
+        <Router />
+      </AuthProvider>
     </BrowserRouter>
   )
 }
