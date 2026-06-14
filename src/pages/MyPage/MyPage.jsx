@@ -6,7 +6,7 @@ import api from '../../lib/api';
 import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
 import { fetchSemesterGrades } from '../../lib/grades/api';
 import { formatPhoneNumber } from '../../lib/phoneNumber';
-import { sanitizeNameInput } from '../../lib/name';
+import { getNameValidationMessage, sanitizeNameInput } from '../../lib/name';
 import { completeAccountWithdrawal } from '../../lib/auth';
 import { useAuth } from '../../app/providers/AuthProvider';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
@@ -145,10 +145,23 @@ export default function MyPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const nameMessage = getNameValidationMessage(formData.name);
+    if (nameMessage) {
+      alert(nameMessage);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await api.patch('/api/users/me', formData);
+      const payload = {
+        name: formData.name.trim(),
+        major: formData.major.trim(),
+        grade: Number(formData.grade),
+      };
+
+      const response = await api.patch('/api/users/me', payload);
       const updatedUser = response.data;
 
       updateUser(updatedUser);
@@ -157,7 +170,8 @@ export default function MyPage() {
       alert('회원 정보가 수정되었습니다.');
     } catch (error) {
       console.error('Update failed:', error);
-      alert('정보 수정에 실패했습니다.');
+      const serverMessage = error.response?.data?.message;
+      alert(serverMessage || '정보 수정에 실패했습니다.');
     } finally {
       setLoading(false);
     }
