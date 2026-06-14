@@ -66,7 +66,8 @@ export default function Scholarship() {
 
         // 4. 어학 성적 조회 (TOEIC)
         const examRes = await scholarshipApi.getLanguageExams(uid)
-        const exams = examRes.data || []
+        // 최신순으로 정렬하여 중복 데이터가 있을 경우 가장 최근 것만 사용하도록 함
+        const exams = (examRes.data || []).sort((a, b) => b.examId - a.examId)
         
         const now = new Date()
         const currentYear = now.getFullYear()
@@ -74,7 +75,7 @@ export default function Scholarship() {
         
         // 현재 학기 토익
         const currentExam = exams.find(e => e.year === currentYear && e.semester === currentSemester && e.examCategory === 'TOEIC')
-        // 이전 학기 토익 (가장 최근 것 하나)
+        // 이전 학기 토익 (현재 학기 제외하고 가장 최근 것)
         const prevExam = exams
           .filter(e => !(e.year === currentYear && e.semester === currentSemester) && e.examCategory === 'TOEIC')
           .sort((a, b) => (b.year !== a.year ? b.year - a.year : b.semester.localeCompare(a.semester)))[0]
@@ -184,6 +185,12 @@ export default function Scholarship() {
       const currentYear = now.getFullYear()
       const currentSemester = (now.getMonth() + 1 >= 3 && now.getMonth() + 1 <= 8) ? '1학기' : '2학기'
       
+      const newIds = {
+        scoreId: userProfile.scoreId,
+        currentExamId: userProfile.currentExamId,
+        prevExamId: userProfile.prevExamId
+      }
+
       // 1. 직전학기 성적 저장 (GPA)
       if (userProfile.gpa) {
         const scoreData = {
@@ -195,7 +202,8 @@ export default function Scholarship() {
         if (userProfile.scoreId) {
           await scholarshipApi.updatePreviousSemesterScore(userProfile.scoreId, scoreData)
         } else {
-          await scholarshipApi.addPreviousSemesterScore(uid, scoreData)
+          const res = await scholarshipApi.addPreviousSemesterScore(uid, scoreData)
+          newIds.scoreId = res.data.gradeId
         }
       }
 
@@ -212,7 +220,8 @@ export default function Scholarship() {
         if (userProfile.currentExamId) {
           await scholarshipApi.updateLanguageExam(userProfile.currentExamId, currentExamData)
         } else {
-          await scholarshipApi.addLanguageExam(uid, currentExamData)
+          const res = await scholarshipApi.addLanguageExam(uid, currentExamData)
+          newIds.currentExamId = res.data.examId
         }
       }
 
@@ -231,9 +240,18 @@ export default function Scholarship() {
         if (userProfile.prevExamId) {
           await scholarshipApi.updateLanguageExam(userProfile.prevExamId, prevExamData)
         } else {
-          await scholarshipApi.addLanguageExam(uid, prevExamData)
+          const res = await scholarshipApi.addLanguageExam(uid, prevExamData)
+          newIds.prevExamId = res.data.examId
         }
       }
+
+      // 로컬 상태 업데이트 (중복 방지 및 즉시 반영)
+      setUserProfile(prev => ({
+        ...prev,
+        scoreId: newIds.scoreId,
+        currentExamId: newIds.currentExamId,
+        prevExamId: newIds.prevExamId
+      }))
 
       setShowResults(true)
       setShowProfile(false)
