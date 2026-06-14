@@ -25,11 +25,9 @@ import {
   getTimetableSession,
 } from '../../lib/timetable/session'
 import { getStoredUser } from '../../lib/session'
-import { useStoredUser } from '../../lib/useStoredUser'
+import { useAuth } from '../../app/providers/AuthProvider'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
 import DashboardWidgetEditor from '../../components/Dashboard/DashboardWidgetEditor'
 import ScheduleSummaryWidget from '../../components/Dashboard/ScheduleSummaryWidget'
 import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidget'
@@ -132,7 +130,7 @@ export default function Dashboard() {
   const timetableSession = getTimetableSession()
   const calendarSession = getCalendarSession()
 
-  const [user, setUser] = useStoredUser()
+  const { user } = useAuth()
   const [widgets, setWidgets] = useState(() => {
     if (!getStoredUser()) return DEFAULT_DASHBOARD_WIDGETS
     return getCachedDashboardWidgets() ?? DEFAULT_DASHBOARD_WIDGETS
@@ -275,24 +273,8 @@ export default function Dashboard() {
     setDragOverWidgetId(null)
   }
 
-  // 로그인하지 않은 경우 로그인 요청 메시지 표시
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={user} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <DashboardHeader />
-            <DashboardLoginCard />
-          </div>
-        </main>
-      </div>
-    )
-  }
-
   return (
     <div className="dashboardPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="dashboardMain">
         <div className="Dashboard">
           {isInitialLoading ? (

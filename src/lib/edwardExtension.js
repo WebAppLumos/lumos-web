@@ -1,4 +1,4 @@
-const DEFAULT_EXTENSION_ID = 'aocdocffeljdoeedaecndcdlfnajgcgj'
+const DEFAULT_EXTENSION_ID = 'mjbkpdkmolfjmkfaollkpnjfhejnahop'
 const EXTENSION_ID = (import.meta.env.VITE_LUMOS_EXTENSION_ID || DEFAULT_EXTENSION_ID).trim()
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 

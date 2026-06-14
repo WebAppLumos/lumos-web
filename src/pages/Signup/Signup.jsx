@@ -11,7 +11,10 @@ import {
   trimSignupForm,
   validateSignupForm,
 } from '../../lib/auth'
-import { setStoredUser } from '../../lib/session'
+import PasswordInput from '../../components/auth/PasswordInput'
+import EmailInput from '../../components/auth/EmailInput'
+import { formatPhoneNumber } from '../../lib/phoneNumber'
+import { sanitizeNameInput } from '../../lib/name'
 import './Signup.css'
 
 export default function Signup() {
@@ -25,9 +28,6 @@ export default function Signup() {
   const [grade, setGrade] = useState('')
   const [studentNumber, setStudentNumber] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-
-  const [showPw, setShowPw] = useState(false)
-  const [showPw2, setShowPw2] = useState(false)
 
   const [hint, setHint] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -72,7 +72,7 @@ export default function Signup() {
 
       const idToken = await userCredential.user.getIdToken()
 
-      const response = await api.post('/api/auth/login', {
+      await api.post('/api/auth/login', {
         idToken,
         name: form.name,
         department: form.department,
@@ -80,9 +80,6 @@ export default function Signup() {
         studentNumber: form.studentNumber,
         phoneNumber: form.phoneNumber
       })
-
-      localStorage.setItem('lumos_uid', userCredential.user.uid)
-      setStoredUser(response.data.user)
 
       window.alert('회원가입 성공!')
       navigate('/')
@@ -130,7 +127,7 @@ export default function Signup() {
             type="text"
             placeholder="홍길동"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setName(sanitizeNameInput(e.target.value))}
             required
           />
 
@@ -153,13 +150,10 @@ export default function Signup() {
           <label className="label" htmlFor="su-email">
             이메일
           </label>
-          <input
+          <EmailInput
             id="su-email"
-            className="input"
-            type="email"
-            placeholder="example@university.ac.kr"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={setEmail}
             required
           />
 
@@ -172,7 +166,10 @@ export default function Signup() {
             type="tel"
             placeholder="010-0000-0000"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+            inputMode="numeric"
+            autoComplete="tel"
+            maxLength={13}
             required
           />
 
@@ -209,48 +206,24 @@ export default function Signup() {
           <label className="label" htmlFor="su-pw">
             비밀번호
           </label>
-          <div className="passwordWrap">
-            <input
-              id="su-pw"
-              className="input inputGrow"
-              type={showPw ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
-            <button
-              type="button"
-              className="togglePw"
-              onClick={() => setShowPw((v) => !v)}
-            >
-              {showPw ? '숨김' : '보기'}
-            </button>
-          </div>
+          <PasswordInput
+            id="su-pw"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
 
           <label className="label" htmlFor="su-pw2">
             비밀번호 확인
           </label>
-          <div className="passwordWrap">
-            <input
-              id="su-pw2"
-              className="input inputGrow"
-              type={showPw2 ? 'text' : 'password'}
-              placeholder="••••••••"
-              value={password2}
-              onChange={(e) => setPassword2(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
-            <button
-              type="button"
-              className="togglePw"
-              onClick={() => setShowPw2((v) => !v)}
-            >
-              {showPw2 ? '숨김' : '보기'}
-            </button>
-          </div>
+          <PasswordInput
+            id="su-pw2"
+            value={password2}
+            onChange={(e) => setPassword2(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
 
           <button type="submit" className="submit" disabled={isSubmitting}>
             {isSubmitting ? '처리 중...' : '회원가입'}
@@ -258,7 +231,7 @@ export default function Signup() {
         </form>
 
         <p className="foot">
-          <Link to="/">로그인으로 돌아가기</Link>
+          <Link to="/login" className="muted">로그인으로 돌아가기</Link>
         </p>
       </div>
     </div>

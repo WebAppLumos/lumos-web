@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
-import { deleteUser, signOut } from 'firebase/auth';
+import { deleteUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
 import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
 import { fetchSemesterGrades } from '../../lib/grades/api';
-import { clearStoredSession, setStoredUser } from '../../lib/session';
-import { useStoredUser } from '../../lib/useStoredUser';
-import DashboardNav from '../../components/Dashboard/DashboardNav';
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
+import { formatPhoneNumber } from '../../lib/phoneNumber';
+import { sanitizeNameInput } from '../../lib/name';
+import { useAuth } from '../../app/providers/AuthProvider';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import CertificationManager from '../../components/MyPage/CertificationManager';
 import './MyPage.css';
@@ -26,7 +25,7 @@ export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const [user, setUser] = useStoredUser();
+  const { user, updateUser, logout } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -64,7 +63,7 @@ export default function MyPage() {
       name: user.name || '',
       major: user.major || user.department || '',
       grade: user.grade || 1,
-      phoneNumber: user.phoneNumber || '',
+      phoneNumber: formatPhoneNumber(user.phoneNumber || ''),
       studentNumber: user.studentNumber || '',
       email: user.email || '',
       profileImage: user.profileImage || '',
@@ -73,9 +72,8 @@ export default function MyPage() {
     fetchSemesterCredits();
   }, [user]);
 
-  const handleLogout = () => {
-    clearStoredSession();
-    signOut(auth).catch(() => {});
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -107,8 +105,7 @@ export default function MyPage() {
 
         const updatedUser = res.data;
 
-        setStoredUser(updatedUser);
-        setUser(updatedUser);
+        updateUser(updatedUser);
         setFormData((prev) => ({
           ...prev,
           profileImage: updatedUser.profileImage,
@@ -128,7 +125,7 @@ export default function MyPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'name' ? sanitizeNameInput(value) : value,
     }));
   };
 
@@ -140,8 +137,7 @@ export default function MyPage() {
       const response = await api.patch('/api/users/me', formData);
       const updatedUser = response.data;
 
-      setStoredUser(updatedUser);
-      setUser(updatedUser);
+      updateUser(updatedUser);
       setIsEditing(false);
 
       alert('회원 정보가 수정되었습니다.');
@@ -167,7 +163,6 @@ export default function MyPage() {
       }
 
       alert('탈퇴 처리가 완료되었습니다.');
-      clearStoredSession();
       window.location.href = '/';
     } catch (error) {
       console.error('Withdrawal failed:', error);
@@ -231,23 +226,8 @@ export default function MyPage() {
   const averageGpa = gradeSummary.averageGpa || 0;
   const academicWarningCount = gradeSummary.academicWarningCount || 0;
 
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={null} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <DashboardLoginCard />
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="dashboardPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
-
       <main className="dashboardMain">
         <div className="myPageContainer myPageScope">
           <div className="myPageHeader">

@@ -18,7 +18,7 @@ import {
 } from '../../lib/calendar/session'
 
 import { getStoredUser } from '../../lib/session'
-import { useStoredUser } from '../../lib/useStoredUser'
+import { useAuth } from '../../app/providers/AuthProvider'
 
 
 
@@ -27,10 +27,6 @@ import Calendar from '../../components/Calendar/Calendar'
 import EventModal from '../../components/Calendar/EventModal'
 
 import TodoList from '../../components/Calendar/Todolist'
-
-import DashboardNav from '../../components/Dashboard/DashboardNav'
-
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 
 
 
@@ -48,7 +44,7 @@ function Schedule() {
 
   const calendarSession = getCalendarSession()
 
-  const [user, setUser] = useStoredUser()
+  const { user } = useAuth()
 
 
 
@@ -188,55 +184,9 @@ function Schedule() {
 
 
 
-  if (!user) {
-
-    return (
-
-      <div className="dashboardPage">
-
-        <DashboardNav user={null} />
-
-        <main className="dashboardMain">
-
-          <div className="Dashboard">
-
-            <div className="dashboardHeader">
-
-              <div>
-
-                <h1 className="dashboardTitle">학사 및 개인 일정</h1>
-
-                <p className="dashboardSubtitle">
-
-                  중요한 학사 일정과 나의 개인 일정을 한눈에 관리하세요
-
-                </p>
-
-              </div>
-
-            </div>
-
-            <DashboardLoginCard description="일정과 캘린더를 확인하려면 로그인해주세요." />
-
-          </div>
-
-        </main>
-
-      </div>
-
-    )
-
-  }
-
-
-
   return (
 
     <div className="dashboardPage scheduleDashboardPage">
-
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
-
-
 
       <main className="dashboardMain">
 

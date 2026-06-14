@@ -6,13 +6,13 @@ import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
 import ScholarshipResult from '../../components/Scholarship/ScholarshipResult'
 import certificationsData from '../../data/certifications.json'
 import { allScholarships } from '../../data/scholarships'
-import { useStoredUser } from '../../lib/useStoredUser'
 import { scholarshipApi } from '../../lib/scholarshipApi'
+import { useAuth } from '../../app/providers/AuthProvider'
 import '../Dashboard/Dashboard.css'
 import './Scholarship.css'
 
 export default function Scholarship() {
-  const [user, setUser] = useStoredUser()
+  const { user } = useAuth()
   const [showProfile, setShowProfile] = useState(false)
   const [showResults, setShowResults] = useState(false)
 
@@ -284,7 +284,7 @@ export default function Scholarship() {
 
   return (
     <div className="scholarshipPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
+      <DashboardNav user={user} />
       <main className="scholarshipMain">
         {!showProfile && !showResults ? (
           <ScholarshipHero onStartCuration={handleStartCuration} />

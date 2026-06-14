@@ -1,3 +1,38 @@
+import { isValidPhoneNumber } from './phoneNumber'
+
+export const EMAIL_DOMAIN_OPTIONS = [
+  'gmail.com',
+  'naver.com',
+  'daum.net',
+  'hanmail.net',
+  'kakao.com',
+  'nate.com',
+  'outlook.com',
+  'outlook.kr',
+  'hotmail.com',
+  'live.com',
+  'icloud.com',
+  'me.com',
+  'yahoo.com',
+  'yahoo.co.kr',
+]
+
+export const ALLOWED_EMAIL_DOMAINS = [
+  ...EMAIL_DOMAIN_OPTIONS,
+  'googlemail.com',
+]
+
+
+export function getEmailDomain(email) {
+  const at = String(email ?? '').lastIndexOf('@')
+  if (at < 0) return ''
+  return email.slice(at + 1).toLowerCase().trim()
+}
+
+export function isAllowedEmailDomain(email) {
+  return ALLOWED_EMAIL_DOMAINS.includes(getEmailDomain(email))
+}
+
 const FIREBASE_SIGNUP_MESSAGES = {
   'auth/email-already-in-use': '이미 가입된 이메일입니다. 로그인해 주세요.',
   'auth/invalid-email': '이메일 형식을 확인해 주세요.',
@@ -38,9 +73,21 @@ export function getSignupErrorMessage(error) {
   return '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
-export function validateSignupForm({ studentNumber }) {
+export function validateSignupForm({ studentNumber, email, phoneNumber }) {
   if (!/^\d{7}$/.test(studentNumber)) {
     return '학번은 숫자 7자리로 입력해 주세요. 예: 2024001'
+  }
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return '이메일 형식을 확인해 주세요.'
+  }
+
+  if (!isAllowedEmailDomain(email)) {
+    return '해당 이메일은 사용할 수 없습니다.'
+  }
+
+  if (!isValidPhoneNumber(phoneNumber)) {
+    return '전화번호는 010으로 시작하는 11자리 번호만 입력할 수 있습니다.'
   }
 
   return ''
