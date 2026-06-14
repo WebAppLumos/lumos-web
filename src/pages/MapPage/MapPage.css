@@ -1,83 +1,118 @@
-
 body {
   margin: 0;
   padding: 0;
+  background: #fafafa;
 }
 
 /* 전체 */
 .mapContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+
   display: flex;
-  width: 100%;
-  height: calc(100vh - 80px);
+  gap: 24px;
 }
 
-/* 가운데 */
+/* 왼쪽 */
 .centerBox {
   flex: 1;
-  padding: 30px;
   display: flex;
   flex-direction: column;
 }
 
-/* 제목 */
+/* 상단 */
 .topBox {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
 
-.titleBox {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .titleBox h1 {
   margin: 0;
+
+  font-size: 32px;
+  font-weight: 700;
+
+  color: #171717;
 }
 
 .titleBox p {
-  margin: 0;
-  color: #777;
+  margin: 6px 0 0;
+
+  font-size: 14px;
+  color: #737373;
 }
 
 /* 검색 */
 .search {
-  width: 250px;
-  height: 45px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding-left: 15px;
-  font-size: 15px;
+  width: 280px;
+  height: 48px;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+
+  padding: 0 16px;
+
+  background: white;
+
+  font-size: 14px;
+
+  transition: all 0.2s ease;
+}
+
+.search:focus {
+  outline: none;
+
+  border-color: #171717;
+
+  box-shadow: 0 0 0 4px rgba(23, 23, 23, 0.08);
 }
 
 /* 카테고리 */
 .categoryBox {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 16px;
+
   margin-bottom: 20px;
 }
 
 .category {
   border: none;
   background: none;
+
   cursor: pointer;
-  font-size: 16px;
-  color: #888;
+
+  font-size: 15px;
+  color: #737373;
 }
 
 .activeCategory {
-  color: #000;
+  color: #171717;
   font-weight: 700;
 }
 
 /* 지도 */
 .mapBox {
-  flex: 1;
-  min-height: 500px;
+  height: 520px;
+
+  border: 1px solid #e5e5e5;
   border-radius: 20px;
+
   overflow: hidden;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  background: white;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.04),
+    0 12px 32px rgba(0,0,0,0.03);
 }
 
 .leaflet-container {
@@ -87,70 +122,126 @@ body {
 
 /* 오른쪽 */
 .rightBox {
-  width: 340px;
+  width: 360px;
+
   background: white;
-  padding: 30px 20px;
-  border-left: 1px solid #eee;
+
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+
+  padding: 20px;
 
   display: flex;
   flex-direction: column;
 
-  height: calc(100vh - 80px);
+  height: 600px;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.04),
+    0 12px 32px rgba(0,0,0,0.03);
 }
 
 .rightBox h1 {
   margin-top: 0;
+  margin-bottom: 20px;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  color: #171717;
 }
 
 /* 리스트 */
 .placeList {
   flex: 1;
+
   overflow-y: auto;
-  margin-top: 20px;
+  padding-top: 4px;
+  padding-right: 4px;
+}
+
+/* 스크롤 */
+.placeList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.placeList::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 999px;
 }
 
 /* 카드 */
 .placeBox {
-  background: #f7f7f7;
-  border-radius: 15px;
+  background: white;
+
+  border: 1px solid #ededed;
+  border-radius: 16px;
+
   padding: 18px;
-  margin-bottom: 15px;
+
+  margin-bottom: 14px;
+
   cursor: pointer;
+
+  transition: all 0.2s ease;
 }
 
 .placeBox:hover {
-  background: #efefef;
-}
+  transform: translateY(-2px);
 
-.activePlace {
-  border: 2px solid #000;
+  border-color: #d4d4d4;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.08);
 }
 
 .placeBox h3 {
-  margin-top: 0;
+  margin: 0 0 8px;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  color: #171717;
 }
 
-/* 버튼 */
+.placeBox p {
+  margin: 0;
+
+  color: #737373;
+  font-size: 14px;
+}
+
+.activePlace {
+  border: 1px solid #171717;
+}
+
+/* 길찾기 */
 .routeButton {
   width: 100%;
-  margin-top: 10px;
-  padding: 10px;
+
+  margin-top: 14px;
+  padding: 12px;
 
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: #111;
+  background: #171717;
   color: white;
 
-  cursor: pointer;
-}
+  font-size: 14px;
+  font-weight: 600;
 
-.routeButton.active {
-  background: #666;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
 }
 
 .routeButton:hover {
-  opacity: 0.9;
+  background: #262626;
+}
+
+.routeButton.active {
+  background: #404040;
 }
 
 /* 툴팁 */
@@ -160,22 +251,27 @@ body {
 
 .routeTooltip {
   position: absolute;
+
   bottom: 60px;
   left: 50%;
+
   transform: translateX(-50%);
 
-  background: #222;
+  background: #171717;
   color: white;
 
   padding: 8px 12px;
-  border-radius: 8px;
 
-  font-size: 14px;
+  border-radius: 10px;
+
+  font-size: 13px;
+
   white-space: nowrap;
 
   opacity: 0;
   visibility: hidden;
-  transition: 0.2s;
+
+  transition: all 0.2s ease;
 }
 
 .routeWrapper:hover .routeTooltip {
@@ -185,80 +281,63 @@ body {
 
 /* 다음 수업 */
 .nextClass {
-  background: #575757;
+  margin-top: 20px;
+
+  padding: 24px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #171717 0%,
+      #2f2f2f 100%
+    );
+
   color: white;
-  border-radius: 15px;
-  padding: 20px;
+
+  flex-shrink: 0;
 }
 
 .nextClass h3 {
-  margin-top: 0;
+  margin: 0 0 14px;
+
+  font-size: 20px;
+  font-weight: 700;
 }
 
-/* ===================== */
-/* 반응형 */
-/* ===================== */
+.nextClass p {
+  margin: 6px 0;
 
+  color: rgba(255,255,255,0.75);
+}
+
+/* 반응형 */
 @media (max-width: 1200px) {
   .mapContainer {
     flex-direction: column;
   }
 
-  .centerBox {
-    width: 100%;
-  }
-
-  .mapBox {
-    height: 600px;
-    flex: none;
-  }
-
   .rightBox {
     width: 100%;
     height: auto;
-    border-left: none;
-    padding-top: 20px;
   }
 
-  .placeList {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-
-    flex: none;
-    overflow: visible;
-  }
-
-  .placeBox {
-    margin-bottom: 0;
-  }
-
-  .nextClass {
-    background: #111;
-    color: white;
-    border-radius: 15px;
-    padding: 20px;
+  .mapBox {
+    width: 100%;
+    min-height: 600px;
   }
 }
 
-@media (max-width: 900px) {
-  .placeList {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .topBox {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+
+    gap: 12px;
   }
 
   .search {
     width: 100%;
-  }
-
-  .placeList {
-    grid-template-columns: 1fr;
   }
 }
