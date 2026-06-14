@@ -463,12 +463,6 @@ export default function MyPage() {
                 </form>
               )}
 
-              {activeMenu === 'profile' && (
-                <div className="certificationPanel" style={{ marginTop: '1.5rem' }}>
-                  <CertificationManager userId={localStorage.getItem('lumos_uid')} />
-                </div>
-              )}
-
               {activeMenu === 'grades' && (
                 <section className="gradeAccessPanel">
                   <div className="panelHead">
