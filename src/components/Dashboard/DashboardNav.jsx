@@ -2,11 +2,44 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
+import { getDeadlineLabel, getImminentAssignments } from '../../lib/assignmentNotifications'
+import { clearStoredSession } from '../../lib/session'
+import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
+import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [readNotificationIds, setReadNotificationIds] = useState(() => {
+    if (typeof window === 'undefined') return []
+
+    try {
+      const storedIds = window.localStorage.getItem('lumos.readAssignmentNotifications')
+      return storedIds ? JSON.parse(storedIds) : []
+    } catch {
+      return []
+    }
+  })
+  const [tasks] = useAssignmentTasks()
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
+  const profileImage = user?.profileImage
+  const avatarInitial = user?.name?.[0] || ''
+  const canShowProfileImage = profileImage && failedAvatarSrc !== profileImage
+  const imminentAssignments = user ? getImminentAssignments(tasks) : []
+  const unreadAssignments = imminentAssignments.filter(
+    (task) => !readNotificationIds.includes(task.notificationId),
+  )
+
+  const markNotificationsAsRead = (notificationIds) => {
+    const nextIds = Array.from(new Set([...readNotificationIds, ...notificationIds]))
+    setReadNotificationIds(nextIds)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('lumos.readAssignmentNotifications', JSON.stringify(nextIds))
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('lumos_user_info')
@@ -14,6 +47,25 @@ export default function DashboardNav({ user, onLogout }) {
     setIsDropdownOpen(false)
     if (onLogout) onLogout()
     navigate('/')
+  }
+
+  const handleBrandClick = (event) => {
+    event.preventDefault()
+    if (location.pathname === '/') {
+      window.location.reload()
+    } else {
+      window.location.href = '/'
+    }
+  }
+
+  const handleNotificationClick = () => {
+    const willOpen = !isNotificationOpen
+    setIsNotificationOpen(willOpen)
+    setIsDropdownOpen(false)
+
+    if (willOpen) {
+      markNotificationsAsRead(imminentAssignments.map((task) => task.notificationId))
+    }
   }
 
   return (
@@ -100,6 +152,78 @@ export default function DashboardNav({ user, onLogout }) {
             />
           </svg>
         </button>
+        {user && (
+          <div className="navNotification">
+            <button
+              type="button"
+              className="navIconBtn navNotificationBtn"
+              aria-label="과제 알림"
+              aria-expanded={isNotificationOpen}
+              onClick={handleNotificationClick}
+            >
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+                <path
+                  d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M10 21h4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
+              </svg>
+              {unreadAssignments.length > 0 && (
+                <span className="navNotificationBadge">{unreadAssignments.length}</span>
+              )}
+            </button>
+
+            {isNotificationOpen && (
+              <>
+                <button
+                  type="button"
+                  className="navMenuBackdrop"
+                  onClick={() => setIsNotificationOpen(false)}
+                  aria-label="과제 알림 닫기"
+                />
+                <div className="navNotificationPanel">
+                  <div className="navNotificationHeader">
+                    <strong>과제 알림</strong>
+                    <span>{imminentAssignments.length}개</span>
+                  </div>
+                  {imminentAssignments.length > 0 ? (
+                    <div className="navNotificationList">
+                      {imminentAssignments.map((task) => (
+                        <Link
+                          key={task.notificationId}
+                          to="/assignment"
+                          className="navNotificationItem"
+                          onClick={() => setIsNotificationOpen(false)}
+                        >
+                          <div className="navNotificationMeta">
+                            <span className="navNotificationDeadline">
+                              {getDeadlineLabel(task.diffDays)}
+                            </span>
+                            <span>{task.deadline}</span>
+                          </div>
+                          <p>{task.title}</p>
+                          <small>{task.course}</small>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="navNotificationEmpty">마감 임박 과제가 없습니다.</p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {user ? (
           <div className="navUser">
             <button
