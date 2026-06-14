@@ -58,11 +58,16 @@ export default function ScholarshipForm({
         </div>
         <div className="form-group">
           <label>소득 분위</label>
-          <input 
+          <select 
             name="incomeBracket" 
             value={userProfile.incomeBracket} 
             onChange={handleProfileChange}
-          />
+            className="income-select"
+          >
+            {[...Array(10)].map((_, i) => (
+              <option key={i + 1} value={`${i + 1}구간`}>{i + 1}구간</option>
+            ))}
+          </select>
         </div>
         
         <div className="form-group">
@@ -72,7 +77,7 @@ export default function ScholarshipForm({
               <div key={index} className="cert-item-edit">
                 <div className="cert-info-text">
                   <strong>{cert.name}</strong> 
-                  <span>({cert.date})</span>
+                  <span>({cert.acquisitionDate || cert.date})</span>
                 </div>
                 <button onClick={() => handleRemoveCertificate(index)}>삭제</button>
               </div>
@@ -127,7 +132,7 @@ export default function ScholarshipForm({
           </div>
         </div>
         <div className="form-actions">
-          <button className="save-btn" onClick={handleSave}>장학금 조회하기</button>
+          <button className="save-btn" onClick={handleSave}>장학금 산출하기</button>
           <button className="back-btn" onClick={onBack}>돌아가기</button>
         </div>
       </div>

@@ -27,7 +27,7 @@ export default function ScholarshipResult({
             {userProfile.certificates.length > 0 ? (
               userProfile.certificates.map((cert, index) => (
                 <span key={index} className="cert-summary-item">
-                  {cert.name} ({cert.date})
+                  {cert.name} ({cert.acquisitionDate || cert.date})
                 </span>
               ))
             ) : (
