@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 import ScholarshipHero from '../../components/Scholarship/ScholarshipHero'
 import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
@@ -266,7 +265,6 @@ export default function Scholarship() {
   if (!user) {
     return (
       <div className="dashboardPage">
-        <DashboardNav user={null} />
         <main className="dashboardMain">
           <div className="Dashboard">
             <div className="dashboardHeader">
@@ -284,7 +282,6 @@ export default function Scholarship() {
 
   return (
     <div className="scholarshipPage">
-      <DashboardNav user={user} />
       <main className="scholarshipMain">
         {!showProfile && !showResults ? (
           <ScholarshipHero onStartCuration={handleStartCuration} />
