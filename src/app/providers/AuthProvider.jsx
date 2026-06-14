@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import api from '../../lib/api'
+import { isOrphanedBackendSessionError, recoverOrphanedFirebaseSession } from '../../lib/auth'
 import { waitForBackendSync } from '../../lib/backendSync'
 import { auth } from '../../lib/firebase'
 import {
@@ -42,7 +43,7 @@ async function loadProfile(firebaseUser) {
   } catch (error) {
     const status = error.response?.status
 
-    if (status === 404 || status === 500 || status === 401) {
+    if (status === 401) {
       await new Promise((resolve) => {
         setTimeout(resolve, 600)
       })
@@ -96,8 +97,6 @@ export function AuthProvider({ children }) {
       const cachedUser = getStoredUser()
       if (cachedUser?.userId === firebaseUser.uid) {
         setUser(cachedUser)
-        setIsLoading(false)
-        return
       }
 
       try {
@@ -107,7 +106,10 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.error(error)
 
-        if (!getStoredUser()) {
+        if (isOrphanedBackendSessionError(error)) {
+          setUser(null)
+          await recoverOrphanedFirebaseSession()
+        } else if (!getStoredUser()) {
           clearStoredSession()
           setUser(null)
         }

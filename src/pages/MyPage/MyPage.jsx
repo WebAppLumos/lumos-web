@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
-import { deleteUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
 import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
 import { fetchSemesterGrades } from '../../lib/grades/api';
 import { formatPhoneNumber } from '../../lib/phoneNumber';
 import { sanitizeNameInput } from '../../lib/name';
+import { completeAccountWithdrawal } from '../../lib/auth';
 import { useAuth } from '../../app/providers/AuthProvider';
-import { clearStoredSession } from '../../lib/session';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
@@ -46,6 +45,7 @@ export default function MyPage() {
   const [gradeSummary, setGradeSummary] = useState(emptyGradeSummary);
   const [gradeLoading, setGradeLoading] = useState(false);
   const [gradeError, setGradeError] = useState('');
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const fetchSemesterCredits = async () => {
     try {
@@ -71,6 +71,20 @@ export default function MyPage() {
 
     fetchSemesterCredits();
   }, [user]);
+
+  useEffect(() => {
+    if (!isWithdrawing) {
+      return undefined;
+    }
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isWithdrawing]);
 
   const handleLogout = async () => {
     await logout();
@@ -161,17 +175,12 @@ export default function MyPage() {
       return;
     }
 
-    try {
-      const token = await currentUser.getIdToken(true);
-      await api.delete('/api/users/me', {
-        authToken: token,
-        skipSessionExpired: true,
-      });
+    setIsWithdrawing(true);
 
-      await deleteUser(currentUser);
+    try {
+      await completeAccountWithdrawal(currentUser);
 
       alert('탈퇴 처리가 완료되었습니다.');
-      clearStoredSession();
       window.location.href = '/';
     } catch (error) {
       if (error.code === 'auth/requires-recent-login') {
@@ -190,6 +199,8 @@ export default function MyPage() {
       }
 
       alert(`탈퇴 처리에 실패했습니다. (사유: ${serverMessage || error.message})`);
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -606,8 +617,12 @@ export default function MyPage() {
                       로그아웃
                     </button>
 
-                    <button className="withdrawBtn" onClick={handleWithdrawal}>
-                      회원 탈퇴
+                    <button
+                      className="withdrawBtn"
+                      onClick={handleWithdrawal}
+                      disabled={isWithdrawing}
+                    >
+                      {isWithdrawing ? '탈퇴 처리 중...' : '회원 탈퇴'}
                     </button>
                   </div>
                 </div>
@@ -616,6 +631,16 @@ export default function MyPage() {
           </div>
         </div>
       </main>
+
+      {isWithdrawing ? (
+        <div className="withdrawalOverlay" role="alertdialog" aria-live="assertive" aria-busy="true">
+          <div className="withdrawalOverlayCard">
+            <span className="withdrawalOverlaySpinner" aria-hidden="true" />
+            <p className="withdrawalOverlayTitle">회원 탈퇴 처리 중</p>
+            <p className="withdrawalOverlayDesc">완료될 때까지 페이지를 닫거나 이동하지 마세요.</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

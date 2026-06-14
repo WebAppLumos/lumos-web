@@ -526,3 +526,59 @@
     flex-direction: column;
   }
 }
+
+.myPageScope .withdrawalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 45%);
+  padding: 1rem;
+}
+
+.myPageScope .withdrawalOverlayCard {
+  width: min(100%, 22rem);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 15%);
+}
+
+.myPageScope .withdrawalOverlaySpinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e5e5e5;
+  border-top-color: #171717;
+  border-radius: 50%;
+  animation: myPageWithdrawalSpin 0.8s linear infinite;
+}
+
+.myPageScope .withdrawalOverlayTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #171717;
+}
+
+.myPageScope .withdrawalOverlayDesc {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: #737373;
+  line-height: 1.5;
+}
+
+.myPageScope .withdrawBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes myPageWithdrawalSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
