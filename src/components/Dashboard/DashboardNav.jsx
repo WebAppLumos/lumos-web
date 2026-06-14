@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
+import { getProfileImageUrl } from '../../lib/profile'
 import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
@@ -10,10 +11,12 @@ export default function DashboardNav() {
   const location = useLocation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
-  const profileImage = user?.profileImage
-  const avatarInitial = user?.name?.[0] || ''
-  const canShowProfileImage = profileImage && failedAvatarSrc !== profileImage
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false)
+  const profileImage = getProfileImageUrl(avatarLoadFailed ? null : user?.profileImage)
+
+  useEffect(() => {
+    setAvatarLoadFailed(false)
+  }, [user?.profileImage])
 
   const handleLogout = async () => {
     setIsDropdownOpen(false)
@@ -130,16 +133,12 @@ export default function DashboardNav() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               aria-label="사용자 메뉴"
             >
-              {canShowProfileImage ? (
-                <img
-                  src={profileImage}
-                  alt=""
-                  className="navAvatarImage"
-                  onError={() => setFailedAvatarSrc(profileImage)}
-                />
-              ) : (
-                avatarInitial
-              )}
+              <img
+                src={profileImage}
+                alt=""
+                className="navAvatarImage"
+                onError={() => setAvatarLoadFailed(true)}
+              />
             </button>
 
 
