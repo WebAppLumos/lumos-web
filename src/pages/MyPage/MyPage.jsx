@@ -9,6 +9,7 @@ import { fetchSemesterGrades } from '../../lib/grades/api';
 import { formatPhoneNumber } from '../../lib/phoneNumber';
 import { sanitizeNameInput } from '../../lib/name';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { clearStoredSession } from '../../lib/session';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
@@ -153,26 +154,42 @@ export default function MyPage() {
       return;
     }
 
-    try {
-      await api.delete('/api/users/me');
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert('로그인 세션이 만료되었습니다. 다시 로그인한 후 탈퇴를 진행해 주세요.');
+      handleLogout();
+      return;
+    }
 
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        await deleteUser(currentUser);
-      }
+    try {
+      const token = await currentUser.getIdToken(true);
+      await api.delete('/api/users/me', {
+        authToken: token,
+        skipSessionExpired: true,
+      });
+
+      await deleteUser(currentUser);
 
       alert('탈퇴 처리가 완료되었습니다.');
       clearStoredSession();
       window.location.href = '/';
     } catch (error) {
-      console.error('Withdrawal failed:', error);
-
       if (error.code === 'auth/requires-recent-login') {
         alert('보안을 위해 다시 로그인한 후 탈퇴를 진행해 주세요.');
         handleLogout();
-      } else {
-        alert(`탈퇴 처리에 실패했습니다. (사유: ${error.response?.data?.message || error.message})`);
+        return;
       }
+
+      const status = error.response?.status;
+      const serverMessage = error.response?.data?.message;
+
+      if (status === 401 || status === 403) {
+        alert('인증이 만료되었습니다. 다시 로그인한 후 탈퇴를 진행해 주세요.');
+        handleLogout();
+        return;
+      }
+
+      alert(`탈퇴 처리에 실패했습니다. (사유: ${serverMessage || error.message})`);
     }
   };
 
@@ -264,11 +281,17 @@ export default function MyPage() {
                 />
 
                 <div className="profileImageWrapper" onClick={handleProfileImageClick}>
-                  <img
-                    src={formData.profileImage || 'https://via.placeholder.com/150'}
-                    alt="프로필 이미지"
-                    className="profileImage"
-                  />
+                  {formData.profileImage ? (
+                    <img
+                      src={formData.profileImage}
+                      alt="프로필 이미지"
+                      className="profileImage"
+                    />
+                  ) : (
+                    <div className="profileImageFallback" aria-hidden="true">
+                      {user.name?.[0] || '?'}
+                    </div>
+                  )}
 
                   <div className="imageOverlay">변경</div>
                 </div>

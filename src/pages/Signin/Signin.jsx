@@ -2,37 +2,49 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import PasswordInput from '../../components/auth/PasswordInput'
+import { getSigninErrorMessage, syncBackendLogin } from '../../lib/auth'
+import { runWithBackendSync } from '../../lib/backendSync'
 import { auth } from '../../lib/firebase'
+import { useAuth } from '../../app/providers/AuthProvider'
 import './Signin.css'
 
 export default function Signin() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { updateUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    setErrorMessage('')
+    setSuccessMessage('')
 
     try {
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      )
+      await runWithBackendSync(async () => {
+        const credential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        )
 
-      window.alert('로그인 성공!')
+        const profile = await syncBackendLogin(credential.user)
+        updateUser(profile)
+      })
+
+      setSuccessMessage('로그인 성공!')
+
       const redirectPath = location.state?.from && location.state.from !== '/login'
         ? location.state.from
         : '/'
 
-      navigate(redirectPath, { replace: true })
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true })
+      }, 1000)
     } catch (error) {
-      console.error(error)
-      console.error('LOGIN ERROR:', error)
-      console.error('STATUS:', error.response?.status)
-      console.error('DATA:', error.response?.data)
-      window.alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.')
+      setErrorMessage(getSigninErrorMessage(error))
     }
   }
 
@@ -54,6 +66,13 @@ export default function Signin() {
           </div>
 
           <form className="form" onSubmit={onSubmit}>
+            {successMessage ? (
+              <p className="successMessage">{successMessage}</p>
+            ) : null}
+            {errorMessage ? (
+              <p className="errorMessage">{errorMessage}</p>
+            ) : null}
+
             <label className="label">이메일</label>
             <input
               className="input"
