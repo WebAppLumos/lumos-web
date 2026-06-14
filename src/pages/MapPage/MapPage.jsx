@@ -107,8 +107,8 @@ useEffect(() => {
         category === "전체" ? true : category === null ? false : item.type === category;
 
       // 검색 필터
-      const matchSearch = 
-        item.name.includes(search) || item.building?.some((keyword) => keyword.includes(search));
+      const matchSearch =
+        item.name.includes(search) || item.building?.includes(search);
   
       // 건물 데이터 처리
       const showBuilding = 

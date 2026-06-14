@@ -13,6 +13,7 @@ function Category(props) {
     "학식당",
     "편의점",
     "서점",
+    "기타"
   ];
 
   return (
