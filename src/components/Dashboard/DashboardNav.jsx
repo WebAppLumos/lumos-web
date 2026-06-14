@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../../lib/firebase'
-import { clearStoredSession } from '../../lib/session'
+import { useAuth } from '../../app/providers/AuthProvider'
 import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
-export default function DashboardNav({ user, onLogout }) {
+export default function DashboardNav() {
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
@@ -16,11 +15,9 @@ export default function DashboardNav({ user, onLogout }) {
   const avatarInitial = user?.name?.[0] || ''
   const canShowProfileImage = profileImage && failedAvatarSrc !== profileImage
 
-  const handleLogout = () => {
-    clearStoredSession()
-    signOut(auth).catch(() => {})
+  const handleLogout = async () => {
     setIsDropdownOpen(false)
-    if (onLogout) onLogout()
+    await logout()
     navigate('/')
   }
 
@@ -98,30 +95,32 @@ export default function DashboardNav({ user, onLogout }) {
       </nav>
 
       <div className="navActions">
-        <button
-          type="button"
-          className="navIconBtn"
-          aria-label="검색"
-          onClick={() => setIsSearchOpen(true)}
-        >
-          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-            <path
-              d="m16 16 4 4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        {user ? (
+          <button
+            type="button"
+            className="navIconBtn"
+            aria-label="검색"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <path
+                d="m16 16 4 4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        ) : null}
         {user ? (
           <div className="navUser">
             <button
@@ -188,7 +187,9 @@ export default function DashboardNav({ user, onLogout }) {
         )}
       </div>
 
-      <GlobalSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      {user ? (
+        <GlobalSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      ) : null}
     </header>
   )
 }

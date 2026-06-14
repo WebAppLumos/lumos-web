@@ -1,0 +1,33 @@
+.authLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 4rem);
+}
+
+.authLoading .Dashboard {
+  align-items: center;
+  text-align: center;
+}
+
+.authLoadingSpinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e5e5e5;
+  border-top-color: #171717;
+  border-radius: 50%;
+  animation: authLoadingSpin 0.8s linear infinite;
+}
+
+.authLoadingText {
+  margin: 0;
+  color: #737373;
+}
+
+@keyframes authLoadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

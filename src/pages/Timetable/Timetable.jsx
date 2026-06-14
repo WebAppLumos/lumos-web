@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useStoredUser } from '../../lib/useStoredUser'
+import { useAuth } from '../../app/providers/AuthProvider'
 import { DAYS, TIME_SLOTS } from '../../lib/timetable/constants'
 import {
   apiDayToUi,
@@ -43,8 +43,6 @@ import TimetableGrid from '../../components/Timetable/TimetableGrid'
 import TimetableHeader from '../../components/Timetable/TimetableHeader'
 import TimetableOnlineCourses from '../../components/Timetable/TimetableOnlineCourses'
 import TimetableTabs from '../../components/Timetable/TimetableTabs'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 
 import '../Dashboard/Dashboard.css'
 import './Timetable.css'
@@ -52,7 +50,7 @@ import './Timetable.css'
 export default function Timetable() {
   const session = getTimetableSession()
 
-  const [user, setUser] = useStoredUser()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(() => !session)
   const [error, setError] = useState('')
   const [semesterId, setSemesterId] = useState(() => session?.semesterId ?? null)
@@ -524,28 +522,8 @@ export default function Timetable() {
     }
   }
 
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={user} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <div className="dashboardHeader">
-              <div>
-                <h1 className="dashboardTitle">시간표 관리</h1>
-                <p className="dashboardSubtitle">학기별 시간표와 수업을 관리합니다</p>
-              </div>
-            </div>
-            <DashboardLoginCard description="시간표와 수업 일정을 확인하려면 로그인해주세요." />
-          </div>
-        </main>
-      </div>
-    )
-  }
-
   return (
     <div className="dashboardPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="dashboardMain">
         <div className="Timetable">
           <TimetableHeader />
