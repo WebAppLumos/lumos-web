@@ -175,7 +175,7 @@ export default function MyPage() {
     }
   };
 
-  if (false) {
+  if (user) {
     return (
       <div className="dashboardPage">
         <DashboardNav user={null} />

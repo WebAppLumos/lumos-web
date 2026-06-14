@@ -14,13 +14,15 @@ function PlaceList(props) {
         <button className="routeButton" onClick={(event) => { event.stopPropagation();
           if (selectedPlace?.id === item.id) { 
             handleCancelRoute();
-          } else { handleRoute(item); } }}>
+          } else { handleRoute(item); } }}
+>
   {selectedPlace?.id === item.id ? "길찾기 종료" : "길찾기"}
 </button>
+          
         <span className="routeTooltip">
-        {Number.isFinite(travelTimes[item.id]) ? travelTimes[item.id] >= 60
-            ? `현재 위치에서 약 ${Math.floor(travelTimes[item.id] / 60)}시간 ${travelTimes[item.id] % 60}분`
-          : `현재 위치에서 약 ${travelTimes[item.id]}분` : "수업 없음"}
+          {travelTimes[item.id] ? travelTimes[item.id] >= 60
+           ? `현재 위치에서 약 ${Math.floor(travelTimes[item.id] / 60)}시간 ${travelTimes[item.id] % 60}분`
+          : `현재 위치에서 약 ${travelTimes[item.id]}분` : "시간 계산 중..."}
         </span>
         
       </div>

@@ -13,14 +13,14 @@ import MyPage from './pages/MyPage/MyPage'
 export default function Router() {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<MapPage />} />
       <Route path="/timetable" element={<Timetable />} />
       <Route path="/schedule" element={<Schedule />} />
       <Route path="/assignment" element={<Assignment />} />
       <Route path="/scholarship" element={<Scholarship />} />
       <Route path="/mappage" element={<MapPage />} />
-      <Route path="/login" element={<Signin />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<MapPage />} />
+      <Route path="/signup" element={<MapPage />} />
       <Route path="/mypage" element={<MyPage />} />
     </Routes>
   );

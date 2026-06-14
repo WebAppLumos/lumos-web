@@ -88,7 +88,7 @@ useEffect(() => {
       const distance = R * c;
       times[item.id] = Math.max(1, Math.round(distance / 80) );
     }); setTravelTimes(times);
-  }, [myPosition]);
+  }, [myPosition, places]);
       
   // GPS 현재 위치
   useEffect(() => 
@@ -130,13 +130,13 @@ useEffect(() => {
       setRoutePath([]);
       setSelectedPlace(null);
     };
-
+ 
   // 가장 가까운 수업 계산
   const now = new Date();
   const currentDay = now.getDay() - 1;
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
-  /*
+  /* 
   // 일단 시간 월요일로 강제
   const currentDay = 0; // 월요일 강제
   const currentTime = 8 * 60; // 오전 8시 강제
