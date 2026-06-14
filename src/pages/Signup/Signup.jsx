@@ -5,20 +5,23 @@ import {
   deleteUser
 } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
-import api from '../../lib/api'
 import {
   getSignupErrorMessage,
+  syncBackendLogin,
   trimSignupForm,
   validateSignupForm,
 } from '../../lib/auth'
+import { runWithBackendSync } from '../../lib/backendSync'
 import PasswordInput from '../../components/auth/PasswordInput'
 import EmailInput from '../../components/auth/EmailInput'
 import { formatPhoneNumber } from '../../lib/phoneNumber'
 import { sanitizeNameInput } from '../../lib/name'
+import { useAuth } from '../../app/providers/AuthProvider'
 import './Signup.css'
 
 export default function Signup() {
   const navigate = useNavigate()
+  const { updateUser } = useAuth()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -30,11 +33,13 @@ export default function Signup() {
   const [phoneNumber, setPhoneNumber] = useState('')
 
   const [hint, setHint] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setHint('')
+    setSuccessMessage('')
 
     if (isSubmitting) {
       return
@@ -63,26 +68,29 @@ export default function Signup() {
     let rollbackFirebaseUser = null
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        form.email,
-        password
-      )
-      rollbackFirebaseUser = userCredential.user
+      await runWithBackendSync(async () => {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          form.email,
+          password
+        )
+        rollbackFirebaseUser = userCredential.user
 
-      const idToken = await userCredential.user.getIdToken()
+        const profile = await syncBackendLogin(userCredential.user, {
+          name: form.name,
+          department: form.department,
+          grade: Number(grade),
+          studentNumber: form.studentNumber,
+          phoneNumber: form.phoneNumber,
+        })
 
-      await api.post('/api/auth/login', {
-        idToken,
-        name: form.name,
-        department: form.department,
-        grade: Number(grade),
-        studentNumber: form.studentNumber,
-        phoneNumber: form.phoneNumber
+        updateUser(profile)
       })
 
-      window.alert('회원가입 성공!')
-      navigate('/')
+      setSuccessMessage('회원가입 성공!')
+      setTimeout(() => {
+        navigate('/')
+      }, 1000)
     } catch (error) {
       console.error(error)
 
@@ -116,6 +124,9 @@ export default function Signup() {
         </div>
 
         <form className="form" onSubmit={onSubmit}>
+          {successMessage ? (
+            <p className="successMessage">{successMessage}</p>
+          ) : null}
           {hint ? <p className="hint">{hint}</p> : null}
 
           <label className="label" htmlFor="su-name">
