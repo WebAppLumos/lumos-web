@@ -10,7 +10,6 @@ import { formatPhoneNumber } from '../../lib/phoneNumber';
 import { sanitizeNameInput } from '../../lib/name';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { clearStoredSession } from '../../lib/session';
-import { getProfileImageUrl } from '../../lib/profile';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
@@ -282,11 +281,17 @@ export default function MyPage() {
                 />
 
                 <div className="profileImageWrapper" onClick={handleProfileImageClick}>
-                  <img
-                    src={getProfileImageUrl(formData.profileImage)}
-                    alt="프로필 이미지"
-                    className="profileImage"
-                  />
+                  {(formData.profileImage || user?.profileImage) ? (
+                    <img
+                      src={formData.profileImage || user.profileImage}
+                      alt="프로필 이미지"
+                      className="profileImage"
+                    />
+                  ) : (
+                    <div className="profileImageFallback" aria-hidden="true">
+                      {user.name?.[0] || '?'}
+                    </div>
+                  )}
 
                   <div className="imageOverlay">변경</div>
                 </div>

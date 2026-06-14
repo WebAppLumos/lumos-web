@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import PasswordInput from '../../components/auth/PasswordInput'
 import { getSigninErrorMessage, syncBackendLogin } from '../../lib/auth'
 import { runWithBackendSync } from '../../lib/backendSync'
@@ -44,6 +44,9 @@ export default function Signin() {
         navigate(redirectPath, { replace: true })
       }, 1000)
     } catch (error) {
+      if (auth.currentUser) {
+        await signOut(auth).catch(() => {})
+      }
       setErrorMessage(getSigninErrorMessage(error))
     }
   }

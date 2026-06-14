@@ -52,7 +52,14 @@ export function getSigninErrorMessage(error) {
 
   const serverMessage = error.response?.data?.message
   if (serverMessage) {
+    if (serverMessage === '전화번호를 입력해 주세요.') {
+      return '등록된 회원 정보가 없습니다. 회원가입을 진행해 주세요.'
+    }
     return serverMessage
+  }
+
+  if (error.response?.status === 404) {
+    return '등록된 회원 정보가 없습니다. 회원가입을 진행해 주세요.'
   }
 
   if (error.response?.status === 401) {
