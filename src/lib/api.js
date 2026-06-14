@@ -32,38 +32,45 @@ async function resolveAuthUser() {
 
 export function setAuthorizationHeader(config, token) {
   const value = `Bearer ${token}`
+  const headers = AxiosHeaders.from(config.headers ?? {})
 
-  if (config.headers instanceof AxiosHeaders) {
-    config.headers.set('Authorization', value)
-    return
-  }
-
-  config.headers = AxiosHeaders.from({
-    ...(config.headers ?? {}),
-    Authorization: value,
-  })
+  headers.set('Authorization', value)
+  config.headers = headers
 }
 
-api.interceptors.request.use(async (config) => {
-  if (config.authToken) {
-    setAuthorizationHeader(config, config.authToken)
+async function attachAuthorizationHeader(config) {
+  const headers = AxiosHeaders.from(config.headers ?? {})
+  config.headers = headers
+
+  if (headers.has('Authorization')) {
     return config
   }
 
-  const user = await resolveAuthUser()
-  if (user) {
-    try {
-      const forceRefresh = Boolean(config.forceTokenRefresh)
-      const token = await user.getIdToken(forceRefresh)
-      setAuthorizationHeader(config, token)
-    } catch (error) {
-      clearStoredSession()
-      notifySessionExpired()
-      return Promise.reject(error)
+  let token = config.authToken
+
+  if (!token) {
+    const user = await resolveAuthUser()
+    if (user) {
+      token = await user.getIdToken(Boolean(config.forceTokenRefresh))
     }
   }
 
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`)
+  }
+
+  delete config.authToken
   return config
+}
+
+api.interceptors.request.use(async (config) => {
+  try {
+    return await attachAuthorizationHeader(config)
+  } catch (error) {
+    clearStoredSession()
+    notifySessionExpired()
+    return Promise.reject(error)
+  }
 })
 
 api.interceptors.response.use(

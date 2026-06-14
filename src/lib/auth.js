@@ -1,5 +1,8 @@
 import api from './api'
 import { isValidPhoneNumber } from './phoneNumber'
+import { clearStoredSession } from './session'
+import { deleteUser, signOut } from 'firebase/auth'
+import { auth } from './firebase'
 
 export const EMAIL_DOMAIN_OPTIONS = [
   'gmail.com',
@@ -97,6 +100,45 @@ export async function syncBackendLogin(firebaseUser, profile = {}) {
     ...profile,
   })
   return response.data?.user ?? response.data
+}
+
+export async function deleteBackendAccount(firebaseUser) {
+  const token = await firebaseUser.getIdToken(true)
+
+  try {
+    await api.delete('/api/users/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      skipSessionExpired: true,
+    })
+  } catch (error) {
+    // 탈퇴 도중 이탈 후 재시도 등: 이미 DB에서 삭제된 경우 계속 진행
+    if (error.response?.status !== 404) {
+      throw error
+    }
+  }
+}
+
+export function isOrphanedBackendSessionError(error) {
+  const status = error.response?.status
+  if (status === 404) {
+    return true
+  }
+
+  const message = String(error.response?.data?.message ?? '')
+  return status === 500 && message.includes('사용자를 찾을 수 없습니다')
+}
+
+export async function recoverOrphanedFirebaseSession() {
+  clearStoredSession()
+  await signOut(auth).catch(() => {})
+}
+
+export async function completeAccountWithdrawal(firebaseUser) {
+  await deleteBackendAccount(firebaseUser)
+  await deleteUser(firebaseUser)
+  clearStoredSession()
 }
 
 export function trimSignupForm({ name, email, department, studentNumber, phoneNumber }) {
