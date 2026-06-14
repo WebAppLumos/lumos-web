@@ -270,7 +270,7 @@ return (
       {/* 다음 수업 */}
         <div className="nextClass">
           <h3>  다음 수업 | {nextClass} </h3>
-          <p> 현재 위치에서 {formatTime(nextClassTime)} 소요 </p>
+          <p> {Number.isFinite(nextClassTime) ? `현재 위치에서 ${formatTime(nextClassTime)} 소요` : "오늘 남은 수업 없음"}</p>
         </div>
       </div>
     </div>
