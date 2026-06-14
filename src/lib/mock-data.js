@@ -157,21 +157,6 @@ export const mockTimetableEntries = [
   { timetableId: 'tt-1', courseId: 'course-5' },
 ]
 
-// 요일/시간 라벨
-export const DAYS = ['월', '화', '수', '목', '금']
-
-export const TIME_SLOTS = [
-  '09:00',
-  '10:00',
-  '11:00',
-  '12:00',
-  '13:00',
-  '14:00',
-  '15:00',
-  '16:00',
-  '17:00',
-]
-
 // 회원가입 화면에서 보여줄 학과 리스트(샘플)
 export const DEPARTMENTS = [
   '컴퓨터공학과',

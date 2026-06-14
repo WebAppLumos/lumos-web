@@ -6,7 +6,7 @@ export default function TimetableControls({
   DAYS,
   semesterId,
   timetableId,
-  mockSemesters,
+  semesters,
   semTimetables,
   availableCourses,
   selectedCourseId,
@@ -38,7 +38,7 @@ export default function TimetableControls({
   const selectedCourse = availableCourses.find(
     (course) => Number(course.id) === Number(selectedCourseId),
   )
-  const selectedSemester = mockSemesters.find((s) => s.id === semesterId)
+  const selectedSemester = semesters.find((s) => s.id === semesterId)
   const selectedTimetable = semTimetables.find((t) => t.id === timetableId)
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false) // 수업 추가 모달 열림 여부
   const [selectorType, setSelectorType] = useState(null)
@@ -51,7 +51,7 @@ export default function TimetableControls({
   const [dragItemId, setDragItemId] = useState(null)
   const [dragOverItemId, setDragOverItemId] = useState(null)
 
-  const selectorItems = selectorType === 'semester' ? mockSemesters : semTimetables
+  const selectorItems = selectorType === 'semester' ? semesters : semTimetables
   const canReorder = selectorType === 'semester' || selectorType === 'timetable'
 
   // 선택한 수업을 추가한 뒤 모달 닫기

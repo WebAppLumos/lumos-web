@@ -2,6 +2,9 @@ import { useEffect } from 'react'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from './lib/firebase'
+import { fetchDashboardWidgets, setCachedDashboardWidgets } from './lib/dashboardApi'
+import { ensureCalendarSession } from './lib/calendar/session'
+import { ensureTimetableSession } from './lib/timetable/session'
 import {
   clearStoredSession,
   hasStoredSession,
@@ -50,10 +53,33 @@ function SessionGuard() {
   return null
 }
 
+function DashboardWidgetsPrefetch() {
+  useEffect(() => {
+    if (!hasStoredSession()) return undefined
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) return
+
+      Promise.all([
+        fetchDashboardWidgets()
+          .then(setCachedDashboardWidgets)
+          .catch(() => {}),
+        ensureCalendarSession().catch(() => {}),
+        ensureTimetableSession().catch(() => {}),
+      ])
+    })
+
+    return unsubscribe
+  }, [])
+
+  return null
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <SessionGuard />
+      <DashboardWidgetsPrefetch />
       <Router />
     </BrowserRouter>
   )

@@ -4,20 +4,28 @@ import { BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
 import { deleteUser, signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
-import { clearStoredSession } from '../../lib/session';
+import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
+import { fetchSemesterGrades } from '../../lib/grades/api';
+import { clearStoredSession, setStoredUser } from '../../lib/session';
+import { useStoredUser } from '../../lib/useStoredUser';
 import DashboardNav from '../../components/Dashboard/DashboardNav';
 import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import './MyPage.css';
 
+const emptyGradeSummary = {
+  totalCompletedCredits: 0,
+  averageGpa: 0,
+  academicWarningCount: 0,
+  lastSyncedAt: null,
+  semesters: [],
+};
+
 export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('lumos_user_info');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useStoredUser();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -35,22 +43,14 @@ export default function MyPage() {
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('profile');
   const [showGradeDetails, setShowGradeDetails] = useState(false);
+  const [gradeSummary, setGradeSummary] = useState(emptyGradeSummary);
+  const [gradeLoading, setGradeLoading] = useState(false);
+  const [gradeError, setGradeError] = useState('');
 
   const fetchSemesterCredits = async () => {
     try {
-      const semRes = await api.get('/api/semesters');
-      const activeSemester = semRes.data.find((s) => s.isActive) || semRes.data[0];
-
-      if (activeSemester) {
-        const courseRes = await api.get(`/api/semesters/${activeSemester.id}/courses`);
-        const seenCourseIds = new Set();
-        const credits = courseRes.data.reduce((acc, curr) => {
-          if (seenCourseIds.has(curr.id)) return acc;
-          seenCourseIds.add(curr.id);
-          return acc + (Number(curr.credit) || 0);
-        }, 0);
-        setTotalCredits(credits);
-      }
+      const credits = await fetchActiveSemesterCredits();
+      setTotalCredits(credits);
     } catch (err) {
       console.error(err);
     }
@@ -87,7 +87,7 @@ export default function MyPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
+      alert('이미지 파일만 업로드할 수 있습니다.');
       return;
     }
 
@@ -105,7 +105,8 @@ export default function MyPage() {
         });
 
         const updatedUser = res.data;
-        localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
+
+        setStoredUser(updatedUser);
         setUser(updatedUser);
         setFormData((prev) => ({
           ...prev,
@@ -138,7 +139,7 @@ export default function MyPage() {
       const response = await api.patch('/api/users/me', formData);
       const updatedUser = response.data;
 
-      localStorage.setItem('lumos_user_info', JSON.stringify(updatedUser));
+      setStoredUser(updatedUser);
       setUser(updatedUser);
       setIsEditing(false);
 
@@ -183,8 +184,51 @@ export default function MyPage() {
     setActiveMenu(menu);
     if (menu === 'grades') {
       setShowGradeDetails(false);
+      setGradeError('');
     }
   };
+
+  const handleViewGrades = async () => {
+    setShowGradeDetails(true);
+    setGradeLoading(true);
+    setGradeError('');
+
+    try {
+      const summary = await fetchSemesterGrades();
+      setGradeSummary(summary);
+
+      if (!summary.semesters?.length) {
+        setGradeError('동기화된 성적이 없습니다. 우측 상단 EDWARD 동기화에서 성적 정보를 선택해 주세요.');
+      }
+    } catch (err) {
+      console.error(err);
+      setGradeSummary(emptyGradeSummary);
+      setGradeError(err.message || '성적 정보를 불러오지 못했습니다.');
+    } finally {
+      setGradeLoading(false);
+    }
+  };
+
+  const handleEdwardSyncSuccess = async ({ syncGrades } = {}) => {
+    await fetchSemesterCredits();
+
+    if (syncGrades && showGradeDetails) {
+      try {
+        const summary = await fetchSemesterGrades();
+        setGradeSummary(summary);
+        setGradeError(summary.semesters?.length
+          ? ''
+          : '동기화된 성적이 없습니다. EDWARD 동기화에서 성적 정보를 선택해 주세요.');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const semesterGradeData = gradeSummary.semesters || [];
+  const totalCompletedCredits = gradeSummary.totalCompletedCredits || 0;
+  const averageGpa = gradeSummary.averageGpa || 0;
+  const academicWarningCount = gradeSummary.academicWarningCount || 0;
 
   if (!user) {
     return (
@@ -208,7 +252,7 @@ export default function MyPage() {
           <div className="myPageHeader">
             <div className="myPageHeaderText">
               <h2>마이페이지</h2>
-              <p>내 정보, 성적, 계정 설정을 한 곳에서 관리합니다.</p>
+              <p>회원 정보와 학업 정보를 확인하고 필요한 설정을 관리합니다.</p>
             </div>
 
             <button
@@ -224,7 +268,7 @@ export default function MyPage() {
           <EdwardSyncModal
             open={syncModalOpen}
             onClose={() => setSyncModalOpen(false)}
-            onSuccess={fetchSemesterCredits}
+            onSuccess={handleEdwardSyncSuccess}
           />
 
           <div className="myPageContent">
@@ -253,7 +297,7 @@ export default function MyPage() {
                   <span>{user.major || user.department || ''}</span>
 
                   <div className="creditInfo">
-                    이번 학기 신청 학점: <strong>{totalCredits}학점</strong>
+                    이번 학기 신청 학점 <strong>{totalCredits}</strong>
                   </div>
                 </div>
               </div>
@@ -412,36 +456,149 @@ export default function MyPage() {
                 <section className="gradeAccessPanel">
                   <div className="panelHead">
                     <h4>성적 정보</h4>
-                    <p>민감한 정보이므로 성적 보기 버튼을 누른 뒤 표시합니다.</p>
+                    <p>성적 정보는 민감한 정보이므로 확인 버튼을 누른 뒤 표시됩니다.</p>
                   </div>
 
                   {!showGradeDetails ? (
                     <button
                       type="button"
                       className="gradeViewBtn"
-                      onClick={() => setShowGradeDetails(true)}
+                      onClick={handleViewGrades}
                     >
                       성적 보기
                     </button>
+                  ) : gradeLoading ? (
+                    <p className="gradeLoadingText">성적 정보를 불러오는 중...</p>
                   ) : (
-                    <div className="gradeMetricGrid">
-                      <div className="gradeMetric">
-                        <span>전체 평점</span>
-                        <strong>0.00</strong>
-                        <small>/ 4.50</small>
+                    <div className="gradeDetails">
+                      {gradeError && (
+                        <p className="gradeErrorText">{gradeError}</p>
+                      )}
+
+                      <div className="gradeMetricGrid">
+                        <div className="gradeMetric">
+                          <span>총 취득학점</span>
+                          <strong>{totalCompletedCredits}</strong>
+                          <small>학점</small>
+                        </div>
+
+                        <div className="gradeMetric">
+                          <span>평균학점</span>
+                          <strong>{averageGpa.toFixed(2)}</strong>
+                          <small>/ 4.50</small>
+                        </div>
+
+                        <div className="gradeMetric">
+                          <span>학사경고</span>
+                          <strong>{academicWarningCount}</strong>
+                          <small>회</small>
+                        </div>
                       </div>
 
-                      <div className="gradeMetric">
-                        <span>전공 평점</span>
-                        <strong>0.00</strong>
-                        <small>/ 4.50</small>
-                      </div>
+                      <section className="semesterGradeTableCard">
+                        <div className="semesterGradeHead">
+                          <h5>학기별 성적</h5>
+                          <span>
+                            {gradeSummary.lastSyncedAt
+                              ? `마지막 동기화 ${new Date(gradeSummary.lastSyncedAt).toLocaleString('ko-KR')}`
+                              : '동기화된 성적 없음'}
+                          </span>
+                        </div>
 
-                      <div className="gradeMetric">
-                        <span>취득 학점</span>
-                        <strong>0</strong>
-                        <small>학점</small>
-                      </div>
+                        <div className="semesterGradeTableWrap">
+                          <table className="semesterGradeTable">
+                            <thead>
+                              <tr>
+                                <th>학년도</th>
+                                <th>학기</th>
+                                <th>이수학점</th>
+                                <th>수강신청학점</th>
+                                <th>평균학점</th>
+                                <th>학사경고</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {semesterGradeData.length === 0 ? (
+                                <tr>
+                                  <td colSpan={6}>표시할 성적이 없습니다.</td>
+                                </tr>
+                              ) : (
+                                semesterGradeData.map((item) => (
+                                  <tr key={`${item.academicYear}-${item.termCode}`}>
+                                    <td>{item.academicYear}</td>
+                                    <td>{item.termName}</td>
+                                    <td>{item.completedCredits}</td>
+                                    <td>{item.registeredCredits}</td>
+                                    <td>{item.gpa.toFixed(2)}</td>
+                                    <td>{item.academicWarning ? '대상' : '없음'}</td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+
+                      <section className="semesterGradeChart">
+                        <div className="semesterGradeHead">
+                          <h5>학기별 평균학점 추이</h5>
+                          <span>GPA / 4.50</span>
+                        </div>
+
+                        <div className="gradeLineChart">
+                          {semesterGradeData.length > 1 ? (
+                          <svg viewBox="0 0 700 220" role="img" aria-label="학기별 평균학점 선 그래프">
+                            {[0, 1.5, 3, 4.5].map((value) => {
+                              const y = 180 - (value / 4.5) * 150;
+                              return (
+                                <g key={value}>
+                                  <line
+                                    className="gradeGridLine"
+                                    x1="40"
+                                    y1={y}
+                                    x2="680"
+                                    y2={y}
+                                  />
+                                  <text className="gradeAxisText" x="8" y={y + 4}>
+                                    {value.toFixed(value === 0 ? 0 : 1)}
+                                  </text>
+                                </g>
+                              );
+                            })}
+
+                            <polyline
+                              className="gradeLine"
+                              points={semesterGradeData
+                                .map((item, index) => {
+                                  const x = 60 + index * (600 / (semesterGradeData.length - 1));
+                                  const y = 180 - (item.gpa / 4.5) * 150;
+                                  return `${x},${y}`;
+                                })
+                                .join(' ')}
+                            />
+
+                            {semesterGradeData.map((item, index) => {
+                              const x = 60 + index * (600 / (semesterGradeData.length - 1));
+                              const y = 180 - (item.gpa / 4.5) * 150;
+
+                              return (
+                                <g key={item.label}>
+                                  <circle className="gradePoint" cx={x} cy={y} r="5" />
+                                  <text className="gradeValueText" x={x} y={y - 12}>
+                                    {item.gpa.toFixed(2)}
+                                  </text>
+                                  <text className="gradeSemesterText" x={x} y="206">
+                                    {item.label}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                          ) : (
+                            <p className="gradeChartEmpty">그래프를 표시하려면 2개 이상의 학기 성적이 필요합니다.</p>
+                          )}
+                        </div>
+                      </section>
                     </div>
                   )}
                 </section>

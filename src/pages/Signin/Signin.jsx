@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import api from '../../lib/api'
+import { setStoredUser } from '../../lib/session'
 import './Signin.css'
 
 export default function Signin() {
@@ -27,11 +28,7 @@ export default function Signin() {
       const response = await api.get('/api/users/me')
 
       localStorage.setItem('lumos_uid', uid)
-
-      localStorage.setItem(
-        'lumos_user_info',
-        JSON.stringify(response.data)
-      )
+      setStoredUser(response.data)
 
       window.alert('로그인 성공!')
       const redirectPath = location.state?.from && location.state.from !== '/login'

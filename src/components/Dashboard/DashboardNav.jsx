@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { clearStoredSession } from '../../lib/session'
+import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
   const profileImage = user?.profileImage
   const avatarInitial = user?.name?.[0] || ''
@@ -21,10 +24,19 @@ export default function DashboardNav({ user, onLogout }) {
     navigate('/')
   }
 
+  const handleBrandClick = (event) => {
+    event.preventDefault()
+    if (location.pathname === '/') {
+      window.location.reload()
+    } else {
+      window.location.href = '/'
+    }
+  }
+
   return (
     // Dashboard 상단 공통 내비게이션
     <header className="dashboardNav">
-      <Link to="/" className="navBrand">
+      <a href="/" className="navBrand" onClick={handleBrandClick}>
         <span className="navLogo" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path
@@ -44,7 +56,7 @@ export default function DashboardNav({ user, onLogout }) {
           </svg>
         </span>
         <span className="navTitle">UniDash</span>
-      </Link>
+      </a>
 
       <nav className="navLinks">
         <NavLink
@@ -86,7 +98,12 @@ export default function DashboardNav({ user, onLogout }) {
       </nav>
 
       <div className="navActions">
-        <button type="button" className="navIconBtn" aria-label="검색">
+        <button
+          type="button"
+          className="navIconBtn"
+          aria-label="검색"
+          onClick={() => setIsSearchOpen(true)}
+        >
           <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
             <circle
               cx="11"
@@ -170,6 +187,8 @@ export default function DashboardNav({ user, onLogout }) {
           </>
         )}
       </div>
+
+      <GlobalSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   )
 }

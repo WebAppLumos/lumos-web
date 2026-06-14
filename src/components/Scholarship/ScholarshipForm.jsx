@@ -1,4 +1,4 @@
-import certificationsData from '../../lib/certifications.json'
+import certificationsData from '../../data/certifications.json'
 import './ScholarshipForm.css'
 
 export default function ScholarshipForm({ 

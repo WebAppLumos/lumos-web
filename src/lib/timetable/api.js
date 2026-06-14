@@ -1,4 +1,5 @@
-import api from './api'
+import api from '../api'
+import { TIMETABLE_GRID_START_HOUR, TIMETABLE_HOUR_HEIGHT_REM } from './constants'
 
 const COURSE_COLORS = [
   '#6366f1',
@@ -136,6 +137,11 @@ export function buildCoursesOnBoard(courses, entries, timetableId) {
     .filter(Boolean)
 }
 
+export function pruneNotesByEntries(notes, activeEntries) {
+  const activeCourseIds = new Set(activeEntries.map((entry) => Number(entry.courseId)))
+  return notes.filter((note) => activeCourseIds.has(Number(note.course_id)))
+}
+
 export function getTodayCourses(courses, entries, timetableId) {
   const today = getTodayApiDayOfWeek()
   if (today > 5) return []
@@ -158,8 +164,6 @@ function timeToNumber(time) {
   return hours + minutes / 60
 }
 
-export const TIMETABLE_GRID_START_HOUR = 9
-export const TIMETABLE_HOUR_HEIGHT_REM = 3.75
 
 /** 시간표 그리드(9시 시작, 1시간=3.75rem)에 맞춰 블록 위치를 계산합니다. */
 export function slotStyleFromTimes(start, end) {
@@ -241,6 +245,32 @@ export async function fetchEntriesForSemester(semesterId, timetables) {
     }),
   )
   return results.flat()
+}
+
+/** 시간표에 배치된 수업만 학점 합산 (DB에만 남은 수업 제외) */
+export function sumRegisteredCredits(courses, entries) {
+  const enrolledCourseIds = new Set(
+    entries.map((entry) => Number(entry.courseId)).filter(Boolean),
+  )
+  const courseById = new Map(courses.map((course) => [Number(course.id), course]))
+
+  return [...enrolledCourseIds].reduce((total, courseId) => {
+    const course = courseById.get(courseId)
+    return total + (Number(course?.credit) || 0)
+  }, 0)
+}
+
+export async function fetchActiveSemesterCredits() {
+  const semesters = await fetchSemesters()
+  const activeSemester = pickDashboardSemester(semesters)
+  if (!activeSemester) return 0
+
+  const [timetables, courses] = await Promise.all([
+    fetchTimetables(activeSemester.id),
+    fetchCourses(activeSemester.id),
+  ])
+  const entries = await fetchEntriesForSemester(activeSemester.id, timetables)
+  return sumRegisteredCredits(courses, entries)
 }
 
 export function buildTimetableSessionSnapshot({
@@ -328,28 +358,6 @@ export async function fetchInitialTimetableSession() {
   })
 }
 
-export async function fetchDashboardTimetableData() {
-  const semesters = await fetchSemesters()
-  const semester = pickDashboardSemester(semesters)
-  if (!semester) {
-    return { courses: [], entries: [], timetableId: null, isWeekend: isWeekendToday() }
-  }
-
-  const timetables = await fetchTimetables(semester.id)
-  const [courses, entries] = await Promise.all([
-    fetchCourses(semester.id),
-    fetchEntriesForSemester(semester.id, timetables),
-  ])
-
-  const timetable = pickDashboardTimetable(timetables, entries)
-  return {
-    courses,
-    entries,
-    timetableId: timetable?.id ?? null,
-    isWeekend: isWeekendToday(),
-  }
-}
-
 export async function fetchNotesForCourses(courseIds) {
   if (courseIds.length === 0) return []
 
@@ -427,9 +435,4 @@ export async function updateNote(noteId, { title, content, is_pinned: isPinned }
 
 export async function deleteNote(noteId) {
   await api.delete(`/api/notes/${noteId}`)
-}
-
-export async function syncTimetableFromEdward(credentials) {
-  const { data } = await api.post('/api/sync/timetable', credentials)
-  return data
 }

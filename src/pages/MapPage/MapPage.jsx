@@ -9,6 +9,7 @@ import Category from "../../components/Map/Category";
 import PlaceList from "../../components/Map/PlaceList";
 import places from "../../data/places";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 // 시간계산
 function formatTime(minutes) {
@@ -45,13 +46,16 @@ function RouteMap(props) {
 
 
 function MapPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('q') ?? '';
+
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('lumos_user_info');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
   const [ category, setCategory] = useState("전체");   // 현재 카테고리
-  const [ search, setSearch] = useState("");         // 검색어
+  const [ search, setSearch] = useState(initialSearch);         // 검색어
   const [ selectedPosition, setSelectedPosition ] = useState([35.8532, 128.4913]); // 지도 중심 위치
   const [ myPosition, setMyPosition ] = useState([35.8532, 128.4913]); // 현재 내 위치
   const [ routePath, setRoutePath ] = useState([]); // 길찾기 경로
@@ -139,7 +143,7 @@ function MapPage() {
 
         const bTime =
         Number( b.schedules.find((s) =>s.day === currentDay)?.startTime.split(":")[0]) * 60 +
-        Number(b.schedules.find((s) =>s.day === currentDay)?.startTime.split(":")[1]);
+        Number(b.schedules.find((s) => s.day === currentDay)?.startTime.split(":")[1]);
         return aTime - bTime;
       });
 

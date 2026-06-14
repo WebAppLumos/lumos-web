@@ -37,6 +37,8 @@ const WIDGET_CATALOG = Object.fromEntries(
   DEFAULT_DASHBOARD_WIDGETS.map((widget) => [widget.id, widget]),
 )
 
+export const DASHBOARD_WIDGETS_CACHE_KEY = 'lumos_dashboard_widgets'
+
 export function mergeDashboardWidgets(apiWidgets) {
   return [...apiWidgets]
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -46,6 +48,35 @@ export function mergeDashboardWidgets(apiWidgets) {
       visible,
     }))
     .filter((widget) => widget.type)
+}
+
+export function getCachedDashboardWidgets() {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_WIDGETS_CACHE_KEY)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return null
+
+    return mergeDashboardWidgets(parsed.map((widget, index) => ({
+      id: widget.id,
+      visible: widget.visible ?? true,
+      sortOrder: index,
+    })))
+  } catch {
+    return null
+  }
+}
+
+export function setCachedDashboardWidgets(widgets) {
+  localStorage.setItem(
+    DASHBOARD_WIDGETS_CACHE_KEY,
+    JSON.stringify(widgets.map(({ id, visible }) => ({ id, visible }))),
+  )
+}
+
+export function clearCachedDashboardWidgets() {
+  localStorage.removeItem(DASHBOARD_WIDGETS_CACHE_KEY)
 }
 
 export async function fetchDashboardWidgets() {

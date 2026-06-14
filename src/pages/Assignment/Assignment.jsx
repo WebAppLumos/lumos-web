@@ -4,34 +4,14 @@ import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard.js
 import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
 import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
 import AssignmentList from '../../components/Assignment/AssignmentList.jsx';
+import { initialAssignmentTasks } from '../../data/assignmentTasks';
+import { useStoredUser } from '../../lib/useStoredUser';
 import '../Dashboard/Dashboard.css';
 import './Assignment.css';
 
-const initialTasks = [
-  {
-    id: 1,
-    course: "운영체제",
-    title: "프로세스 동기화 기법 조사",
-    deadline: "2026-06-03",
-    statusClass: "d-day-urgent",
-    isCompleted: false,
-  },
-  {
-    id: 2,
-    course: "데이터베이스",
-    title: "ERD 설계 과제",
-    deadline: "2026-06-05",
-    statusClass: "d-day-warning",
-    isCompleted: false,
-  }
-];
-
 export default function Assignment() {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('lumos_user_info');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-  const [tasks, setTasks] = useState(initialTasks);
+  const [user, setUser] = useStoredUser();
+  const [tasks, setTasks] = useState(initialAssignmentTasks);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const nextId = useRef(3);
 
