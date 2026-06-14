@@ -453,6 +453,21 @@
   fill: #111827;
 }
 
+.myPageScope .gradeLoadingText,
+.myPageScope .gradeErrorText,
+.myPageScope .gradeChartEmpty {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.myPageScope .gradeLoadingText {
+  color: #6b7280;
+}
+
+.myPageScope .gradeErrorText {
+  color: #dc2626;
+}
+
 .myPageScope .dangerZone h4 {
   color: #dc2626;
 }
