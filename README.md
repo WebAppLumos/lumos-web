@@ -396,11 +396,11 @@ Axios 인스턴스(`src/lib/api.js`)가 모든 API 요청을 처리합니다.
 ### 설정 방법
 
 1. Lumos EDWARD Chrome 확장 프로그램 설치 (`lumos-extension` 폴더를 Chrome 확장으로 로드)
-2. `chrome://extensions`에서 확장 **ID** 복사
-3. `lumos-web/.env`에 확장 ID 설정
+2. 확장 ID는 `manifest.json`의 `key`로 **`mjbkpdkmolfjmkfaollkpnjfhejnahop`** 에 고정됨 (`.env` 생략 가능)
+3. 다른 ID를 쓸 때만 `lumos-web/.env`에 설정
 
 ```env
-VITE_LUMOS_EXTENSION_ID=abcdefghijklmnopabcdefghijklmnop
+# VITE_LUMOS_EXTENSION_ID=mjbkpdkmolfjmkfaollkpnjfhejnahop
 ```
 
 4. Vite dev server 재시작 후 마이페이지에서 **EDWARD 동기화** 실행
@@ -471,7 +471,7 @@ npm run build
 
 ```env
 VITE_API_BASE_URL=https://api.example.com
-VITE_LUMOS_EXTENSION_ID=chrome_extensions에서_복사한_확장_ID
+# VITE_LUMOS_EXTENSION_ID=mjbkpdkmolfjmkfaollkpnjfhejnahop
 ```
 
 **동작 범위**
