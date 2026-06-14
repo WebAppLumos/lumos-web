@@ -53,7 +53,17 @@ export default function ScholarshipResult({
                   <span className="amount">{s.amount}</span>
                 </div>
               </div>
-              <button className="apply-btn">상세보기</button>
+              <button 
+                className="apply-btn"
+                onClick={() => {
+                  const url = s.name.includes('국가장학금')
+                    ? 'https://www.kosaf.go.kr/ko/scholar.do?pg=scholarship05_12_01_01&naviParam=JH,02,02,00'
+                    : 'https://janghak.kmu.ac.kr/janghak/9308/subview.do';
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                상세보기
+              </button>
             </div>
           ))
         ) : (
