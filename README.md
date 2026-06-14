@@ -177,7 +177,7 @@ npm run preview
 | 변수명 | 필수 | 기본값 | 설명 |
 |--------|------|--------|------|
 | `VITE_API_BASE_URL` | 권장 | `http://localhost:8080` | Lumos 백엔드 API 베이스 URL |
-| `VITE_LUMOS_EXTENSION_ID` | 선택 | *(없음)* | EDWARD Chrome 확장 프로그램 ID. 미설정 시 확장 연동 기능 비활성 |
+| `VITE_LUMOS_EXTENSION_ID` | 선택 | *(내장 기본값)* | EDWARD Chrome 확장 프로그램 ID. 다른 ID를 쓸 때만 설정 |
 
 ### 예시
 
@@ -395,14 +395,15 @@ Axios 인스턴스(`src/lib/api.js`)가 모든 API 요청을 처리합니다.
 
 ### 설정 방법
 
-1. Lumos EDWARD Chrome 확장 프로그램 설치
-2. `.env`에 확장 ID 설정
+1. Lumos EDWARD Chrome 확장 프로그램 설치 (`lumos-extension` 폴더를 Chrome 확장으로 로드)
+2. `chrome://extensions`에서 확장 **ID** 복사
+3. `lumos-web/.env`에 확장 ID 설정
 
 ```env
 VITE_LUMOS_EXTENSION_ID=abcdefghijklmnopabcdefghijklmnop
 ```
 
-3. 마이페이지 또는 시간표 화면에서 **EDWARD 동기화** 실행
+4. Vite dev server 재시작 후 마이페이지에서 **EDWARD 동기화** 실행
 
 ### 관련 파일
 
@@ -461,6 +462,26 @@ npm run build
 - SPA이므로 웹 서버에서 모든 경로를 `index.html`로 fallback 처리해야 합니다.
 - `VITE_API_BASE_URL`, `VITE_LUMOS_EXTENSION_ID`는 **빌드 시점**에 주입되므로, 환경별로 별도 빌드가 필요합니다.
 - Firebase 설정은 현재 `src/lib/firebase.js`에 직접 작성되어 있습니다. 운영 환경에서는 환경 변수 분리를 권장합니다.
+
+### 배포 환경 + EDWARD 확장 (unpacked)
+
+프론트엔드·백엔드는 원격 주소로 배포할 수 있습니다. EDWARD 자동 동기화만 Chrome 확장(unpacked, 개발자 모드)이 추가로 필요합니다. **Chrome Web Store 배포는 하지 않습니다.**
+
+**배포용 `.env` 예시**
+
+```env
+VITE_API_BASE_URL=https://api.example.com
+VITE_LUMOS_EXTENSION_ID=chrome_extensions에서_복사한_확장_ID
+```
+
+**동작 범위**
+
+| 사용자 | 웹(로그인·시간표·일정 등) | EDWARD 자동 동기화 |
+|--------|---------------------------|-------------------|
+| 배포 URL만 접속 | ✅ | ❌ (확장 없음) |
+| 배포 URL + 확장 설치 PC | ✅ | ✅ |
+
+**데모/발표 시** 시연 PC에 `lumos-extension`을 개발자 모드로 로드하고, `manifest.json`의 `externally_connectable`·`host_permissions`에 **배포된 프론트·API URL**을 추가한 뒤 확장을 새로고침하세요. 자세한 내용은 `lumos-extension/README.md`를 참고하세요.
 
 ---
 
