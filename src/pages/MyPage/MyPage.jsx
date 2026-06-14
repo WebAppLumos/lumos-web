@@ -279,6 +279,15 @@ export default function MyPage() {
 
                 <button
                   type="button"
+                  className={`myPageMenuBtn ${activeMenu === 'certifications' ? 'active' : ''}`}
+                  onClick={() => handleSelectMenu('certifications')}
+                >
+                  <Award size={17} aria-hidden="true" />
+                  자격증 관리
+                </button>
+
+                <button
+                  type="button"
                   className={`myPageMenuBtn ${activeMenu === 'account' ? 'active' : ''}`}
                   onClick={() => handleSelectMenu('account')}
                 >
@@ -393,6 +402,12 @@ export default function MyPage() {
                 </form>
               )}
 
+              {activeMenu === 'profile' && (
+                <div className="certificationPanel" style={{ marginTop: '1.5rem' }}>
+                  <CertificationManager userId={localStorage.getItem('lumos_uid')} />
+                </div>
+              )}
+
               {activeMenu === 'grades' && (
                 <section className="gradeAccessPanel">
                   <div className="panelHead">
@@ -430,6 +445,12 @@ export default function MyPage() {
                     </div>
                   )}
                 </section>
+              )}
+
+              {activeMenu === 'certifications' && (
+                <div className="certificationPanel">
+                   <CertificationManager userId={localStorage.getItem('lumos_uid')} />
+                </div>
               )}
 
               {activeMenu === 'account' && (

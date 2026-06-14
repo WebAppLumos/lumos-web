@@ -1,0 +1,144 @@
+.profile-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e4e7;
+}
+
+.profile-section h2 {
+  margin-bottom: 0.5rem;
+}
+
+.profile-form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #4a4453;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.8rem;
+  border: 1px solid #e5e4e7;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.cert-list-edit {
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-item-edit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  border: 1px solid #dee2e6;
+}
+
+.cert-item-edit strong {
+  color: #000000;
+}
+
+.cert-item-edit span {
+  margin-left: 10px;
+  color: #6b6375;
+}
+
+.cert-item-edit button {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.add-cert-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px dashed #000000;
+  border-radius: 8px;
+  background-color: #00000005;
+}
+
+.add-cert-form h4 {
+  margin: 0 0 0.8rem 0;
+  color: #000000;
+}
+
+.add-cert-form select {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #e5e4e7;
+  margin-bottom: 0.8rem;
+}
+
+.add-cert-form .date-add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-cert-form input[type="date"] {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #e5e4e7;
+}
+
+.add-cert-form .add-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.save-btn {
+  flex: 2;
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-btn {
+  flex: 1;
+  background-color: #f4f3ec;
+  color: #6b6375;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
