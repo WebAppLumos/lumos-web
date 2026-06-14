@@ -94,6 +94,20 @@
   gap: 8px;
 }
 
+.assignmentPage .assignment-status {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background-color: #f2f4f6;
+  color: #4e5968;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.assignmentPage .assignment-status-error {
+  background-color: #fee2e2;
+  color: #e11d48;
+}
+
 .assignmentPage .imminent-title::before {
   content: '🚨';
   font-size: 20px;
@@ -174,6 +188,11 @@
 }
 
 .assignmentPage .add-btn:hover { background-color: #1b64da; }
+
+.assignmentPage button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
 
 .assignmentPage .btn-toss {
   padding: 10px 16px;
