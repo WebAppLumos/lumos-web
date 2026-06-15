@@ -247,7 +247,7 @@ export default function MyPage() {
       setGradeSummary(summary);
 
       if (!summary.semesters?.length) {
-        setGradeError('동기화된 성적이 없습니다. 우측 상단 EDWARD 동기화에서 성적 정보를 선택해 주세요.');
+        setGradeError('동기화된 성적이 없습니다. 우측 상단 학사 정보 동기화에서 성적 정보를 선택해 주세요.');
       }
     } catch (err) {
       console.error(err);
@@ -272,7 +272,7 @@ export default function MyPage() {
         setGradeSummary(summary);
         setGradeError(summary.semesters?.length
           ? ''
-          : '동기화된 성적이 없습니다. EDWARD 동기화에서 성적 정보를 선택해 주세요.');
+          : '동기화된 성적이 없습니다. 학사 정보 동기화에서 성적 정보를 선택해 주세요.');
       } catch (err) {
         console.error(err);
       }
@@ -301,7 +301,7 @@ export default function MyPage() {
               onClick={() => setSyncModalOpen(true)}
             >
               <RefreshCw size={16} aria-hidden="true" />
-              EDWARD 동기화
+              학사 정보 동기화
             </button>
           </div>
 
@@ -398,7 +398,7 @@ export default function MyPage() {
                     <div className="academicSyncNotice">
                       <p>
                         학번, 학년, 전공은 EDWARD와 연동해야 표시됩니다.
-                        상단 <strong>EDWARD 동기화</strong>에서 학적 정보를 선택해 주세요.
+                        상단 <strong>학사 정보 동기화</strong>에서 학적 정보를 선택해 주세요.
                       </p>
                     </div>
                   )}
@@ -422,7 +422,7 @@ export default function MyPage() {
                       value={formData.major}
                       disabled
                       className="disabledInput"
-                      placeholder={academicProfileSynced ? '' : 'EDWARD 동기화 후 표시됩니다'}
+                      placeholder={academicProfileSynced ? '' : '학사 정보 동기화 후 표시됩니다'}
                     />
                   </div>
 
@@ -448,7 +448,7 @@ export default function MyPage() {
                           value=""
                           disabled
                           className="disabledInput"
-                          placeholder="EDWARD 동기화 후 표시됩니다"
+                          placeholder="학사 정보 동기화 후 표시됩니다"
                         />
                       )}
                     </div>
@@ -461,7 +461,7 @@ export default function MyPage() {
                         value={formData.studentNumber}
                         disabled
                         className="disabledInput"
-                        placeholder={academicProfileSynced ? '' : 'EDWARD 동기화 후 표시됩니다'}
+                        placeholder={academicProfileSynced ? '' : '학사 정보 동기화 후 표시됩니다'}
                       />
                     </div>
                   </div>
