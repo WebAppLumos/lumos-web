@@ -73,6 +73,12 @@ export default function CertificationManager({ userId }) {
     const certInfo = certificationsData.find((c) => c.id === parseInt(selectedCertId));
     if (!certInfo) return;
 
+    const isDuplicate = userCerts?.some((cert) => cert.certName === certInfo.name);
+    if (isDuplicate) {
+      alert('이미 등록된 자격증입니다.');
+      return;
+    }
+
     try {
       setSubmitting(true);
       await scholarshipApi.addCertification(userId, {

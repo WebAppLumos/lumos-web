@@ -60,6 +60,12 @@ export default function Scholarship() {
     const certInfo = certificationsData.find((c) => c.id === parseInt(selectedCertId, 10))
     if (!certInfo) return
 
+    const isDuplicate = userProfile?.certificates?.some((cert) => cert.name === certInfo.name)
+    if (isDuplicate) {
+      alert('이미 등록된 자격증입니다.')
+      return
+    }
+
     try {
       const uid = localStorage.getItem('lumos_uid')
       const res = await scholarshipApi.addCertification(uid, {
