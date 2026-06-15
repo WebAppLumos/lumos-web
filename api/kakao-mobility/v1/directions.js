@@ -1,31 +1,30 @@
-export default async function handler(request) {
-  if (request.method !== 'GET') {
-    return new Response('Method Not Allowed', { status: 405 })
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.status(405).send('Method Not Allowed')
+    return
   }
 
-  const apiKey = process.env.KAKAO_REST_API_KEY
+  const apiKey = process.env.KAKAO_REST_API_KEY?.trim().replace(/^["']|["']$/g, '')
   if (!apiKey) {
-    return Response.json(
-      { error: 'KAKAO_REST_API_KEY is not configured' },
-      { status: 500 },
-    )
+    res.status(500).json({ error: 'KAKAO_REST_API_KEY is not configured' })
+    return
   }
 
-  const url = new URL(request.url)
-  const targetUrl = `https://apis-navi.kakaomobility.com/v1/directions${url.search}`
+  const queryIndex = req.url?.indexOf('?') ?? -1
+  const query = queryIndex >= 0 ? req.url.slice(queryIndex + 1) : ''
+  const targetUrl = `https://apis-navi.kakaomobility.com/v1/directions${query ? `?${query}` : ''}`
 
-  const upstream = await fetch(targetUrl, {
-    headers: {
-      Authorization: `KakaoAK ${apiKey}`,
-    },
-  })
+  try {
+    const upstream = await fetch(targetUrl, {
+      headers: {
+        Authorization: `KakaoAK ${apiKey}`,
+      },
+    })
 
-  const body = await upstream.text()
-
-  return new Response(body, {
-    status: upstream.status,
-    headers: {
-      'Content-Type': upstream.headers.get('content-type') ?? 'application/json',
-    },
-  })
+    const body = await upstream.text()
+    res.setHeader('Content-Type', upstream.headers.get('content-type') ?? 'application/json')
+    res.status(upstream.status).send(body)
+  } catch {
+    res.status(502).json({ error: 'Failed to reach Kakao Mobility API' })
+  }
 }
