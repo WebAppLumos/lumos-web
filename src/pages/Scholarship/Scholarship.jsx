@@ -70,23 +70,12 @@ export default function Scholarship() {
 
     try {
       const uid = localStorage.getItem('lumos_uid')
-      const res = await scholarshipApi.addCertification(uid, {
+      await scholarshipApi.addCertification(uid, {
         certName: certInfo.name,
         issueDate: certAcquisitionDate,
       })
 
-      updateUserProfile((prev) => ({
-        ...prev,
-        certificates: [
-          ...prev.certificates,
-          {
-            certId: res.data.certId,
-            name: res.data.certName,
-            date: res.data.issueDate,
-            score: certInfo.score,
-          },
-        ],
-      }))
+      await refreshSession()
 
       setSelectedCertId('')
       setCertAcquisitionDate('')
@@ -102,17 +91,12 @@ export default function Scholarship() {
     if (certToRemove.certId) {
       try {
         await scholarshipApi.deleteCertification(certToRemove.certId)
+        await refreshSession()
       } catch (error) {
         console.error('Failed to delete certification:', error)
         alert('자격증 삭제 중 오류가 발생했습니다.')
-        return
       }
     }
-
-    updateUserProfile((prev) => ({
-      ...prev,
-      certificates: prev.certificates.filter((_, i) => i !== index),
-    }))
   }
 
   const handleSave = async () => {
