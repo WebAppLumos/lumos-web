@@ -3,7 +3,11 @@ import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx'
 import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx'
 import AssignmentList from '../../components/Assignment/AssignmentList.jsx'
 import { getImminentAssignments } from '../../lib/assignmentNotifications'
-import { createAssignment, deleteAssignment, updateAssignment } from '../../lib/assignmentApi'
+import {
+  createAssignment,
+  deleteAssignment,
+  updateAssignment,
+} from '../../lib/assignmentApi'
 import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
 import './Assignment.css'
 
@@ -52,7 +56,9 @@ export default function Assignment() {
           <div className="layout-wrapper">
             <div className="header-box">
               <h1 className="header-title">과제 알림</h1>
-              <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
+              <div className="header-actions">
+                <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
+              </div>
             </div>
             <div className="count-box">
               <AssignmentCount tasks={tasks} className="component-label label-green" />
@@ -86,15 +92,11 @@ export default function Assignment() {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2 className="modal-title">새 과제 추가</h2>
-            <div className="add-box">
-              <AssignmentAdd
-                onAdd={handleAddTask}
-                onCancel={() => setIsModalOpen(false)}
-                isSaving={isSaving}
-                className="component-label label-orange"
-              />
-            </div>
+            <AssignmentAdd
+              onAdd={handleAddTask}
+              onClose={() => setIsModalOpen(false)}
+              isSaving={isSaving}
+            />
           </div>
         </div>
       )}

@@ -29,13 +29,13 @@ export async function pingExtension() {
 
 function sendExtensionMessage(payload) {
   if (!hasExtensionApi() || !EXTENSION_ID) {
-    throw new Error('Lumos EDWARD 확장이 설정되지 않았습니다.')
+    throw new Error('Lumos Sync 확장이 설정되지 않았습니다.')
   }
 
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(EXTENSION_ID, payload, (response) => {
       if (chrome.runtime.lastError) {
-        reject(new Error('Lumos EDWARD 확장을 찾을 수 없습니다. 설치 후 페이지를 새로고침해 주세요.'))
+        reject(new Error('Lumos Sync 확장을 찾을 수 없습니다. 설치 후 페이지를 새로고침해 주세요.'))
 
         return
       }
@@ -90,6 +90,14 @@ export async function syncGradesViaExtension(token) {
     throw new Error(data.grades?.error || 'EDWARD 성적 동기화에 실패했습니다.')
   }
   return data.grades.data
+}
+
+export async function syncCtlAssignmentsViaExtension(token) {
+  return sendExtensionMessage({
+    action: 'syncCtlAssignments',
+    token,
+    apiBaseUrl: API_BASE_URL,
+  })
 }
 
 export function getExtensionSetupHint() {

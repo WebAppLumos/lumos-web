@@ -284,6 +284,7 @@ export default function TimetableGrid({
                         <label className="notePinField">
                           <input
                             type="checkbox"
+                            className="noteCheckbox"
                             checked={editNotePinned}
                             onChange={(e) => setEditNotePinned(e.target.checked)}
                           />
@@ -311,6 +312,7 @@ export default function TimetableGrid({
                       <>
                         <input
                           type="checkbox"
+                          className="noteCheckbox"
                           checked={selectedNoteIds.includes(note.note_id)}
                           onChange={() => toggleNoteSelection(note.note_id)}
                           aria-label={`${note.title} 선택`}
@@ -359,6 +361,7 @@ export default function TimetableGrid({
                 <label className="notePinField">
                   <input
                     type="checkbox"
+                    className="noteCheckbox"
                     checked={newNotePinned}
                     onChange={(e) => setNewNotePinned(e.target.checked)}
                   />

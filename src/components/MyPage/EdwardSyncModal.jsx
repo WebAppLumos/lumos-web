@@ -5,6 +5,7 @@ import {
   getExtensionSetupHint,
   isExtensionConfigured,
   pingExtension,
+  syncCtlAssignmentsViaExtension,
   syncEdwardViaExtension,
 } from '../../lib/edwardExtension'
 import { clearTimetableSession } from '../../lib/timetable/session'
@@ -32,6 +33,11 @@ const SYNC_OPTIONS = [
     key: 'grades',
     label: '성적 정보',
     description: '학기별 이수학점, 평균학점, 학사경고',
+  },
+  {
+    key: 'assignments',
+    label: 'CTL 과제',
+    description: '진행 중인 미제출 과제',
   },
 ]
 
@@ -67,6 +73,22 @@ function buildItemResult(itemResult) {
   return { status: 'error', message: '실패' }
 }
 
+function buildCtlResult(itemResult) {
+  if (!itemResult) {
+    return null
+  }
+
+  if (itemResult.ok) {
+    const { fetchedCount = 0, createdCount = 0, updatedCount = 0 } = itemResult.data ?? {}
+    if (fetchedCount === 0) {
+      return { status: 'success', message: '과제 없음' }
+    }
+    return { status: 'success', message: `${createdCount + updatedCount}건 반영` }
+  }
+
+  return { status: 'error', message: '실패' }
+}
+
 export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   const [syncing, setSyncing] = useState(false)
   const [error, setError] = useState('')
@@ -78,11 +100,13 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
     profile: true,
     timetable: true,
     grades: true,
+    assignments: true,
   })
   const [syncResults, setSyncResults] = useState({
     profile: null,
     timetable: null,
     grades: null,
+    assignments: null,
   })
   const [extensionNotice, setExtensionNotice] = useState('')
 
@@ -93,10 +117,10 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
 
     setError('')
     setExtensionNotice('')
-    setSyncResults({ profile: null, timetable: null, grades: null })
+    setSyncResults({ profile: null, timetable: null, grades: null, assignments: null })
     setYear(new Date().getFullYear())
     setTermCode(guessDefaultTermCode())
-    setSyncTargets({ profile: true, timetable: true, grades: true })
+    setSyncTargets({ profile: true, timetable: true, grades: true, assignments: true })
     setCheckingExtension(true)
     pingExtension()
       .then(({ installed }) => setExtensionReady(installed))
@@ -108,6 +132,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   const syncProfile = syncTargets.profile
   const syncTimetable = syncTargets.timetable
   const syncGrades = syncTargets.grades
+  const syncAssignments = syncTargets.assignments
 
   const toggleSyncTarget = (key) => {
     setSyncTargets((prev) => ({
@@ -135,7 +160,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       return
     }
 
-    if (!syncProfile && !syncTimetable && !syncGrades) {
+    if (!syncProfile && !syncTimetable && !syncGrades && !syncAssignments) {
       setError('동기화할 항목을 하나 이상 선택해 주세요.')
       return
     }
@@ -152,48 +177,77 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       profile: syncProfile ? { status: 'pending', message: null } : null,
       timetable: syncTimetable ? { status: 'pending', message: null } : null,
       grades: syncGrades ? { status: 'pending', message: null } : null,
+      assignments: syncAssignments ? { status: 'pending', message: null } : null,
     })
 
     try {
       const token = await user.getIdToken()
-      const result = await syncEdwardViaExtension(token, {
-        syncProfile,
-        syncTimetable,
-        syncGrades,
-        year: syncTimetable ? parsedYear : undefined,
-        termCode: syncTimetable ? termCode : undefined,
-      })
+      const tasks = []
+
+      if (syncProfile || syncTimetable || syncGrades) {
+        tasks.push(
+          syncEdwardViaExtension(token, {
+            syncProfile,
+            syncTimetable,
+            syncGrades,
+            year: syncTimetable ? parsedYear : undefined,
+            termCode: syncTimetable ? termCode : undefined,
+          }).then((data) => ({ type: 'edward', data })),
+        )
+      }
+
+      if (syncAssignments) {
+        tasks.push(
+          syncCtlAssignmentsViaExtension(token)
+            .then((data) => ({ type: 'ctl', data: { ok: true, data } }))
+            .catch((err) => ({ type: 'ctl', data: { ok: false, error: err.message } })),
+        )
+      }
+
+      const settled = await Promise.all(tasks)
+      const edwardPayload = settled.find((item) => item.type === 'edward')?.data ?? null
+      const ctlPayload = settled.find((item) => item.type === 'ctl')?.data ?? null
 
       const nextResults = {
-        profile: syncProfile ? buildItemResult(result.profile) : null,
-        timetable: syncTimetable ? buildItemResult(result.timetable) : null,
-        grades: syncGrades ? buildItemResult(result.grades) : null,
+        profile: syncProfile ? buildItemResult(edwardPayload?.profile) : null,
+        timetable: syncTimetable ? buildItemResult(edwardPayload?.timetable) : null,
+        grades: syncGrades ? buildItemResult(edwardPayload?.grades) : null,
+        assignments: syncAssignments ? buildCtlResult(ctlPayload) : null,
       }
       setSyncResults(nextResults)
 
-      const refreshNotice = extensionReady ? extractRefreshNotice(result) : null
+      const refreshNotice = extensionReady && edwardPayload ? extractRefreshNotice(edwardPayload) : null
       setExtensionNotice(refreshNotice || '')
 
-      const otherError = [result.profile, result.timetable, result.grades]
-        .filter((item) => item && !item.ok && !(refreshNotice && isPageRefreshError(item.error)))
-        .map((item) => item.error)[0]
-      setError(otherError || '')
+      const otherError = edwardPayload
+        ? [edwardPayload.profile, edwardPayload.timetable, edwardPayload.grades]
+            .filter((item) => item && !item.ok && !(refreshNotice && isPageRefreshError(item.error)))
+            .map((item) => item.error)[0]
+        : null
+      const ctlError = ctlPayload && !ctlPayload.ok ? ctlPayload.error : null
+      setError(otherError || ctlError || '')
 
-      if (result.timetable?.ok) {
+      if (edwardPayload?.timetable?.ok) {
         clearTimetableSession()
       }
 
-      const hasSuccess = Boolean(result.profile?.ok || result.timetable?.ok || result.grades?.ok)
+      const hasSuccess = Boolean(
+        edwardPayload?.profile?.ok
+        || edwardPayload?.timetable?.ok
+        || edwardPayload?.grades?.ok
+        || ctlPayload?.ok,
+      )
       if (hasSuccess) {
         onSuccess?.({
-          syncProfile: Boolean(result.profile?.ok),
-          syncTimetable: Boolean(result.timetable?.ok),
-          syncGrades: Boolean(result.grades?.ok),
+          syncProfile: Boolean(edwardPayload?.profile?.ok),
+          syncTimetable: Boolean(edwardPayload?.timetable?.ok),
+          syncGrades: Boolean(edwardPayload?.grades?.ok),
+          syncAssignments: Boolean(ctlPayload?.ok),
         })
       }
     } catch (err) {
       console.error(err)
-      const message = err.message || 'EDWARD 동기화에 실패했습니다.'
+      const message = err.message || '학사 정보 동기화에 실패했습니다.'
       if (extensionReady && isPageRefreshError(message)) {
         setExtensionNotice(PAGE_REFRESH_NOTICE)
         setError('')
@@ -205,14 +259,15 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         profile: syncProfile ? { status: 'error', message: '실패' } : null,
         timetable: syncTimetable ? { status: 'error', message: '실패' } : null,
         grades: syncGrades ? { status: 'error', message: '실패' } : null,
+        assignments: syncAssignments ? { status: 'error', message: '실패' } : null,
       })
     } finally {
       setSyncing(false)
     }
   }
 
-  const openEdward = () => {
-    window.open('https://edward.kmu.ac.kr/nx/', '_blank', 'noopener,noreferrer')
+  const openPortal = () => {
+    window.open('https://portal.kmu.ac.kr/', '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -224,8 +279,8 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       >
         <div className="edwardSyncHead">
           <div>
-            <h2>EDWARD 동기화</h2>
-            <p>브라우저 확장을 통해 EDWARD 세션으로 학업 정보를 가져옵니다.</p>
+            <h2>학사 정보 동기화</h2>
+            <p>계명대 포털 SSO로 EDWARD·CTL 학사 정보를 가져옵니다.</p>
           </div>
           <button
             type="button"
@@ -238,8 +293,8 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         </div>
 
         <div className="edwardSyncNotice">
-          EDWARD 비밀번호는 Lumos 서버로 전송되지 않습니다. <br/>
-          같은 브라우저에서 EDWARD에 로그인되어 있어야 합니다.
+          비밀번호는 Lumos 서버로 전송되지 않습니다. <br/>
+          같은 브라우저에서 <strong>portal.kmu.ac.kr</strong>에 로그인되어 있어야 합니다.
         </div>
 
         <fieldset className="edwardSyncOptions">
@@ -304,12 +359,12 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         )}
 
         <ol className="edwardSyncSteps">
-          <li>Lumos EDWARD Sync 확장 프로그램 설치</li>
+          <li>Lumos Sync 확장 프로그램 설치</li>
           <li>
-            EDWARD 포털 로그인
-            <button type="button" className="edwardSyncLinkBtn" onClick={openEdward}>
+            계명대 포털 로그인
+            <button type="button" className="edwardSyncLinkBtn" onClick={openPortal}>
               <ExternalLink size={14} aria-hidden="true" />
-              edward.kmu.ac.kr 열기
+              portal.kmu.ac.kr
             </button>
           </li>
           <li>동기화할 항목을 선택한 뒤 동기화 버튼을 클릭</li>
