@@ -29,8 +29,7 @@ export default function Scholarship() {
   const userProfile = session?.userProfile
   const eligibleScholarships = session?.eligibleScholarships ?? []
   const defaultView = user?.scholarshipCurationCompleted ? 'results' : 'hero'
-  const effectiveViewOverride = user?.scholarshipCurationCompleted ? viewOverride : null
-  const view = effectiveViewOverride ?? (isLoading && !session ? 'loading' : defaultView)
+  const view = viewOverride ?? (isLoading && !session ? 'loading' : defaultView)
 
   useEffect(() => {
     if (!user) return

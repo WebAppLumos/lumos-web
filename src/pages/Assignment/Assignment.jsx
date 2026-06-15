@@ -94,7 +94,7 @@ export default function Assignment() {
           <div className="modal-content">
             <AssignmentAdd
               onAdd={handleAddTask}
-              onClose={() => setIsModalOpen(false)}
+              onCancel={() => setIsModalOpen(false)}
               isSaving={isSaving}
             />
           </div>
