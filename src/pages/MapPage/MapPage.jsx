@@ -7,7 +7,7 @@ import "../Dashboard/Dashboard.css";
 import "./MapPage.css";
 import Category from "../../components/Map/Category";
 import PlaceList from "../../components/Map/PlaceList";
-// import places from "../../data/places";
+import places from "../../data/places";
 import { useState, useEffect } from "react";
 
 // 시간계산
@@ -50,7 +50,7 @@ function MapPage() {
     return storedUser ? JSON.parse(storedUser) : null;
   });
   
-  const [places, setPlaces] = useState([]); // 플레이스 리스트
+  // const [places, setPlaces] = useState([]); // 플레이스 리스트
   
   const [ category, setCategory] = useState("전체");   // 현재 카테고리
   const [ search, setSearch] = useState("");         // 검색어
@@ -61,6 +61,7 @@ function MapPage() {
   const [selectedPlace, setSelectedPlace] = useState(null);
   
 
+/* 
 useEffect(() => {
   fetch("http://localhost:8080/api/places")
     .then((res) => res.json())
@@ -69,6 +70,7 @@ useEffect(() => {
       setPlaces(data);
     });
 }, []);
+*/
 
   // 리스트 계산
   useEffect(() => {
@@ -86,9 +88,9 @@ useEffect(() => {
       const c = 2 * Math.atan2( Math.sqrt(a), Math.sqrt(1 - a));
 
       const distance = R * c;
-      times[item.id] = Math.max(1, Math.round(distance / 80) );
+      times[item.id] = Math.max(1, Math.round(distance / 50) );
     }); setTravelTimes(times);
-  }, [myPosition, places]);
+  }, [myPosition]);
       
   // GPS 현재 위치
   useEffect(() => 
@@ -191,7 +193,7 @@ useEffect(() => {
     const distance = R * c;
     
     // 도보 기준
-   nextClassTime = Math.max(1, Math.round(distance / 80));
+   nextClassTime = Math.max(1, Math.round(distance / 50));
   }
 
   if (!user) {
