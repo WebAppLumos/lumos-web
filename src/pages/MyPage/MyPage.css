@@ -1,374 +1,606 @@
-.myPageContainer {
-  max-width: 900px;
+.myPageScope {
+  width: min(64rem, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 0 3rem;
 }
 
-.myPageContainer.empty {
-  text-align: center;
-  padding: 120px 20px;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
-
-.myPageHeader {
-  margin-bottom: 40px;
-  text-align: left;
-}
-
-.myPageHeader h2 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
-}
-
-.myPageHeader p {
-  color: #666;
-  font-size: 1.1rem;
-}
-
-.myPageContent {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 30px;
-  padding: 50px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.profileSection {
+.myPageScope .myPageHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 32px;
-  margin-bottom: 48px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.profileImageWrapper {
-  width: 120px;
-  height: 120px;
-  border-radius: 40px;
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-
-.profileImageWrapper:hover {
-  transform: translateY(-5px);
-}
-
-.imageOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 1rem;
+  background: #111111;
   color: white;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 14%);
+}
+
+.myPageScope .myPageHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+}
+
+.myPageScope .myPageHeader p {
+  margin: 0.5rem 0 0;
+  color: #d4d4d4;
+  font-size: 0.9375rem;
+}
+
+.myPageScope .edwardSyncBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.2s;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 0.625rem;
+  background: white;
+  color: #111111;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 18%);
 }
 
-.profileImageWrapper:hover .imageOverlay {
-  opacity: 1;
+.myPageScope .edwardSyncBtn:hover {
+  background: #f5f5f5;
+  transform: translateY(-1px);
 }
 
-.profileImage {
+.myPageScope .myPageContent {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.myPageScope .myPageSide {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.myPageScope .profileSection,
+.myPageScope .myPageMenu,
+.myPageScope .infoForm,
+.myPageScope .gradeAccessPanel,
+.myPageScope .dangerZone {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 4%);
+}
+
+.myPageScope .profileSection {
+  padding: 1.25rem;
+}
+
+.myPageScope .profileImageWrapper {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.myPageScope .profileImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.profileBasicInfo h3 {
-  font-size: 1.8rem;
+.myPageScope .profileImageFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #171717;
+  color: #fafafa;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 4px;
 }
 
-.profileBasicInfo span {
+.myPageScope .imageOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 55%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.myPageScope .profileImageWrapper:hover .imageOverlay {
+  opacity: 1;
+}
+
+.myPageScope .profileBasicInfo {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.myPageScope .profileBasicInfo h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.myPageScope .profileBasicInfo span {
   display: block;
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 12px;
+  margin-top: 0.5rem;
+  color: #6b7280;
 }
 
-.creditInfo {
-  background: #f0f7ff;
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 12px;
+.myPageScope .creditInfo {
+  margin-top: 1.25rem;
+  padding: 0.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.625rem;
+  background: #fafafa;
+  color: #111827;
+  font-weight: 700;
+}
+
+.myPageScope .myPageMenu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem;
+}
+
+.myPageScope .myPageMenuBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #525252;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.myPageScope .myPageMenuBtn:hover,
+.myPageScope .myPageMenuBtn.active {
+  background: #f5f5f5;
+  color: #171717;
+}
+
+.myPageScope .myPagePanel {
+  min-width: 0;
+}
+
+.myPageScope .infoForm {
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.myPageScope .formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.myPageScope .formGroup label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #525252;
+}
+
+.myPageScope .infoForm input,
+.myPageScope .infoForm select {
+  height: 3rem;
+  padding: 0 0.875rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.5rem;
+  background: white;
+  color: #111827;
+}
+
+.myPageScope .infoForm input:focus,
+.myPageScope .infoForm select:focus {
+  outline: none;
+  border-color: #111111;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 6%);
+}
+
+.myPageScope .disabledInput {
+  background: #f3f4f6 !important;
+}
+
+.myPageScope .formGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.myPageScope .formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.myPageScope .academicSyncNotice {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #fcd34d;
+  border-radius: 0.75rem;
+  background: #fffbeb;
+}
+
+.myPageScope .academicSyncNotice p {
+  margin: 0;
+  color: #92400e;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.myPageScope .disabledInput::placeholder {
+  color: #9ca3af;
+}
+
+.myPageScope .editActions,
+.myPageScope .dangerActions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.myPageScope .editBtn,
+.myPageScope .saveBtn,
+.myPageScope .gradeViewBtn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border: none;
+  border-radius: 0.625rem;
+  background: #111111;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.myPageScope .editBtn:hover,
+.myPageScope .saveBtn:hover,
+.myPageScope .gradeViewBtn:hover {
+  background: #2d2d2d;
+}
+
+.myPageScope .cancelBtn,
+.myPageScope .myPageLogoutBtn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.625rem;
+  background: white;
+  color: #111827;
+  cursor: pointer;
+}
+
+.myPageScope .gradeAccessPanel,
+.myPageScope .dangerZone {
+  padding: 1.5rem;
+}
+
+.myPageScope .panelHead {
+  margin-bottom: 1.5rem;
+}
+
+.myPageScope .gradeAccessPanel h4,
+.myPageScope .dangerZone h4 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.myPageScope .gradeAccessPanel p,
+.myPageScope .dangerZone p {
+  margin: 0.5rem 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.myPageScope .gradeViewBtn {
+  height: 3rem;
+  padding: 0 1.5rem;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 12%);
+}
+
+.myPageScope .gradeMetricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.myPageScope .gradeDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.myPageScope .gradeMetric {
+  padding: 1rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.875rem;
+  background: #fafafa;
+}
+
+.myPageScope .gradeMetric span,
+.myPageScope .gradeMetric small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.myPageScope .gradeMetric strong {
+  display: block;
+  margin-top: 0.375rem;
+  color: #111827;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.myPageScope .gradeMetric small {
+  margin-top: 0.25rem;
+}
+
+.myPageScope .semesterGradeTableCard,
+.myPageScope .semesterGradeChart {
+  padding: 1.25rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 4%);
+}
+
+.myPageScope .semesterGradeHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.myPageScope .semesterGradeHead h5 {
+  margin: 0;
+  color: #111827;
   font-size: 0.95rem;
-  color: #4a90e2;
+}
+
+.myPageScope .semesterGradeHead span {
+  color: #737373;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.myPageScope .semesterGradeTableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.myPageScope .semesterGradeTable {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.myPageScope .semesterGradeTable th,
+.myPageScope .semesterGradeTable td {
+  padding: 0.75rem 0.625rem;
+  border-bottom: 1px solid #eeeeee;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.myPageScope .semesterGradeTable th {
+  background: #f9fafb;
+  color: #525252;
+  font-weight: 700;
+}
+
+.myPageScope .semesterGradeTable td {
+  color: #111827;
   font-weight: 500;
 }
 
-.creditInfo strong {
-  font-weight: 800;
+.myPageScope .semesterGradeTable tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.summarySection {
-  margin-bottom: 48px;
+.myPageScope .gradeLineChart {
+  width: 100%;
+  overflow-x: auto;
 }
 
-.weeklySummary {
-  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-  border-radius: 20px;
-  padding: 24px;
-  border: 1px solid #eef2f8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+.myPageScope .gradeLineChart svg {
+  display: block;
+  width: 100%;
+  min-width: 34rem;
+  height: auto;
 }
 
-.weeklySummary h4 {
-  margin: 0 0 16px 0;
-  color: #1e293b;
-  font-size: 1.1rem;
+.myPageScope .gradeGridLine {
+  stroke: #eeeeee;
+  stroke-width: 1;
+}
+
+.myPageScope .gradeLine {
+  fill: none;
+  stroke: #111111;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.myPageScope .gradePoint {
+  fill: #111111;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.myPageScope .gradeAxisText,
+.myPageScope .gradeValueText,
+.myPageScope .gradeSemesterText {
+  fill: #6b7280;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
-.summaryList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.myPageScope .gradeValueText,
+.myPageScope .gradeSemesterText {
+  text-anchor: middle;
 }
 
-.summaryList li {
-  background: white;
-  padding: 12px 16px;
-  border-radius: 14px;
+.myPageScope .gradeValueText {
+  fill: #111827;
+}
+
+.myPageScope .gradeLoadingText,
+.myPageScope .gradeErrorText,
+.myPageScope .gradeChartEmpty {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.myPageScope .gradeLoadingText {
+  color: #6b7280;
+}
+
+.myPageScope .gradeErrorText {
+  color: #dc2626;
+}
+
+.myPageScope .dangerZone h4 {
+  color: #dc2626;
+}
+
+.myPageScope .dangerActions {
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.myPageScope .withdrawBtn {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border: none;
+  border-radius: 0.625rem;
+  background: #dc2626;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .myPageScope .myPageContent {
+    grid-template-columns: 1fr;
+  }
+
+  .myPageScope .myPageSide {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .myPageScope .myPageHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .myPageScope .infoForm,
+  .myPageScope .formGrid,
+  .myPageScope .gradeMetricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .myPageScope .editActions,
+  .myPageScope .dangerActions {
+    flex-direction: column;
+  }
+}
+
+.myPageScope .withdrawalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.95rem;
-  color: #475569;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.summaryList li.empty {
-  color: #94a3b8;
   justify-content: center;
-  padding: 24px;
+  background: rgb(0 0 0 / 45%);
+  padding: 1rem;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
+.myPageScope .withdrawalOverlayCard {
+  width: min(100%, 22rem);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 15%);
+}
+
+.myPageScope .withdrawalOverlaySpinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e5e5e5;
+  border-top-color: #171717;
   border-radius: 50%;
-  flex-shrink: 0;
+  animation: myPageWithdrawalSpin 0.8s linear infinite;
 }
 
-.dot.HIGH { background: #ff4d4d; box-shadow: 0 0 8px rgba(255, 77, 77, 0.4); }
-.dot.MEDIUM { background: #ffb84d; box-shadow: 0 0 8px rgba(255, 184, 77, 0.4); }
-.dot.LOW { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.4); }
-
-.infoForm {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.formGroup label {
-  font-size: 0.95rem;
+.myPageScope .withdrawalOverlayTitle {
+  margin: 0;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #444;
-  margin-left: 4px;
+  color: #171717;
 }
 
-.infoForm input,
-.infoForm select {
-  padding: 14px 20px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  font-size: 1rem;
-  background: #fcfdfe;
-  transition: all 0.2s;
-  color: #334155;
+.myPageScope .withdrawalOverlayDesc {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: #737373;
+  line-height: 1.5;
 }
 
-.infoForm input:focus,
-.infoForm select:focus {
-  outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
-  background: white;
-}
-
-.infoForm input:disabled,
-.infoForm select:disabled {
-  background-color: #f8fafc;
-  color: #94a3b8;
-  border-color: #f1f5f9;
+.myPageScope .withdrawBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  grid-column: 1 / -1;
-}
-
-.formActions {
-  grid-column: 1 / -1;
-  margin-top: 24px;
-}
-
-.editBtn, .saveBtn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 18px;
-  font-weight: 800;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
-}
-
-.editBtn {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  color: white;
-  box-shadow: 0 10px 20px rgba(74, 144, 226, 0.2);
-}
-
-.editBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px rgba(74, 144, 226, 0.3);
-}
-
-.editActions {
-  display: flex;
-  gap: 16px;
-}
-
-.saveBtn {
-  flex: 2;
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-  color: white;
-  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
-}
-
-.saveBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px rgba(46, 204, 113, 0.3);
-}
-
-.cancelBtn {
-  flex: 1;
-  background: #f1f5f9;
-  color: #64748b;
-  border: none;
-  padding: 16px;
-  border-radius: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancelBtn:hover {
-  background: #e2e8f0;
-}
-
-.dangerZone {
-  margin-top: 64px;
-  padding: 32px;
-  background: #fff5f5;
-  border-radius: 24px;
-  border: 1px solid #ffebeb;
-}
-
-.dangerZone h4 {
-  color: #e53e3e;
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin: 0 0 8px 0;
-}
-
-.dangerZone p {
-  font-size: 0.9rem;
-  color: #9b2c2c;
-  margin-bottom: 24px;
-  opacity: 0.8;
-}
-
-.dangerActions {
-  display: flex;
-  gap: 12px;
-}
-
-.myPageLogoutBtn {
-  padding: 12px 24px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.myPageLogoutBtn:hover {
-  background: #f1f5f9;
-  color: #1a1a1a;
-  border-color: #cbd5e1;
-}
-
-.withdrawBtn {
-  padding: 12px 24px;
-  background: white;
-  color: #e53e3e;
-  border: 1px solid #feb2b2;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.withdrawBtn:hover {
-  background: #e53e3e;
-  color: white;
-  border-color: #e53e3e;
-  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2);
-}
-
-
-@media (max-width: 640px) {
-  .infoForm {
-    grid-template-columns: 1fr;
-  }
-  
-  .profileSection {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .myPageLogoutBtn {
-    margin: 0 auto;
-  }
-  
-  .myPageContent {
-    padding: 30px 20px;
+@keyframes myPageWithdrawalSpin {
+  to {
+    transform: rotate(360deg);
   }
 }

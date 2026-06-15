@@ -1,0 +1,81 @@
+.onlineCoursesCard {
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+}
+
+.onlineCoursesHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.onlineCoursesTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.onlineCoursesSub {
+  font-size: 0.8rem;
+  color: var(--muted, #6b7280);
+}
+
+.onlineCoursesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.onlineCoursesItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  background: var(--surface-muted, #f9fafb);
+}
+
+.onlineCoursesBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.onlineCoursesName {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.onlineCoursesMeta {
+  font-size: 0.85rem;
+  color: var(--muted, #6b7280);
+}
+
+.onlineCoursesDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.onlineCoursesDelete {
+  border: none;
+  background: transparent;
+  color: var(--muted, #9ca3af);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.onlineCoursesDelete:hover {
+  color: #111;
+}

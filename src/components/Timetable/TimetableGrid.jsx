@@ -134,40 +134,44 @@ export default function TimetableGrid({
             ))}
           </div>
           <div className="gridBody">
-            <div className="timeLabels">
-              {TIME_SLOTS.map((t) => (
-                <div key={t} className="timeRow">
-                  {t}
-                </div>
-              ))}
-            </div>
+            {TIME_SLOTS.map((t, rowIndex) => (
+              <div
+                key={t}
+                className="timeRow"
+                style={{ gridColumn: 1, gridRow: rowIndex + 1 }}
+              >
+                {t}
+              </div>
+            ))}
             {DAYS.map((_, dayIndex) => (
-              <div key={dayIndex} className="dayCol">
+              <div
+                key={dayIndex}
+                className="dayCol"
+                style={{ gridColumn: dayIndex + 2, gridRow: `1 / ${TIME_SLOTS.length + 1}` }}
+              >
                 {TIME_SLOTS.map((t) => (
                   <div key={t} className="slot" />
                 ))}
                 {/* 현재 요일에 수업이 있는 과목만 블록으로 표시 */}
                 {coursesOnBoard
-                  .filter((c) => c.schedules.some((s) => s.day === dayIndex))
-                  .map((course) => {
-                    const sc = course.schedules.find((s) => s.day === dayIndex)
-                    if (!sc) return null
-                    // 시작/종료 시간을 CSS top/height 값으로 변환
+                  .flatMap((course) => course.schedules
+                    .filter((s) => s.day === dayIndex)
+                    .map((sc) => ({ course, sc })))
+                  .map(({ course, sc }) => {
                     const st = slotStyle(sc.startTime, sc.endTime)
                     return (
                       <div
-                        key={`${course.id}-${dayIndex}`}
+                        key={`${course.id}-${dayIndex}-${sc.startTime}-${sc.endTime}`}
                         className={`block ${view === 'note' ? 'blockClickable' : ''}`}
                         style={{
                           ...st,
                           backgroundColor: course.color,
                         }}
                         onClick={() => openNoteModal(course)}
-                        >
+                      >
                         <button
                           type="button"
                           className="blockDelete"
-                          // 현재 시간표에서 해당 수업 삭제
                           onClick={(e) => {
                             e.stopPropagation()
                             onDeleteCourse(course.id)
@@ -177,37 +181,37 @@ export default function TimetableGrid({
                           ×
                         </button>
                         <div className="blockName">{course.name}</div>
-                        {/* 선택된 탭에 따라 블록 안의 부가 정보 변경 */}
-                        { // view를 수업 정보로 변경
-                          view === 'info' && (
-                            <>
-                              <div className="blockMeta">{course.room}</div>
-                              <div className="blockMeta">
-                                {sc.startTime} - {sc.endTime}
-                              </div>
-                            </>
-                        )}
-                        { // view를 노트로 변경
-                          view === 'note' && (
-                            <div className="noteTitleList">
-                              {sortNotes(notesByCourse[course.id] ?? []).length > 0 ? (
-                                sortNotes(notesByCourse[course.id] ?? []).slice(0, 3).map((note) => (
-                                  <div key={note.note_id} className="noteTitleItem">
-                                    {note.is_pinned && <span className="pin">★</span>}
-                                    {note.title}
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="noteTitleItem empty">노트 없음</div>
-                              )}
+                        {view === 'info' && (
+                          <>
+                            <div className="blockMeta">
+                              {[course.room, course.credit != null ? `${course.credit}학점` : null]
+                                .filter(Boolean)
+                                .join(' · ')}
                             </div>
-                        )}
-                        { // view를 난이도로 변경
-                          view === 'difficulty' && (
-                            <div className="stars">
-                              {'★'.repeat(course.difficulty)}
-                              {'☆'.repeat(5 - course.difficulty)}
+                            <div className="blockMeta">
+                              {sc.startTime} - {sc.endTime}
                             </div>
+                          </>
+                        )}
+                        {view === 'note' && (
+                          <div className="noteTitleList">
+                            {sortNotes(notesByCourse[course.id] ?? []).length > 0 ? (
+                              sortNotes(notesByCourse[course.id] ?? []).slice(0, 3).map((note) => (
+                                <div key={note.note_id} className="noteTitleItem">
+                                  {note.is_pinned && <span className="pin">★</span>}
+                                  {note.title}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="noteTitleItem empty">노트 없음</div>
+                            )}
+                          </div>
+                        )}
+                        {view === 'difficulty' && (
+                          <div className="stars">
+                            {'★'.repeat(course.difficulty)}
+                            {'☆'.repeat(5 - course.difficulty)}
+                          </div>
                         )}
                       </div>
                     )

@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../../lib/firebase'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../app/providers/AuthProvider'
 import { getDeadlineLabel, getImminentAssignments } from '../../lib/assignmentNotifications'
 import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
+import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
-export default function DashboardNav({ user, onLogout }) {
+export default function DashboardNav() {
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false) // 사용자 메뉴 열림 여부
+  const location = useLocation()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [readNotificationIds, setReadNotificationIds] = useState(() => {
@@ -39,11 +41,9 @@ export default function DashboardNav({ user, onLogout }) {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('lumos_user_info')
-    signOut(auth).catch(() => {})
+  const handleLogout = async () => {
     setIsDropdownOpen(false)
-    if (onLogout) onLogout()
+    await logout()
     navigate('/')
   }
 
@@ -67,9 +67,8 @@ export default function DashboardNav({ user, onLogout }) {
   }
 
   return (
-    // Dashboard 상단 공통 내비게이션
     <header className="dashboardNav">
-      <Link to="/" className="navBrand">
+      <a href="/" className="navBrand" onClick={handleBrandClick}>
         <span className="navLogo" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24">
             <path
@@ -89,7 +88,7 @@ export default function DashboardNav({ user, onLogout }) {
           </svg>
         </span>
         <span className="navTitle">UniDash</span>
-      </Link>
+      </a>
 
       <nav className="navLinks">
         <NavLink
@@ -131,107 +130,122 @@ export default function DashboardNav({ user, onLogout }) {
       </nav>
 
       <div className="navActions">
-        <button type="button" className="navIconBtn" aria-label="검색">
-          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-            <path
-              d="m16 16 4 4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-        {user && (
-          <div className="navNotification">
+        {user ? (
+          <>
             <button
               type="button"
-              className="navIconBtn navNotificationBtn"
-              aria-label="과제 알림"
-              aria-expanded={isNotificationOpen}
-              onClick={handleNotificationClick}
+              className="navIconBtn"
+              aria-label="검색"
+              onClick={() => setIsSearchOpen(true)}
             >
-              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
-                <path
-                  d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
+              <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
                   fill="none"
                   stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
                   strokeWidth="2"
                 />
                 <path
-                  d="M10 21h4"
+                  d="m16 16 4 4"
                   fill="none"
                   stroke="currentColor"
-                  strokeLinecap="round"
                   strokeWidth="2"
+                  strokeLinecap="round"
                 />
               </svg>
-              {unreadAssignments.length > 0 && (
-                <span className="navNotificationBadge">{unreadAssignments.length}</span>
-              )}
             </button>
+            <div className="navNotification">
+              <button
+                type="button"
+                className="navIconBtn navNotificationBtn"
+                aria-label="과제 알림"
+                aria-expanded={isNotificationOpen}
+                onClick={handleNotificationClick}
+              >
+                <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+                  <path
+                    d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M10 21h4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeWidth="2"
+                  />
+                </svg>
+                {unreadAssignments.length > 0 && (
+                  <span className="navNotificationBadge">{unreadAssignments.length}</span>
+                )}
+              </button>
 
-            {isNotificationOpen && (
-              <>
-                <button
-                  type="button"
-                  className="navMenuBackdrop"
-                  onClick={() => setIsNotificationOpen(false)}
-                  aria-label="과제 알림 닫기"
-                />
-                <div className="navNotificationPanel">
-                  <div className="navNotificationHeader">
-                    <strong>과제 알림</strong>
-                    <span>{imminentAssignments.length}개</span>
-                  </div>
-                  {imminentAssignments.length > 0 ? (
-                    <div className="navNotificationList">
-                      {imminentAssignments.map((task) => (
-                        <Link
-                          key={task.notificationId}
-                          to="/assignment"
-                          className="navNotificationItem"
-                          onClick={() => setIsNotificationOpen(false)}
-                        >
-                          <div className="navNotificationMeta">
-                            <span className="navNotificationDeadline">
-                              {getDeadlineLabel(task.diffDays)}
-                            </span>
-                            <span>{task.deadline}</span>
-                          </div>
-                          <p>{task.title}</p>
-                          <small>{task.course}</small>
-                        </Link>
-                      ))}
+              {isNotificationOpen && (
+                <>
+                  <button
+                    type="button"
+                    className="navMenuBackdrop"
+                    onClick={() => setIsNotificationOpen(false)}
+                    aria-label="과제 알림 닫기"
+                  />
+                  <div className="navNotificationPanel">
+                    <div className="navNotificationHeader">
+                      <strong>과제 알림</strong>
+                      <span>{imminentAssignments.length}개</span>
                     </div>
-                  ) : (
-                    <p className="navNotificationEmpty">마감 임박 과제가 없습니다.</p>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        )}
+                    {imminentAssignments.length > 0 ? (
+                      <div className="navNotificationList">
+                        {imminentAssignments.map((task) => (
+                          <Link
+                            key={task.notificationId}
+                            to="/assignment"
+                            className="navNotificationItem"
+                            onClick={() => setIsNotificationOpen(false)}
+                          >
+                            <div className="navNotificationMeta">
+                              <span className="navNotificationDeadline">
+                                {getDeadlineLabel(task.diffDays)}
+                              </span>
+                              <span>{task.deadline}</span>
+                            </div>
+                            <p>{task.title}</p>
+                            <small>{task.course}</small>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="navNotificationEmpty">마감 임박 과제가 없습니다.</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        ) : null}
         {user ? (
           <div className="navUser">
             <button
               type="button"
               className="navAvatar"
-              // 사용자 메뉴 열기/닫기
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               aria-label="사용자 메뉴"
             >
-              {user.name?.[0] || ''}
+              {canShowProfileImage ? (
+                <img
+                  src={profileImage}
+                  alt=""
+                  className="navAvatarImage"
+                  onError={() => setFailedAvatarSrc(profileImage)}
+                />
+              ) : (
+                avatarInitial
+              )}
             </button>
 
             {isDropdownOpen && (
@@ -239,7 +253,6 @@ export default function DashboardNav({ user, onLogout }) {
                 <button
                   type="button"
                   className="navMenuBackdrop"
-                  // 메뉴 바깥 클릭 시 닫기
                   onClick={() => setIsDropdownOpen(false)}
                   aria-label="사용자 메뉴 닫기"
                 />
@@ -274,6 +287,10 @@ export default function DashboardNav({ user, onLogout }) {
           </>
         )}
       </div>
+
+      {user ? (
+        <GlobalSearchModal open={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      ) : null}
     </header>
   )
 }

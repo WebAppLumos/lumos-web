@@ -75,6 +75,27 @@
   gap: 1rem;
 }
 
+.Signin .successMessage {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #16a34a;
+  background: rgb(22 163 74 / 8%);
+  text-align: center;
+}
+
+.Signin .errorMessage {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+  background: rgb(220 38 38 / 8%);
+  text-align: center;
+}
+
 .Signin .label {
   font-size: 0.875rem;
   font-weight: 500;
@@ -93,27 +114,6 @@
 .Signin .input:focus {
   outline: none;
   border-color: #171717;
-}
-
-.Signin .passwordWrap {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.Signin .inputGrow {
-  flex: 1;
-}
-
-.Signin .togglePw {
-  flex-shrink: 0;
-  height: 2.5rem;
-  padding: 0 0.75rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 0.5rem;
-  background: #fff;
-  font-size: 0.8125rem;
-  cursor: pointer;
 }
 
 .Signin .submit {

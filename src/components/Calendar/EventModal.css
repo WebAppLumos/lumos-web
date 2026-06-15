@@ -1,0 +1,256 @@
+.event-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.event-modal-content.calendar-event-modal {
+  background: white;
+  width: 95%;
+  max-width: 32rem;
+  max-height: 90vh;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 15%);
+  border: 1px solid #e5e5e5;
+}
+
+.calendar-event-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-event-modal .modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #171717;
+}
+
+.calendar-event-modal .close-btn {
+  background: #f5f5f5;
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #737373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.calendar-event-modal .close-btn:hover {
+  background: #e5e5e5;
+  color: #171717;
+}
+
+.calendar-event-modal .event-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-event-modal .event-item {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: all 0.2s;
+}
+
+.calendar-event-modal .event-item:hover {
+  border-color: #d4d4d4;
+  background: #fafafa;
+}
+
+.calendar-event-modal .event-item.admin-event {
+  background: #fafafa;
+  border-left: 4px solid #171717;
+}
+
+.calendar-event-modal .event-info {
+  flex: 1;
+}
+
+.calendar-event-modal .event-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #171717;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-event-modal .event-content {
+  font-size: 0.875rem;
+  color: #737373;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.calendar-event-modal .priority-badge {
+  font-size: 0.625rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.calendar-event-modal .priority-badge.HIGH { background: #fee2e2; color: #ef4444; }
+.calendar-event-modal .priority-badge.MEDIUM { background: #fef3c7; color: #d97706; }
+.calendar-event-modal .priority-badge.LOW { background: #dcfce7; color: #10b981; }
+
+.calendar-event-modal .event-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.calendar-event-modal .event-actions button {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  color: #525252;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-event-modal .event-actions button:hover {
+  background: #f5f5f5;
+  color: #171717;
+  border-color: #d4d4d4;
+}
+
+.calendar-event-modal .event-form {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 1.5rem;
+}
+
+.calendar-event-modal .event-form h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #171717;
+}
+
+.calendar-event-modal .event-form input,
+.calendar-event-modal .event-form textarea,
+.calendar-event-modal .event-form select {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
+  background: #fff;
+  transition: all 0.2s;
+  color: #171717;
+}
+
+.calendar-event-modal .event-form input:focus,
+.calendar-event-modal .event-form textarea:focus,
+.calendar-event-modal .event-form select:focus {
+  outline: none;
+  border-color: #171717;
+}
+
+.calendar-event-modal .event-form textarea {
+  height: 6rem;
+  resize: none;
+  line-height: 1.5;
+}
+
+.calendar-event-modal .form-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.calendar-event-modal .form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.calendar-event-modal .submit-btn {
+  flex: 2;
+  background: #171717;
+  color: #fff;
+  border: none;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-event-modal .submit-btn:hover {
+  background: #404040;
+}
+
+.calendar-event-modal .cancel-btn {
+  flex: 1;
+  background: #fff;
+  color: #737373;
+  border: 1px solid #e5e5e5;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-event-modal .cancel-btn:hover {
+  background: #f5f5f5;
+  color: #171717;
+}
+
+.calendar-event-modal .empty-msg {
+  text-align: center;
+  color: #737373;
+  padding: 2rem 0;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Scrollbar Styling */
+.calendar-event-modal .event-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.calendar-event-modal .event-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-event-modal .event-list::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 10px;
+}
+

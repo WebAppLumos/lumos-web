@@ -1,45 +1,53 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import PasswordInput from '../../components/auth/PasswordInput'
+import { getSigninErrorMessage, syncBackendLogin } from '../../lib/auth'
+import { runWithBackendSync } from '../../lib/backendSync'
 import { auth } from '../../lib/firebase'
-import api from '../../lib/api'
+import { useAuth } from '../../app/providers/AuthProvider'
 import './Signin.css'
 
 export default function Signin() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { updateUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    setErrorMessage('')
+    setSuccessMessage('')
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      )
+      await runWithBackendSync(async () => {
+        const credential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        )
 
-      const uid = userCredential.user.uid
+        const profile = await syncBackendLogin(credential.user)
+        updateUser(profile)
+      })
 
-      const response = await api.get('/api/users/me')
+      setSuccessMessage('로그인 성공!')
 
-      localStorage.setItem('lumos_uid', uid)
+      const redirectPath = location.state?.from && location.state.from !== '/login'
+        ? location.state.from
+        : '/'
 
-      localStorage.setItem(
-        'lumos_user_info',
-        JSON.stringify(response.data)
-      )
-
-      window.alert('로그인 성공!')
-      navigate('/')
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true })
+      }, 1000)
     } catch (error) {
-      console.error(error)
-      console.error('LOGIN ERROR:', error)
-      console.error('STATUS:', error.response?.status)
-      console.error('DATA:', error.response?.data)
-      window.alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.')
+      if (auth.currentUser) {
+        await signOut(auth).catch(() => {})
+      }
+      setErrorMessage(getSigninErrorMessage(error))
     }
   }
 
@@ -61,6 +69,13 @@ export default function Signin() {
           </div>
 
           <form className="form" onSubmit={onSubmit}>
+            {successMessage ? (
+              <p className="successMessage">{successMessage}</p>
+            ) : null}
+            {errorMessage ? (
+              <p className="errorMessage">{errorMessage}</p>
+            ) : null}
+
             <label className="label">이메일</label>
             <input
               className="input"
@@ -73,24 +88,11 @@ export default function Signin() {
 
             <label className="label">비밀번호</label>
 
-            <div className="passwordWrap">
-              <input
-                className="input inputGrow"
-                placeholder="••••••••"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-
-              <button
-                type="button"
-                className="togglePw"
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? '숨김' : '보기'}
-              </button>
-            </div>
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
             <button type="submit" className="submit">
               로그인

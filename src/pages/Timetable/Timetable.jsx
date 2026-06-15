@@ -1,243 +1,598 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { DAYS, TIME_SLOTS, mockCourses, mockNotes, mockSemesters,
-  mockTimetableEntries, mockTimetables, } from '../../lib/mock-data'
+import { useAuth } from '../../app/providers/AuthProvider'
+import { DAYS, TIME_SLOTS } from '../../lib/timetable/constants'
+import {
+  apiDayToUi,
+  buildCoursesOnBoard,
+  buildSchedulesFromEntries,
+  buildTimetableSessionSnapshot,
+  createEntry,
+  createNote,
+  createTimetable,
+  deleteEntry,
+  deleteNote,
+  deleteTimetable,
+  fetchCourses,
+  fetchEntries,
+  fetchEntriesForSemester,
+  fetchNotesForCourses,
+  fetchTimetables,
+  formatTime,
+  mapCourse,
+  mergeSchedulesByDay,
+  pruneNotesByEntries,
+  reorderSemesters,
+  reorderTimetables,
+  slotStyleFromTimes,
+  uiDayToApi,
+  updateNote,
+  updateSemester,
+  updateTimetable,
+} from '../../lib/timetable/api'
+import {
+  clearTimetableSession,
+  ensureTimetableSession,
+  getTimetableSession,
+  setTimetableSession,
+} from '../../lib/timetable/session'
 
 import TimetableCourseList from '../../components/Timetable/TimetableCourseList'
 import TimetableControls from '../../components/Timetable/TimetableControls'
 import TimetableGrid from '../../components/Timetable/TimetableGrid'
 import TimetableHeader from '../../components/Timetable/TimetableHeader'
+import TimetableOnlineCourses from '../../components/Timetable/TimetableOnlineCourses'
 import TimetableTabs from '../../components/Timetable/TimetableTabs'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
 
 import '../Dashboard/Dashboard.css'
 import './Timetable.css'
 
-// Time을 숫자로 변환 (예: "09:00" -> 9, "13:30" -> 13.5)
-function timeToNumber(t) {
-  const [h, m] = t.split(':').map(Number)
-  return h + m / 60
-}
-
-// 시간표 블록 위치/높이 계산
-function slotStyle(start, end) {
-  const top = (timeToNumber(start) - 9) * 60
-  const height = (timeToNumber(end) - timeToNumber(start)) * 60
-  return { top: `${top}px`, height: `${height}px` }
-}
-
 export default function Timetable() {
-  const [user, setUser] = useState(() => {
-    // 원본 파일처럼 앱 로그인 상태는 localStorage의 사용자 정보로 판단
-    const storedUser = localStorage.getItem('lumos_user_info')
-    return storedUser ? JSON.parse(storedUser) : null
-  })
-  const [semesterId, setSemesterId] = useState( // 학기 ID 가져오기
-    mockSemesters.find((s) => s.isActive)?.id ?? mockSemesters[0].id,
-  )
-  const [timetableId, setTimetableId] = useState(mockTimetables[0].id) // 시간표 ID 가져오기
-  const [view, setView] = useState('info') // view 설정 (수업 정보, 노트, 난이도)
-  const [semesters, setSemesters] = useState(mockSemesters)
-  const [timetables, setTimetables] = useState(mockTimetables)
-  const [entries, setEntries] = useState(mockTimetableEntries) // 시간표-수업 매핑
-  const [notes, setNotes] = useState(mockNotes)
-  const [selectedCourseId, setSelectedCourseId] = useState('') // 추가할 수업 ID
+  const session = getTimetableSession()
 
-  // 현재 선택된 학기/시간표에 표시할 수업만 추려냄
-  const coursesOnBoard = useMemo(() => {
-    const ids = entries
-      .filter((e) => e.timetableId === timetableId)
-      .map((e) => e.courseId)
-    return mockCourses.filter(
-      (c) => c.semesterId === semesterId && ids.includes(c.id),
-    )
-  }, [entries, semesterId, timetableId])
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(() => !session)
+  const [error, setError] = useState('')
+  const [semesterId, setSemesterId] = useState(() => session?.semesterId ?? null)
+  const [timetableId, setTimetableId] = useState(() => session?.timetableId ?? null)
+  const [view, setView] = useState(() => session?.view ?? 'info')
+  const [semesters, setSemesters] = useState(() => session?.semesters ?? [])
+  const [timetables, setTimetables] = useState(() => session?.timetables ?? [])
+  const [courses, setCourses] = useState(() => session?.courses ?? [])
+  const [entries, setEntries] = useState(() => session?.entries ?? [])
+  const [allSemesterEntries, setAllSemesterEntries] = useState(() => session?.allSemesterEntries ?? [])
+  const [notes, setNotes] = useState(() => session?.notes ?? [])
+  const [selectedCourseId, setSelectedCourseId] = useState(() => session?.selectedCourseId ?? '')
 
-  // 현재 시간표에 아직 추가되지 않은 수업 목록
-  const availableCourses = useMemo(() => {
-    const ids = entries
-      .filter((e) => e.timetableId === timetableId)
-      .map((e) => e.courseId)
-    return mockCourses.filter(
-      (c) => c.semesterId === semesterId && !ids.includes(c.id),
-    )
-  }, [entries, semesterId, timetableId])
+  const applySession = useCallback((nextSession) => {
+    setSemesters(nextSession.semesters)
+    setSemesterId(nextSession.semesterId)
+    setTimetableId(nextSession.timetableId)
+    setView(nextSession.view ?? 'info')
+    setTimetables(nextSession.timetables)
+    setCourses(nextSession.courses)
+    setEntries(nextSession.entries)
+    setAllSemesterEntries(nextSession.allSemesterEntries)
+    setNotes(nextSession.notes)
+    setSelectedCourseId(nextSession.selectedCourseId ?? '')
+  }, [])
 
-  // 화면 표시용 선택 데이터
-  const semester = semesters.find((s) => s.id === semesterId)
-  const timetable = timetables.find((t) => t.id === timetableId)
-  const semTimetables = timetables.filter((t) => t.semesterId === semesterId)
-  const selectedAvailableCourseId = availableCourses.some((c) => c.id === selectedCourseId)
-    ? selectedCourseId
-    : availableCourses[0]?.id ?? ''
-
-  // 학기를 바꾸면 해당 학기의 첫 번째 시간표를 자동 선택
-  const onChangeSemester = (nextSemesterId) => {
-    setSemesterId(nextSemesterId)
-    const first = timetables.find((t) => t.semesterId === nextSemesterId)
-    if (first) setTimetableId(first.id)
-  }
-
-  const onRenameSemester = (targetSemesterId, name) => {
-    const nextName = name.trim()
-    if (!nextName) return
-
-    setSemesters((prev) => prev.map((s) => (
-      s.id === targetSemesterId ? { ...s, name: nextName } : s
-    )))
-  }
-
-  const onRenameTimetable = (targetTimetableId, name) => {
-    const nextName = name.trim()
-    if (!nextName) return
-
-    setTimetables((prev) => prev.map((t) => (
-      t.id === targetTimetableId ? { ...t, name: nextName } : t
-    )))
-  }
-
-  const onAddTimetable = (name) => {
-    const nextName = name.trim()
-    if (!nextName) return
-
-    const hasSemesterTimetables = timetables.some((t) => t.semesterId === semesterId)
-    const nextTimetable = {
-      id: `tt-${Date.now()}`,
-      semesterId,
-      name: nextName,
-      isDefault: !hasSemesterTimetables,
-    }
-
-    setTimetables((prev) => [...prev, nextTimetable])
-    setTimetableId(nextTimetable.id)
-  }
-
-  const onDeleteTimetables = (targetTimetableIds) => {
-    if (targetTimetableIds.length === 0) return
+  const loadSemesterData = useCallback(async (nextSemesterId, preferredTimetableId) => {
+    const [nextTimetables, nextCourses] = await Promise.all([
+      fetchTimetables(nextSemesterId),
+      fetchCourses(nextSemesterId),
+    ])
 
     setTimetables((prev) => {
-      const next = prev.filter((t) => !targetTimetableIds.includes(t.id))
-      const currentDeleted = targetTimetableIds.includes(timetableId)
-
-      if (currentDeleted) {
-        const nextSelected = next.find((t) => t.semesterId === semesterId)
-        setTimetableId(nextSelected?.id ?? '')
-      }
-
-      return next
+      const others = prev.filter((t) => t.semesterId !== nextSemesterId)
+      return [...others, ...nextTimetables]
     })
-    setEntries((prev) => prev.filter((e) => !targetTimetableIds.includes(e.timetableId)))
+    setCourses((prev) => {
+      const others = prev.filter((c) => c.semesterId !== nextSemesterId)
+      return [...others, ...nextCourses]
+    })
+
+    const nextTimetableId = preferredTimetableId
+      && nextTimetables.some((t) => t.id === preferredTimetableId)
+      ? preferredTimetableId
+      : nextTimetables[0]?.id ?? null
+
+    setTimetableId(nextTimetableId)
+
+    if (nextTimetables.length === 0) {
+      setEntries([])
+      setAllSemesterEntries([])
+      setNotes([])
+      return
+    }
+
+    const semesterEntries = await fetchEntriesForSemester(nextSemesterId, nextTimetables)
+    setAllSemesterEntries((prev) => {
+      const others = prev.filter((entry) => !nextTimetables.some((t) => t.id === entry.timetableId))
+      return [...others, ...semesterEntries]
+    })
+
+    if (nextTimetableId) {
+      const timetableEntries = semesterEntries.filter((entry) => entry.timetableId === nextTimetableId)
+      setEntries((prev) => {
+        const others = prev.filter((entry) => entry.timetableId !== nextTimetableId)
+        return [...others, ...timetableEntries]
+      })
+
+      const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
+      const nextNotes = await fetchNotesForCourses(courseIds)
+      setNotes((prev) => {
+        const mergedEntries = semesterEntries
+        const pruned = pruneNotesByEntries(prev, mergedEntries)
+        const kept = pruned.filter((note) => !courseIds.includes(note.course_id))
+        return [...kept, ...nextNotes]
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!user) {
+      clearTimetableSession()
+      setLoading(false)
+      return
+    }
+
+    const cached = getTimetableSession()
+    if (cached) {
+      applySession(cached)
+      setLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setLoading(true)
+    setError('')
+
+    ensureTimetableSession()
+      .then((nextSession) => {
+        if (cancelled) return
+        applySession(nextSession)
+      })
+      .catch((err) => {
+        console.error(err)
+        if (!cancelled) {
+          setError('시간표 데이터를 불러오지 못했습니다.')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [user, applySession])
+
+  useEffect(() => {
+    if (!user || loading) return
+
+    setTimetableSession(buildTimetableSessionSnapshot({
+      semesterId,
+      timetableId,
+      view,
+      semesters,
+      timetables,
+      courses,
+      entries,
+      allSemesterEntries,
+      notes,
+      selectedCourseId,
+    }))
+  }, [
+    user,
+    loading,
+    semesterId,
+    timetableId,
+    view,
+    semesters,
+    timetables,
+    courses,
+    entries,
+    allSemesterEntries,
+    notes,
+    selectedCourseId,
+  ])
+
+  const reloadTimetableEntries = useCallback(async (targetTimetableId) => {
+    const timetableEntries = await fetchEntries(targetTimetableId)
+    const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
+    const fetchedNotes = courseIds.length > 0 ? await fetchNotesForCourses(courseIds) : []
+
+    setEntries((prev) => {
+      const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
+      return [...others, ...timetableEntries]
+    })
+
+    setAllSemesterEntries((prev) => {
+      const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
+      const merged = [...others, ...timetableEntries]
+
+      setNotes((prevNotes) => {
+        const pruned = pruneNotesByEntries(prevNotes, merged)
+        const kept = pruned.filter((note) => !courseIds.includes(note.course_id))
+        return [...kept, ...fetchedNotes]
+      })
+
+      return merged
+    })
+  }, [])
+
+  const semesterCourses = useMemo(
+    () => courses.filter((course) => course.semesterId === semesterId),
+    [courses, semesterId],
+  )
+
+  const coursesOnBoard = useMemo(
+    () => buildCoursesOnBoard(semesterCourses, entries, timetableId),
+    [semesterCourses, entries, timetableId],
+  )
+
+  const onlineCourses = useMemo(
+    () => coursesOnBoard.filter((course) => course.isOnline),
+    [coursesOnBoard],
+  )
+
+  const inPersonCourses = useMemo(
+    () => coursesOnBoard.filter((course) => !course.isOnline),
+    [coursesOnBoard],
+  )
+
+  const availableCourses = useMemo(() => {
+    const onBoardIds = new Set(
+      entries
+        .filter((entry) => entry.timetableId === timetableId)
+        .map((entry) => entry.courseId),
+    )
+
+    return semesterCourses
+      .filter((course) => !onBoardIds.has(course.id))
+      .map((course) => {
+        const mapped = mapCourse(course)
+        const schedules = buildSchedulesFromEntries(allSemesterEntries, course.id)
+        return { ...mapped, schedules }
+      })
+  }, [semesterCourses, entries, timetableId, allSemesterEntries])
+
+  const sortedSemesters = useMemo(
+    () => [...semesters].sort((a, b) => a.sortOrder - b.sortOrder),
+    [semesters],
+  )
+
+  const semester = sortedSemesters.find((s) => s.id === semesterId)
+  const timetable = timetables.find((t) => t.id === timetableId)
+  const semTimetables = timetables
+    .filter((t) => t.semesterId === semesterId)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+  const selectedAvailableCourseId = availableCourses.some(
+    (course) => Number(course.id) === Number(selectedCourseId),
+  )
+    ? Number(selectedCourseId)
+    : availableCourses[0]?.id ?? ''
+
+  const onChangeSemester = async (nextSemesterId) => {
+    setSemesterId(nextSemesterId)
+    try {
+      await loadSemesterData(nextSemesterId)
+    } catch (err) {
+      console.error(err)
+      window.alert('학기 데이터를 불러오지 못했습니다.')
+    }
   }
 
-  // 사용자가 선택한 수업을 현재 시간표에 추가
-  const onAddCourse = () => {
+  const onChangeTimetable = async (nextTimetableId) => {
+    setTimetableId(nextTimetableId)
+    try {
+      await reloadTimetableEntries(nextTimetableId)
+    } catch (err) {
+      console.error(err)
+      window.alert('시간표 데이터를 불러오지 못했습니다.')
+    }
+  }
+
+  const onReorderSemesters = async (orderedIds) => {
+    if (orderedIds.length === 0) return
+
+    const previous = [...semesters]
+    const optimistic = orderedIds
+      .map((id, index) => {
+        const semesterItem = previous.find((s) => s.id === id)
+        return semesterItem ? { ...semesterItem, sortOrder: index } : null
+      })
+      .filter(Boolean)
+
+    setSemesters(optimistic)
+
+    try {
+      const reordered = await reorderSemesters(orderedIds)
+      setSemesters(reordered)
+    } catch (err) {
+      console.error(err)
+      setSemesters(previous)
+      window.alert('학기 순서를 변경하지 못했습니다.')
+    }
+  }
+
+  const onRenameSemester = async (targetSemesterId, name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    try {
+      const updated = await updateSemester(targetSemesterId, nextName)
+      setSemesters((prev) => prev.map((s) => (s.id === targetSemesterId ? updated : s)))
+    } catch (err) {
+      console.error(err)
+      window.alert('학기 이름을 변경하지 못했습니다.')
+    }
+  }
+
+  const onRenameTimetable = async (targetTimetableId, name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    try {
+      const updated = await updateTimetable(targetTimetableId, nextName)
+      setTimetables((prev) => prev.map((t) => (t.id === targetTimetableId ? updated : t)))
+    } catch (err) {
+      console.error(err)
+      window.alert('시간표 이름을 변경하지 못했습니다.')
+    }
+  }
+
+  const onAddTimetable = async (name) => {
+    const nextName = name.trim()
+    if (!nextName) return
+
+    try {
+      const created = await createTimetable(semesterId, nextName)
+      setTimetables((prev) => [...prev, created])
+      setTimetableId(created.id)
+      setEntries((prev) => prev.filter((entry) => entry.timetableId !== created.id))
+      setNotes([])
+    } catch (err) {
+      console.error(err)
+      window.alert('시간표를 추가하지 못했습니다.')
+    }
+  }
+
+  const onReorderTimetables = async (orderedIds) => {
+    if (orderedIds.length === 0) return
+
+    const previous = timetables.filter((t) => t.semesterId === semesterId)
+    const optimistic = orderedIds
+      .map((id, index) => {
+        const timetable = previous.find((t) => t.id === id)
+        return timetable ? { ...timetable, sortOrder: index, isDefault: index === 0 } : null
+      })
+      .filter(Boolean)
+
+    setTimetables((prev) => {
+      const others = prev.filter((t) => t.semesterId !== semesterId)
+      return [...others, ...optimistic]
+    })
+
+    try {
+      const reordered = await reorderTimetables(semesterId, orderedIds)
+      setTimetables((prev) => {
+        const others = prev.filter((t) => t.semesterId !== semesterId)
+        return [...others, ...reordered]
+      })
+    } catch (err) {
+      console.error(err)
+      setTimetables((prev) => {
+        const others = prev.filter((t) => t.semesterId !== semesterId)
+        return [...others, ...previous]
+      })
+      window.alert('시간표 순서를 변경하지 못했습니다.')
+    }
+  }
+
+  const onDeleteTimetables = async (targetTimetableIds) => {
+    if (targetTimetableIds.length === 0) return
+
+    try {
+      await Promise.all(targetTimetableIds.map((id) => deleteTimetable(id)))
+
+      const remaining = timetables.filter((t) => !targetTimetableIds.includes(t.id))
+      const nextAllSemesterEntries = allSemesterEntries.filter(
+        (entry) => !targetTimetableIds.includes(entry.timetableId),
+      )
+
+      setTimetables(remaining)
+      setEntries((prev) => prev.filter((entry) => !targetTimetableIds.includes(entry.timetableId)))
+      setAllSemesterEntries(nextAllSemesterEntries)
+      setNotes((prev) => pruneNotesByEntries(prev, nextAllSemesterEntries))
+
+      if (targetTimetableIds.includes(timetableId)) {
+        const nextSelected = remaining.find((t) => t.semesterId === semesterId)
+        setTimetableId(nextSelected?.id ?? null)
+        if (nextSelected?.id) {
+          await reloadTimetableEntries(nextSelected.id)
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      window.alert('시간표를 삭제하지 못했습니다.')
+    }
+  }
+
+  const onAddCourse = async () => {
     const course = availableCourses.find((c) => c.id === selectedAvailableCourseId)
     if (!course) {
       window.alert('추가할 수업이 없습니다.')
       return
     }
 
-    setEntries([
-      ...entries,
-      {
-        timetableId,
-        courseId: course.id,
-      },
-    ])
+    const templates = allSemesterEntries
+      .filter((entry) => Number(entry.courseId) === Number(course.id))
+      .filter((entry) => Number(entry.dayOfWeek) >= 1 && Number(entry.dayOfWeek) <= 5)
+
+    const slots = templates.length > 0
+      ? mergeSchedulesByDay(templates.map((entry) => ({
+          day: apiDayToUi(entry.dayOfWeek),
+          startTime: formatTime(entry.startTime),
+          endTime: formatTime(entry.endTime),
+        }))).map((schedule) => ({
+          dayOfWeek: uiDayToApi(schedule.day),
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+        }))
+      : [{ dayOfWeek: uiDayToApi(0), startTime: '09:00', endTime: '10:30' }]
+
+    try {
+      const created = await Promise.all(
+        slots.map((slot) => createEntry(timetableId, {
+          courseId: course.id,
+          dayOfWeek: slot.dayOfWeek,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        })),
+      )
+      setEntries((prev) => [...prev, ...created])
+      setAllSemesterEntries((prev) => [...prev, ...created])
+
+      const existingNotes = notes.filter((note) => note.course_id === course.id)
+      if (existingNotes.length === 0) {
+        const courseNotes = await fetchNotesForCourses([course.id])
+        setNotes((prev) => [...prev, ...courseNotes])
+      }
+    } catch (err) {
+      console.error(err)
+      window.alert('수업을 시간표에 추가하지 못했습니다.')
+    }
   }
 
-  // 선택한 수업을 현재 시간표에서 제거
-  const onDeleteCourse = (courseId) => {
-    setEntries(entries.filter(
-      (e) => !(e.timetableId === timetableId && e.courseId === courseId),
-    ))
+  const onDeleteCourse = async (courseId) => {
+    const targetEntries = entries.filter(
+      (entry) => entry.timetableId === timetableId && entry.courseId === courseId,
+    )
+    if (targetEntries.length === 0) return
+
+    try {
+      await Promise.all(targetEntries.map((entry) => deleteEntry(entry.id)))
+      const targetIds = new Set(targetEntries.map((entry) => entry.id))
+      const nextEntries = entries.filter((entry) => !targetIds.has(entry.id))
+      const nextAllSemesterEntries = allSemesterEntries.filter((entry) => !targetIds.has(entry.id))
+
+      setEntries(nextEntries)
+      setAllSemesterEntries(nextAllSemesterEntries)
+      setNotes((prev) => pruneNotesByEntries(prev, nextAllSemesterEntries))
+    } catch (err) {
+      console.error(err)
+      window.alert('수업을 시간표에서 제거하지 못했습니다.')
+    }
   }
 
-  const onAddNote = (courseId, note) => {
-    const now = new Date().toISOString()
-
-    setNotes((prev) => [
-      ...prev,
-      {
-        note_id: `note-${Date.now()}`,
-        course_id: courseId,
-        title: note.title,
-        content: note.content,
-        is_pinned: note.is_pinned,
-        created_at: now,
-        updated_at: now,
-      },
-    ])
+  const onAddNote = async (courseId, note) => {
+    try {
+      const created = await createNote(courseId, note)
+      setNotes((prev) => [...prev, created])
+    } catch (err) {
+      console.error(err)
+      window.alert('노트를 추가하지 못했습니다.')
+    }
   }
 
-  const onDeleteNotes = (noteIds) => {
-    setNotes((prev) => prev.filter((note) => !noteIds.includes(note.note_id)))
+  const onDeleteNotes = async (noteIds) => {
+    try {
+      await Promise.all(noteIds.map((noteId) => deleteNote(noteId)))
+      setNotes((prev) => prev.filter((note) => !noteIds.includes(note.note_id)))
+    } catch (err) {
+      console.error(err)
+      window.alert('노트를 삭제하지 못했습니다.')
+    }
   }
 
-  const onUpdateNote = (noteId, updates) => {
-    const now = new Date().toISOString()
+  const onUpdateNote = async (noteId, updates) => {
+    const previous = notes.find((note) => note.note_id === noteId)
+    if (!previous) return
 
-    setNotes((prev) => prev.map((note) => (
-      note.note_id === noteId
-        ? { ...note, ...updates, updated_at: now }
-        : note
-    )))
+    try {
+      const updated = await updateNote(noteId, updates, previous.is_pinned)
+      setNotes((prev) => prev.map((note) => (note.note_id === noteId ? updated : note)))
+    } catch (err) {
+      console.error(err)
+      window.alert('노트를 수정하지 못했습니다.')
+    }
   }
 
   return (
     <div className="dashboardPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="dashboardMain">
         <div className="Timetable">
           <TimetableHeader />
 
-          {/* 학기, 시간표 선택 및 수업 추가버튼 */}
-          <TimetableControls
-        DAYS={DAYS}
-        semesterId={semesterId}
-        timetableId={timetableId}
-        mockSemesters={semesters}
-        semTimetables={semTimetables}
-        availableCourses={availableCourses}
-        selectedCourseId={selectedAvailableCourseId}
-        onChangeSemester={onChangeSemester}
-        onChangeTimetable={setTimetableId}
-        onChangeCourse={(e) => setSelectedCourseId(e.target.value)}
-        onAddCourse={onAddCourse}
-        onRenameSemester={onRenameSemester}
-        onRenameTimetable={onRenameTimetable}
-        onAddTimetable={onAddTimetable}
-        onDeleteTimetables={onDeleteTimetables}
-          />
+          {loading && (
+            <div className="timetableStatus timetableStatus--loading" aria-live="polite" aria-busy="true">
+              <span className="timetableStatusSpinner" aria-hidden="true" />
+              <span>시간표를 불러오는 중...</span>
+            </div>
+          )}
+          {!loading && error && <p className="timetableStatus timetableStatus--error">{error}</p>}
+          {!loading && !error && semesters.length === 0 && (
+            <p className="timetableStatus timetableStatus--empty">등록된 학기가 없습니다. EDWARD 동기화 후 다시 확인해주세요.</p>
+          )}
 
-          {/* 시간표 View 설정(수업 정보, 노트, 난이도) */}
-          <TimetableTabs view={view} setView={setView} />
+          {!loading && !error && semesters.length > 0 && (
+            <>
+              <TimetableControls
+                DAYS={DAYS}
+                semesterId={semesterId}
+                timetableId={timetableId}
+                semesters={sortedSemesters}
+                semTimetables={semTimetables}
+                availableCourses={availableCourses}
+                selectedCourseId={selectedAvailableCourseId}
+                onChangeSemester={onChangeSemester}
+                onChangeTimetable={onChangeTimetable}
+                onChangeCourse={(e) => setSelectedCourseId(Number(e.target.value))}
+                onAddCourse={onAddCourse}
+                onRenameSemester={onRenameSemester}
+                onRenameTimetable={onRenameTimetable}
+                onAddTimetable={onAddTimetable}
+                onDeleteTimetables={onDeleteTimetables}
+                onReorderSemesters={onReorderSemesters}
+                onReorderTimetables={onReorderTimetables}
+              />
 
-          {/* 시간표 출력 */}
-          <TimetableGrid
-        DAYS={DAYS}
-        TIME_SLOTS={TIME_SLOTS}
-        semester={semester}
-        timetable={timetable}
-        semTimetables={semTimetables}
-        coursesOnBoard={coursesOnBoard}
-        notes={notes}
-        view={view}
-        slotStyle={slotStyle}
-        onDeleteCourse={onDeleteCourse}
-        onAddNote={onAddNote}
-        onDeleteNotes={onDeleteNotes}
-        onUpdateNote={onUpdateNote}
-          />
+              <TimetableTabs view={view} setView={setView} />
 
-          {/* 시간표 정보를 카드 형태로 출력 */}
-          <TimetableCourseList
-        DAYS={DAYS}
-        coursesOnBoard={coursesOnBoard}
-        notes={notes}
-        view={view}
-        onDeleteCourse={onDeleteCourse}
-          />
+              <TimetableGrid
+                DAYS={DAYS}
+                TIME_SLOTS={TIME_SLOTS}
+                semester={semester}
+                timetable={timetable}
+                semTimetables={semTimetables}
+                coursesOnBoard={inPersonCourses}
+                notes={notes}
+                view={view}
+                slotStyle={slotStyleFromTimes}
+                onDeleteCourse={onDeleteCourse}
+                onAddNote={onAddNote}
+                onDeleteNotes={onDeleteNotes}
+                onUpdateNote={onUpdateNote}
+              />
+
+              <TimetableOnlineCourses
+                onlineCourses={onlineCourses}
+                onDeleteCourse={onDeleteCourse}
+              />
+
+              <TimetableCourseList
+                DAYS={DAYS}
+                coursesOnBoard={coursesOnBoard}
+                notes={notes}
+                view={view}
+                onDeleteCourse={onDeleteCourse}
+              />
+            </>
+          )}
         </div>
       </main>
     </div>

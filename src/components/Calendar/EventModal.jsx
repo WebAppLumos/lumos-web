@@ -10,7 +10,7 @@ function EventModal({
   closeModal,
   date,
   scheduleItems = [],
-  fetchData
+  onEventsChange,
 }) {
 
   const [title, setTitle] = useState('');
@@ -42,7 +42,7 @@ function EventModal({
       });
       setTitle('');
       setContent('');
-      await fetchData();
+      await onEventsChange?.();
     } catch (err) {
       alert(err.response?.data?.message || '일정 추가에 실패했습니다.');
     }
@@ -64,7 +64,7 @@ function EventModal({
       setEditId(null);
       setTitle('');
       setContent('');
-      await fetchData();
+      await onEventsChange?.();
     } catch (err) {
       alert(err.response?.data?.message || '일정 수정에 실패했습니다.');
     }
@@ -79,7 +79,7 @@ function EventModal({
         setTitle('');
         setContent('');
       }
-      await fetchData();
+      await onEventsChange?.();
     } catch (err) {
       alert(err.response?.data?.message || '일정 삭제에 실패했습니다.');
     }
@@ -105,7 +105,7 @@ function EventModal({
     <ReactModal
       isOpen={modalOpen}
       onRequestClose={closeModal}
-      className="event-modal-content"
+      className="event-modal-content calendar-event-modal"
       overlayClassName="event-modal-overlay"
     >
       <div className="modal-header">

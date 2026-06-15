@@ -1,171 +1,216 @@
-import { useState, useMemo } from 'react'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
 import ScholarshipHero from '../../components/Scholarship/ScholarshipHero'
 import ScholarshipForm from '../../components/Scholarship/ScholarshipForm'
 import ScholarshipResult from '../../components/Scholarship/ScholarshipResult'
-import certificationsData from '../../lib/certifications.json'
+import certificationsData from '../../data/certifications.json'
+import { scholarshipApi } from '../../lib/scholarshipApi'
+import { useAuth } from '../../app/providers/AuthProvider'
+import { useScholarship } from '../../app/providers/ScholarshipProvider'
+import '../Dashboard/Dashboard.css'
 import './Scholarship.css'
 
 export default function Scholarship() {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('lumos_user_info')
-    return storedUser ? JSON.parse(storedUser) : null
-  })
+  const location = useLocation()
+  const { user, refreshUser } = useAuth()
+  const {
+    session,
+    isLoading,
+    refreshSession,
+    updateUserProfile,
+    setCurationCompleted,
+  } = useScholarship()
+  const [viewOverride, setViewOverride] = useState(null)
 
-  const [showProfile, setShowProfile] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  
-  // 자격증 추가를 위한 상태
   const [selectedCertId, setSelectedCertId] = useState('')
   const [certAcquisitionDate, setCertAcquisitionDate] = useState('')
 
-  const [userProfile, setUserProfile] = useState({
-    major: '컴퓨터공학',
-    grade: '3학년',
-    gpa: '3.8',
-    credits: '15',
-    incomeBracket: '5구간',
-    certificates: [
-      { name: '정보처리기사', date: '2023-11-20', score: 100 }
-    ],
-    toeic: '850',
-    prevToeic: '650'
-  })
+  const userProfile = session?.userProfile
+  const eligibleScholarships = session?.eligibleScholarships ?? []
+  const defaultView = user?.scholarshipCurationCompleted ? 'results' : 'hero'
+  const view = viewOverride ?? (isLoading && !session ? 'loading' : defaultView)
 
-  const allScholarships = [
-    {
-      id: 1,
-      name: '국가장학금 Ⅰ유형',
-      provider: '한국장학재단',
-      amount: '학기별 최대 260만원',
-      tag: '소득연계',
-      checkEligibility: (profile) => {
-        const credits = parseInt(profile.credits) || 0
-        const gpa = parseFloat(profile.gpa) || 0
-        return credits >= 12 && gpa >= 2.51
-      }
-    },
-    {
-      id: 2,
-      name: '성적우수 장학금',
-      provider: '본교',
-      amount: '등록금 전액',
-      tag: '성적',
-      checkEligibility: (profile) => {
-        const credits = parseInt(profile.credits) || 0
-        const gpa = parseFloat(profile.gpa) || 0
-        return credits >= 15 && gpa >= 4.0
-      }
-    },
-    {
-      id: 3,
-      name: '공인토익성적향상격려장학',
-      provider: '본교',
-      amount: '50만원',
-      tag: '자기계발',
-      checkEligibility: (profile) => {
-        const currentToeic = parseInt(profile.toeic) || 0
-        const prevToeic = parseInt(profile.prevToeic) || 0
-        const isPrevInBracket = prevToeic >= 600 && prevToeic <= 699
-        const isCurrentImproved = currentToeic >= 700 && currentToeic <= 990
-        return isPrevInBracket && isCurrentImproved
-      }
-    },
-    {
-      id: 4,
-      name: '자격증 취득 장학금 (A등급)',
-      provider: '본교',
-      amount: '50만원',
-      tag: '자기계발',
-      checkEligibility: (profile) => {
-        return profile.certificates.some(cert => cert.score >= 90)
-      }
-    },
-    {
-      id: 5,
-      name: '자격증 취득 장학금 (B등급)',
-      provider: '본교',
-      amount: '30만원',
-      tag: '자기계발',
-      checkEligibility: (profile) => {
-        return profile.certificates.some(cert => cert.score >= 70 && cert.score < 90)
-      }
-    },
-    {
-      id: 6,
-      name: '자격증 취득 장학금 (C등급)',
-      provider: '본교',
-      amount: '20만원',
-      tag: '자기계발',
-      checkEligibility: (profile) => {
-        return profile.certificates.some(cert => cert.score >= 60 && cert.score < 70)
-      }
+  useEffect(() => {
+    if (!user?.scholarshipCurationCompleted) {
+      setViewOverride(null)
     }
-  ]
+  }, [location.pathname, user?.scholarshipCurationCompleted])
 
-  const eligibleScholarships = useMemo(() => {
-    return allScholarships.filter(s => s.checkEligibility(userProfile))
-  }, [userProfile])
-
-  const handleStartCuration = () => {
-    if (!user) {
-      alert('로그인이 필요한 서비스입니다.')
-      return
-    }
-    setShowProfile(true)
-    setShowResults(false)
-  }
+  useEffect(() => {
+    if (!user) return
+    refreshSession()
+  }, [location.pathname, user, refreshSession])
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
-    setUserProfile(prev => ({ ...prev, [name]: value }))
+    const readOnlyFields = ['major', 'grade', 'gpa', 'credits']
+    if (readOnlyFields.includes(name)) {
+      return
+    }
+    updateUserProfile((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleAddCertificate = () => {
+  const handleAddCertificate = async () => {
     if (!selectedCertId || !certAcquisitionDate) {
       alert('자격증과 취득일을 모두 선택해주세요.')
       return
     }
 
-    const certInfo = certificationsData.find(c => c.id === parseInt(selectedCertId))
-    if (certInfo) {
-      const newCert = {
-        name: certInfo.name,
-        date: certAcquisitionDate,
-        score: certInfo.score
-      }
-      
-      setUserProfile(prev => ({
+    const certInfo = certificationsData.find((c) => c.id === parseInt(selectedCertId, 10))
+    if (!certInfo) return
+
+    try {
+      const uid = localStorage.getItem('lumos_uid')
+      const res = await scholarshipApi.addCertification(uid, {
+        certName: certInfo.name,
+        issueDate: certAcquisitionDate,
+      })
+
+      updateUserProfile((prev) => ({
         ...prev,
-        certificates: [...prev.certificates, newCert]
+        certificates: [
+          ...prev.certificates,
+          {
+            certId: res.data.certId,
+            name: res.data.certName,
+            date: res.data.issueDate,
+            score: certInfo.score,
+          },
+        ],
       }))
-      
-      // 초기화
+
       setSelectedCertId('')
       setCertAcquisitionDate('')
+    } catch (error) {
+      console.error('Failed to add certification:', error)
+      alert('자격증 추가 중 오류가 발생했습니다.')
     }
   }
 
-  const handleRemoveCertificate = (index) => {
-    setUserProfile(prev => ({
+  const handleRemoveCertificate = async (index) => {
+    const certToRemove = userProfile.certificates[index]
+
+    if (certToRemove.certId) {
+      try {
+        await scholarshipApi.deleteCertification(certToRemove.certId)
+      } catch (error) {
+        console.error('Failed to delete certification:', error)
+        alert('자격증 삭제 중 오류가 발생했습니다.')
+        return
+      }
+    }
+
+    updateUserProfile((prev) => ({
       ...prev,
-      certificates: prev.certificates.filter((_, i) => i !== index)
+      certificates: prev.certificates.filter((_, i) => i !== index),
     }))
   }
 
-  const handleSave = () => {
-    setShowResults(true)
-    setShowProfile(false)
+  const handleSave = async () => {
+    if (!userProfile) return
+
+    try {
+      const uid = localStorage.getItem('lumos_uid')
+      const now = new Date()
+      const today = now.toISOString().split('T')[0]
+      const currentYear = now.getFullYear()
+      const currentSemester = (now.getMonth() + 1 >= 3 && now.getMonth() + 1 <= 8) ? '1학기' : '2학기'
+
+      const newIds = {
+        currentExamId: userProfile.currentExamId,
+        prevExamId: userProfile.prevExamId,
+      }
+
+      if (userProfile.toeic) {
+        const currentExamData = {
+          examCategory: 'TOEIC',
+          score: userProfile.toeic,
+          examDate: today,
+          year: currentYear,
+          semester: currentSemester,
+          expiryDate: new Date(new Date().setFullYear(currentYear + 2)).toISOString().split('T')[0],
+        }
+        if (userProfile.currentExamId) {
+          await scholarshipApi.updateLanguageExam(userProfile.currentExamId, currentExamData)
+        } else {
+          const res = await scholarshipApi.addLanguageExam(uid, currentExamData)
+          newIds.currentExamId = res.data.examId
+        }
+      }
+
+      if (userProfile.prevToeic) {
+        const prevYear = currentSemester === '1학기' ? currentYear - 1 : currentYear
+        const prevSemester = currentSemester === '1학기' ? '2학기' : '1학기'
+        const prevExamData = {
+          examCategory: 'TOEIC',
+          score: userProfile.prevToeic,
+          examDate: today,
+          year: prevYear,
+          semester: prevSemester,
+          expiryDate: new Date(new Date().setFullYear(currentYear + 2)).toISOString().split('T')[0],
+        }
+        if (userProfile.prevExamId) {
+          await scholarshipApi.updateLanguageExam(userProfile.prevExamId, prevExamData)
+        } else {
+          const res = await scholarshipApi.addLanguageExam(uid, prevExamData)
+          newIds.prevExamId = res.data.examId
+        }
+      }
+
+      const profilePayload = { scholarshipCurationCompleted: true }
+      if (userProfile.incomeBracket) {
+        profilePayload.incomeBracket = parseInt(userProfile.incomeBracket.replace('구간', ''), 10)
+      }
+      await scholarshipApi.updateUserProfile(profilePayload)
+
+      updateUserProfile((prev) => ({
+        ...prev,
+        currentExamId: newIds.currentExamId,
+        prevExamId: newIds.prevExamId,
+      }))
+
+      await refreshUser()
+      setCurationCompleted(true)
+      await refreshSession()
+      setViewOverride('results')
+    } catch (error) {
+      console.error('Failed to save scholarship profile:', error)
+      alert('정보 저장 중 오류가 발생했습니다.')
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="dashboardPage">
+        <main className="dashboardMain">
+          <div className="Dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <h1 className="dashboardTitle">장학금</h1>
+                <p className="dashboardSubtitle">내 조건에 맞는 장학금 추천을 확인하세요</p>
+              </div>
+            </div>
+            <DashboardLoginCard description="장학금 추천과 맞춤 정보를 확인하려면 로그인해주세요." />
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
     <div className="scholarshipPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="scholarshipMain">
-        {!showProfile && !showResults ? (
-          <ScholarshipHero onStartCuration={handleStartCuration} />
-        ) : showProfile ? (
-          <ScholarshipForm 
+        {view === 'loading' && (
+          <p className="scholarshipLoadingText">장학금 정보를 불러오는 중...</p>
+        )}
+
+        {view === 'hero' && (
+          <ScholarshipHero onStartCuration={() => setViewOverride('form')} />
+        )}
+
+        {view === 'form' && userProfile && (
+          <ScholarshipForm
             userProfile={userProfile}
             handleProfileChange={handleProfileChange}
             handleRemoveCertificate={handleRemoveCertificate}
@@ -175,15 +220,17 @@ export default function Scholarship() {
             setCertAcquisitionDate={setCertAcquisitionDate}
             handleAddCertificate={handleAddCertificate}
             handleSave={handleSave}
-            onBack={() => setShowProfile(false)}
+            showBackButton={Boolean(user.scholarshipCurationCompleted)}
+            onBack={() => setViewOverride('results')}
           />
-        ) : (
-          <ScholarshipResult 
+        )}
+
+        {view === 'results' && userProfile && (
+          <ScholarshipResult
             user={user}
             userProfile={userProfile}
             eligibleScholarships={eligibleScholarships}
-            onEditProfile={() => { setShowProfile(true); setShowResults(false); }}
-            onBackToHome={() => setShowResults(false)}
+            onEditProfile={() => setViewOverride('form')}
           />
         )}
       </main>

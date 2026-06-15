@@ -1,65 +1,52 @@
-import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
-import DashboardNav from '../../components/Dashboard/DashboardNav.jsx';
-import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
-import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
-import AssignmentList from '../../components/Assignment/AssignmentList.jsx';
-import { getImminentAssignments } from '../../lib/assignmentNotifications';
-import { createAssignment, deleteAssignment, updateAssignment } from '../../lib/assignmentApi';
-import { useAssignmentTasks } from '../../lib/useAssignmentTasks';
-import '../Dashboard/Dashboard.css';
-import './Assignment.css';
+import { useState } from 'react'
+import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx'
+import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx'
+import AssignmentList from '../../components/Assignment/AssignmentList.jsx'
+import { getImminentAssignments } from '../../lib/assignmentNotifications'
+import { createAssignment, deleteAssignment, updateAssignment } from '../../lib/assignmentApi'
+import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
+import './Assignment.css'
 
 export default function Assignment() {
-  const [user, setUser] = useState(null);
-  const [tasks, setTasks, { isLoading, error }] = useAssignmentTasks({ enabled: true });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [tasks, setTasks] = useAssignmentTasks({ enabled: true })
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const imminentTask = getImminentAssignments(tasks)[0];
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
+  const imminentTask = getImminentAssignments(tasks)[0]
 
   const handleAddTask = async (newTask) => {
-    setIsSaving(true);
+    setIsSaving(true)
     try {
-      const createdTask = await createAssignment({ ...newTask, isCompleted: false });
-      setTasks((currentTasks) => [...currentTasks, createdTask]);
-      setIsModalOpen(false);
+      const createdTask = await createAssignment({ ...newTask, isCompleted: false })
+      setTasks((currentTasks) => [...currentTasks, createdTask])
+      setIsModalOpen(false)
     } catch (addError) {
-      alert(addError.response?.data?.error ?? '과제를 추가하지 못했습니다.');
+      alert(addError.response?.data?.error ?? '과제를 추가하지 못했습니다.')
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   const handleDeleteTask = async (id) => {
     try {
-      await deleteAssignment(id);
-      setTasks((currentTasks) => currentTasks.filter(task => task.id !== id));
+      await deleteAssignment(id)
+      setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id))
     } catch (deleteError) {
-      alert(deleteError.response?.data?.error ?? '과제를 삭제하지 못했습니다.');
+      alert(deleteError.response?.data?.error ?? '과제를 삭제하지 못했습니다.')
     }
-  };
+  }
 
   const handleUpdateTask = async (id, updatedData) => {
     try {
-      const updatedTask = await updateAssignment(id, updatedData);
-      setTasks((currentTasks) => currentTasks.map(task => task.id === id ? updatedTask : task));
+      const updatedTask = await updateAssignment(id, updatedData)
+      setTasks((currentTasks) => currentTasks.map((task) => (task.id === id ? updatedTask : task)))
     } catch (updateError) {
-      alert(updateError.response?.data?.error ?? '과제를 수정하지 못했습니다.');
+      alert(updateError.response?.data?.error ?? '과제를 수정하지 못했습니다.')
     }
-  };
+  }
 
   return (
     <div className="assignmentPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <div className="page-container">
         <main className="main-content">
           <div className="layout-wrapper">
@@ -68,11 +55,13 @@ export default function Assignment() {
               <button className="add-btn" onClick={() => setIsModalOpen(true)}>과제 등록</button>
             </div>
             <div className="count-box">
-              <AssignmentCount tasks={tasks} className="component-label label-green"/>
+              <AssignmentCount tasks={tasks} className="component-label label-green" />
             </div>
             {imminentTask && (
               <div className="imminent-box">
-                <h3 className="imminent-title">마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})</h3>
+                <h3 className="imminent-title">
+                  마감 임박 과제(D-{imminentTask.diffDays === 0 ? 'Day' : imminentTask.diffDays})
+                </h3>
                 <div className="task-card imminent-card">
                   <div className="task-info">
                     <div className="task-course">{imminentTask.course}</div>
@@ -83,8 +72,12 @@ export default function Assignment() {
               </div>
             )}
             <div className="list-box">
-              <AssignmentList tasks={tasks} onDelete={handleDeleteTask}
-                onUpdate={handleUpdateTask} className="component-label label-red"/>
+              <AssignmentList
+                tasks={tasks}
+                onDelete={handleDeleteTask}
+                onUpdate={handleUpdateTask}
+                className="component-label label-red"
+              />
             </div>
           </div>
         </main>
@@ -92,16 +85,19 @@ export default function Assignment() {
 
       {isModalOpen && (
         <div className="modal-overlay">
-              <div className="modal-content">
+          <div className="modal-content">
             <h2 className="modal-title">새 과제 추가</h2>
             <div className="add-box">
-              <AssignmentAdd onAdd={handleAddTask} onCancel={() => setIsModalOpen(false)}
+              <AssignmentAdd
+                onAdd={handleAddTask}
+                onCancel={() => setIsModalOpen(false)}
                 isSaving={isSaving}
-                className="component-label label-orange"/>
+                className="component-label label-orange"
+              />
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

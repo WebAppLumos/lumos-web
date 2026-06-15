@@ -1,70 +1,41 @@
 import { Link } from 'react-router-dom'
 import {
-  CalendarDays,
   ClipboardCheck,
-  GraduationCap,
   MapPinned,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
+import { DAYS } from '../../lib/timetable/constants'
 import {
-  DAYS,
-  mockCourses,
-  mockSemesters,
-  mockTimetableEntries,
-  mockTimetables,
-} from '../../lib/mock-data'
+  DEFAULT_DASHBOARD_WIDGETS,
+  fetchDashboardWidgets,
+  getCachedDashboardWidgets,
+  saveDashboardWidgets,
+  setCachedDashboardWidgets,
+} from '../../lib/dashboardApi'
+import {
+  clearCalendarSession,
+  ensureCalendarSession,
+  getCalendarSession,
+} from '../../lib/calendar/session'
+import {
+  clearTimetableSession,
+  ensureTimetableSession,
+  getTimetableSession,
+} from '../../lib/timetable/session'
+import { getStoredUser } from '../../lib/session'
+import { useAuth } from '../../app/providers/AuthProvider'
+import { useScholarship } from '../../app/providers/ScholarshipProvider'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
-import DashboardLoginCard from '../../components/Dashboard/DashboardLoginCard'
-import DashboardNav from '../../components/Dashboard/DashboardNav'
 import DashboardWidgetEditor from '../../components/Dashboard/DashboardWidgetEditor'
+import ScheduleSummaryWidget from '../../components/Dashboard/ScheduleSummaryWidget'
+import ScholarshipSummaryWidget from '../../components/Dashboard/ScholarshipSummaryWidget'
 import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidget'
 
 import './Dashboard.css'
 
-const dashboardWidgets = [
-  {
-    id: 'today-timetable',
-    title: '오늘의 시간표',
-    type: 'timetable',
-    visible: true,
-  },
-  {
-    id: 'schedule',
-    title: '일정',
-    type: 'schedule',
-    visible: true,
-  },
-  {
-    id: 'assignment',
-    title: '과제',
-    type: 'assignment',
-    visible: true,
-  },
-  {
-    id: 'scholarship',
-    title: '장학금',
-    type: 'scholarship',
-    visible: true,
-  },
-  {
-    id: 'campus-map',
-    title: '캠퍼스맵',
-    type: 'campus-map',
-    visible: true,
-  },
-]
-
 const dashboardSummaries = {
-  schedule: {
-    Icon: CalendarDays,
-    title: '일정',
-    link: '/schedule',
-    linkText: '일정 보기',
-    description: '오늘 해야 할 일정과 캘린더를 확인하세요.',
-    items: ['오늘 일정 0개', '이번 주 주요 일정 확인'],
-  },
   assignment: {
     Icon: ClipboardCheck,
     title: '과제',
@@ -72,14 +43,6 @@ const dashboardSummaries = {
     linkText: '과제 보기',
     description: '마감이 가까운 과제를 놓치지 않도록 관리하세요.',
     items: ['미완료 과제 2개', '가장 가까운 마감: 데이터베이스 ERD 설계'],
-  },
-  scholarship: {
-    Icon: GraduationCap,
-    title: '장학금',
-    link: '/scholarship',
-    linkText: '장학금 보기',
-    description: '내 조건에 맞는 장학금 추천을 확인하세요.',
-    items: ['추천 가능 장학금 3개', '프로필을 입력하면 더 정확해져요'],
   },
   'campus-map': {
     Icon: MapPinned,
@@ -92,37 +55,75 @@ const dashboardSummaries = {
 }
 
 function DashboardSummaryWidget({ summary, type, isEditing }) {
-  const { Icon } = summary
+  const Icon = summary.Icon
 
   return (
     <div className={`dashboardCard summaryWidget summaryWidget-${type} ${isEditing ? 'editing' : ''}`}>
       <div className="cardHead">
         <h3 className="cardTitle">
-          <Icon className="summaryIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
+          {Icon ? (
+            <Icon className="summaryIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
+          ) : null}
           {summary.title}
         </h3>
         <Link to={summary.link} className="cardLink">{summary.linkText}</Link>
       </div>
 
       <div className="cardContent">
-        <p className="summaryDescription">{summary.description}</p>
-        <ul className="summaryList">
-          {summary.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+        {summary.description ? (
+          <p className="summaryDescription">{summary.description}</p>
+        ) : null}
+        {summary.items?.length ? (
+          <ul className="summaryList">
+            {summary.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </div>
   )
 }
 
-function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing }) {
+function renderDashboardWidget(widget, {
+  DAYS,
+  todayCourses,
+  todayEvents,
+  scholarshipSession,
+  isEditing,
+  isWeekend,
+  isLoadingTodayTimetable,
+  isLoadingSchedule,
+  isLoadingScholarship,
+}) {
   if (widget.type === 'timetable') {
     return (
       <TodayTimetableWidget
         DAYS={DAYS}
         courses={todayCourses}
         isEditing={isEditing}
+        isWeekend={isWeekend}
+        isLoading={isLoadingTodayTimetable}
+      />
+    )
+  }
+
+  if (widget.type === 'schedule') {
+    return (
+      <ScheduleSummaryWidget
+        events={todayEvents}
+        isEditing={isEditing}
+        isLoading={isLoadingSchedule}
+      />
+    )
+  }
+
+  if (widget.type === 'scholarship') {
+    return (
+      <ScholarshipSummaryWidget
+        session={scholarshipSession}
+        isEditing={isEditing}
+        isLoading={isLoadingScholarship}
       />
     )
   }
@@ -137,96 +138,243 @@ function renderDashboardWidget(widget, { DAYS, todayCourses, isEditing }) {
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState(() => {
-    // 원본 파일처럼 앱 로그인 상태는 localStorage의 사용자 정보로 판단
-    const storedUser = localStorage.getItem('lumos_user_info')
-    return storedUser ? JSON.parse(storedUser) : null
+  const timetableSession = getTimetableSession()
+  const calendarSession = getCalendarSession()
+  const { session: scholarshipSession, isLoading: isLoadingScholarship } = useScholarship()
+
+  const { user, isSessionReady } = useAuth()
+  const [widgets, setWidgets] = useState(() => {
+    if (!getStoredUser()) return DEFAULT_DASHBOARD_WIDGETS
+    return getCachedDashboardWidgets() ?? DEFAULT_DASHBOARD_WIDGETS
   })
-  const [widgets, setWidgets] = useState(dashboardWidgets) // 대시보드 위젯 표시 상태
-  const [isEditing, setIsEditing] = useState(false) // 위젯 편집 모드
+  const [isEditing, setIsEditing] = useState(false)
+  const [todayCourses, setTodayCourses] = useState(() => timetableSession?.todayCourses ?? [])
+  const [todayEvents, setTodayEvents] = useState(() => calendarSession?.todayEvents ?? [])
+  const [isWeekend, setIsWeekend] = useState(() => timetableSession?.isWeekend ?? false)
+  const [isLoadingTodayTimetable, setIsLoadingTodayTimetable] = useState(
+    () => !!getStoredUser() && !timetableSession,
+  )
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState(
+    () => !!getStoredUser() && !calendarSession,
+  )
+  const [isInitialLoading, setIsInitialLoading] = useState(
+    () => !!getStoredUser() && (!timetableSession || !calendarSession),
+  )
+  const [dragWidgetId, setDragWidgetId] = useState(null)
+  const [dragOverWidgetId, setDragOverWidgetId] = useState(null)
 
-  // 현재 학기의 기본 시간표에 포함된 수업만 대시보드에 표시
-  const todayCourses = useMemo(() => {
-    const semesterId = mockSemesters.find((s) => s.isActive)?.id ?? mockSemesters[0].id
-    const timetableId = mockTimetables.find((t) => (
-      t.semesterId === semesterId && t.isDefault
-    ))?.id ?? mockTimetables[0].id
+  useEffect(() => {
+    if (!user || !isSessionReady) {
+      clearTimetableSession()
+      clearCalendarSession()
+      setTodayCourses([])
+      setTodayEvents([])
+      setIsWeekend(false)
+      setIsLoadingTodayTimetable(false)
+      setIsLoadingSchedule(false)
+      setIsInitialLoading(false)
+      setWidgets(DEFAULT_DASHBOARD_WIDGETS)
+      return
+    }
 
-    const courseIds = mockTimetableEntries
-      .filter((entry) => entry.timetableId === timetableId)
-      .map((entry) => entry.courseId)
+    const cachedTimetable = getTimetableSession()
+    const cachedCalendar = getCalendarSession()
 
-    return mockCourses
-      .filter((course) => course.semesterId === semesterId && courseIds.includes(course.id))
-      .slice(0, 4)
-  }, [])
+    if (cachedTimetable) {
+      setTodayCourses(cachedTimetable.todayCourses ?? [])
+      setIsWeekend(cachedTimetable.isWeekend ?? false)
+      setIsLoadingTodayTimetable(false)
+    }
+
+    if (cachedCalendar) {
+      setTodayEvents(cachedCalendar.todayEvents ?? [])
+      setIsLoadingSchedule(false)
+    }
+
+    if (cachedTimetable && cachedCalendar) {
+      setIsInitialLoading(false)
+    }
+
+    let cancelled = false
+
+    if (!cachedTimetable) {
+      setIsInitialLoading(true)
+      setIsLoadingTodayTimetable(true)
+    }
+
+    if (!cachedCalendar) {
+      setIsInitialLoading(true)
+      setIsLoadingSchedule(true)
+    }
+
+    const loadDashboardData = async () => {
+      try {
+        const [nextTimetable, nextCalendar, savedWidgets] = await Promise.all([
+          cachedTimetable ? Promise.resolve(cachedTimetable) : ensureTimetableSession(),
+          cachedCalendar ? Promise.resolve(cachedCalendar) : ensureCalendarSession(),
+          fetchDashboardWidgets().catch(() => DEFAULT_DASHBOARD_WIDGETS),
+        ])
+
+        if (cancelled) return
+
+        setTodayCourses(nextTimetable.todayCourses ?? [])
+        setIsWeekend(nextTimetable.isWeekend ?? false)
+        setTodayEvents(nextCalendar.todayEvents ?? [])
+        setWidgets(savedWidgets)
+        setCachedDashboardWidgets(savedWidgets)
+      } catch (err) {
+        console.error(err)
+        if (!cancelled) {
+          setTodayCourses([])
+          setTodayEvents([])
+          setIsWeekend(false)
+        }
+      } finally {
+        if (!cancelled) {
+          setIsInitialLoading(false)
+          setIsLoadingTodayTimetable(false)
+          setIsLoadingSchedule(false)
+        }
+      }
+    }
+
+    loadDashboardData()
+
+    return () => {
+      cancelled = true
+    }
+  }, [user, isSessionReady])
+
+  const persistWidgets = useCallback(async (nextWidgets) => {
+    const previous = widgets
+    setWidgets(nextWidgets)
+
+    try {
+      const saved = await saveDashboardWidgets(nextWidgets)
+      setWidgets(saved)
+      setCachedDashboardWidgets(saved)
+    } catch (err) {
+      console.error(err)
+      setWidgets(previous)
+    }
+  }, [widgets])
 
   const visibleWidgets = widgets.filter((widget) => widget.visible)
 
-  // 선택한 위젯을 대시보드에 보이거나 숨김
   const onToggleWidget = (id) => {
-    setWidgets(widgets.map((widget) => (
+    persistWidgets(widgets.map((widget) => (
       widget.id === id ? { ...widget, visible: !widget.visible } : widget
     )))
   }
 
-  // 로그인하지 않은 경우 로그인 요청 메시지 표시
-  if (!user) {
-    return (
-      <div className="dashboardPage">
-        <DashboardNav user={user} />
-        <main className="dashboardMain">
-          <div className="Dashboard">
-            <DashboardHeader />
-            <DashboardLoginCard />
-          </div>
-        </main>
-      </div>
-    )
+  const onReorderWidgets = (fromId, toId) => {
+    if (fromId === toId) return
+
+    const fromIndex = widgets.findIndex((widget) => widget.id === fromId)
+    const toIndex = widgets.findIndex((widget) => widget.id === toId)
+    if (fromIndex < 0 || toIndex < 0) return
+
+    const next = [...widgets]
+    const [moved] = next.splice(fromIndex, 1)
+    next.splice(toIndex, 0, moved)
+    persistWidgets(next)
+  }
+
+  const clearWidgetDrag = () => {
+    setDragWidgetId(null)
+    setDragOverWidgetId(null)
   }
 
   return (
     <div className="dashboardPage">
-      <DashboardNav user={user} onLogout={() => setUser(null)} />
       <main className="dashboardMain">
         <div className="Dashboard">
-          <DashboardHeader
-            isEditing={isEditing}
-            onToggleEdit={() => setIsEditing(!isEditing)}
-          />
-
-          {isEditing && (
-            <DashboardWidgetEditor
-              widgets={widgets}
-              onToggleWidget={onToggleWidget}
-            />
-          )}
-
-          {visibleWidgets.length === 0 ? (
-            <div className="emptyState">
-              <div className="emptyIcon">⚙</div>
-              <p>표시할 위젯이 없습니다. 위젯을 추가해주세요.</p>
+          {isInitialLoading ? (
+            <div className="dashboardInitialLoading" aria-live="polite" aria-busy="true">
+              <span className="dashboardInitialLoadingSpinner" aria-hidden="true" />
+              <span className="dashboardInitialLoadingText">로딩 중...</span>
             </div>
           ) : (
-            <div className="widgetGrid">
-              {visibleWidgets.map((widget) => (
-                <div key={widget.id} className="widgetItem">
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="widgetRemoveBtn"
-                      // 편집 모드에서 해당 위젯 숨기기
-                      onClick={() => onToggleWidget(widget.id)}
-                      aria-label={`${widget.title} 숨기기`}
-                    >
-                      ×
-                    </button>
-                  )}
+            <>
+              <DashboardHeader
+                isEditing={isEditing}
+                onToggleEdit={() => {
+                  setIsEditing(!isEditing)
+                  clearWidgetDrag()
+                }}
+              />
 
-                  {renderDashboardWidget(widget, { DAYS, todayCourses, isEditing })}
+              {isEditing && (
+                <DashboardWidgetEditor
+                  widgets={widgets}
+                  onToggleWidget={onToggleWidget}
+                />
+              )}
+
+              {visibleWidgets.length === 0 ? (
+                <div className="emptyState">
+                  <div className="emptyIcon">⚙</div>
+                  <p>표시할 위젯이 없습니다. 위젯을 추가해주세요.</p>
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className={`widgetGrid ${isEditing ? 'widgetGrid--editing' : ''}`}>
+                  {visibleWidgets.map((widget) => (
+                    <div
+                      key={widget.id}
+                      className={[
+                        'widgetItem',
+                        isEditing ? 'widgetItem--editable' : '',
+                        dragWidgetId === widget.id ? 'dragging' : '',
+                        dragOverWidgetId === widget.id && dragWidgetId !== widget.id ? 'dragOver' : '',
+                      ].filter(Boolean).join(' ')}
+                      draggable={isEditing}
+                      onDragStart={(event) => {
+                        if (!isEditing) return
+                        setDragWidgetId(widget.id)
+                        event.dataTransfer.effectAllowed = 'move'
+                      }}
+                      onDragEnd={clearWidgetDrag}
+                      onDragOver={(event) => {
+                        if (!isEditing || dragWidgetId === widget.id) return
+                        event.preventDefault()
+                        setDragOverWidgetId(widget.id)
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault()
+                        if (dragWidgetId && dragWidgetId !== widget.id) {
+                          onReorderWidgets(dragWidgetId, widget.id)
+                        }
+                        clearWidgetDrag()
+                      }}
+                    >
+                      {isEditing && (
+                        <button
+                          type="button"
+                          className="widgetRemoveBtn"
+                          // 편집 모드에서 해당 위젯 숨기기
+                          onClick={() => onToggleWidget(widget.id)}
+                          aria-label={`${widget.title} 숨기기`}
+                        >
+                          ×
+                        </button>
+                      )}
+
+                      {renderDashboardWidget(widget, {
+                        DAYS,
+                        todayCourses,
+                        todayEvents,
+                        scholarshipSession,
+                        isEditing,
+                        isWeekend,
+                        isLoadingTodayTimetable,
+                        isLoadingSchedule,
+                        isLoadingScholarship,
+                      })}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
