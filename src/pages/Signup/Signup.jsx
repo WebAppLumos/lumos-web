@@ -7,7 +7,7 @@ import {
 import { auth } from '../../lib/firebase'
 import {
   getSignupErrorMessage,
-  syncBackendLogin,
+  syncBackendSignup,
   trimSignupForm,
   validateSignupForm,
 } from '../../lib/auth'
@@ -77,7 +77,7 @@ export default function Signup() {
         )
         rollbackFirebaseUser = userCredential.user
 
-        const profile = await syncBackendLogin(userCredential.user, {
+        const profile = await syncBackendSignup(userCredential.user, {
           name: form.name,
           department: form.department,
           grade: Number(grade),
