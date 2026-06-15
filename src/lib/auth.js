@@ -103,15 +103,6 @@ export async function syncBackendLogin(firebaseUser, profile = {}) {
   return response.data?.user ?? response.data
 }
 
-export async function syncBackendSignup(firebaseUser, profile = {}) {
-  const idToken = await firebaseUser.getIdToken(true)
-  const response = await api.post('/api/auth/signup', {
-    idToken,
-    ...profile,
-  })
-  return response.data?.user ?? response.data
-}
-
 export async function deleteBackendAccount(firebaseUser) {
   const token = await firebaseUser.getIdToken(true)
 
