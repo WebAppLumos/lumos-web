@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
 import { scholarshipApi } from '../../lib/scholarshipApi';
+import { useAuth } from '../../app/providers/AuthProvider';
+import { useScholarship } from '../../app/providers/ScholarshipProvider';
 import certificationsData from '../../data/certifications.json';
 import './CertificationManager.css';
 
 export default function CertificationManager({ userId }) {
+  const { user, updateUser } = useAuth();
+  const { refreshSession } = useScholarship();
   const [userCerts, setUserCerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [selectedCertId, setSelectedCertId] = useState('');
   const [issueDate, setIssueDate] = useState('');
+  const [incomeBracket, setIncomeBracket] = useState('5');
+  const [savingIncomeBracket, setSavingIncomeBracket] = useState(false);
+
+  useEffect(() => {
+    setIncomeBracket(String(user?.incomeBracket ?? 5));
+  }, [user?.incomeBracket]);
 
   const fetchCerts = async () => {
     if (!userId) return;
@@ -27,6 +37,26 @@ export default function CertificationManager({ userId }) {
     fetchCerts();
   }, [userId]);
 
+  const handleSaveIncomeBracket = async (e) => {
+    e.preventDefault();
+
+    try {
+      setSavingIncomeBracket(true);
+      const response = await scholarshipApi.updateUserProfile({
+        incomeBracket: Number(incomeBracket),
+      });
+      updateUser(response.data);
+      await refreshSession();
+      alert('소득 분위가 저장되었습니다.');
+    } catch (error) {
+      console.error('Failed to update income bracket:', error);
+      const serverMessage = error.response?.data?.message;
+      alert(serverMessage || '소득 분위 저장에 실패했습니다.');
+    } finally {
+      setSavingIncomeBracket(false);
+    }
+  };
+
   const handleAddCert = async (e) => {
     e.preventDefault();
     if (!selectedCertId || !issueDate) return;
@@ -42,7 +72,8 @@ export default function CertificationManager({ userId }) {
       });
       setSelectedCertId('');
       setIssueDate('');
-      fetchCerts();
+      await fetchCerts();
+      await refreshSession();
     } catch (error) {
       console.error('Failed to add certification:', error);
       alert('자격증 추가에 실패했습니다.');
@@ -56,7 +87,8 @@ export default function CertificationManager({ userId }) {
 
     try {
       await scholarshipApi.deleteCertification(certId);
-      fetchCerts();
+      await fetchCerts();
+      await refreshSession();
     } catch (error) {
       console.error('Failed to delete certification:', error);
       alert('자격증 삭제에 실패했습니다.');
@@ -69,6 +101,30 @@ export default function CertificationManager({ userId }) {
     <div className="certificationManager">
       <h4>자격증 관리</h4>
       <p>보유 중인 자격증을 등록하고 관리하세요. 장학금 산출에 활용됩니다.</p>
+
+      <form className="incomeBracketForm" onSubmit={handleSaveIncomeBracket}>
+        <h5>소득 분위</h5>
+        <p className="incomeBracketDesc">장학금 산출에 사용되는 소득 분위를 설정합니다.</p>
+        <div className="incomeBracketControls">
+          <select
+            className="incomeBracketSelect"
+            value={incomeBracket}
+            onChange={(e) => setIncomeBracket(e.target.value)}
+            required
+          >
+            {[...Array(10)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1}구간</option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            className="saveIncomeBracketBtn"
+            disabled={savingIncomeBracket}
+          >
+            {savingIncomeBracket ? '저장 중...' : '저장하기'}
+          </button>
+        </div>
+      </form>
 
       <div className="certList">
         {userCerts.length === 0 ? (

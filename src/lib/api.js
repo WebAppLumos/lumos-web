@@ -1,5 +1,5 @@
 import axios, { AxiosHeaders } from 'axios'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from './firebase'
 import { clearStoredSession, notifySessionExpired } from './session'
 
@@ -10,14 +10,12 @@ const api = axios.create({
 let initialAuthStatePromise = null
 
 function waitForInitialAuthState() {
-  if (!initialAuthStatePromise) {
-    initialAuthStatePromise = new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        unsubscribe()
-        resolve(user)
-      })
+  initialAuthStatePromise = new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe()
+      resolve(user)
     })
-  }
+  })
 
   return initialAuthStatePromise
 }
@@ -27,7 +25,9 @@ async function resolveAuthUser() {
     return auth.currentUser
   }
 
-  return waitForInitialAuthState()
+  await waitForInitialAuthState()
+
+  return auth.currentUser
 }
 
 export function setAuthorizationHeader(config, token) {
@@ -75,12 +75,28 @@ api.interceptors.request.use(async (config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status
+    const config = error.config
 
-    if ((status === 401 || status === 403) && !error.config?.skipSessionExpired) {
+    if ((status === 401 || status === 403) && config && !config._retriedAuth && !config.skipSessionExpired) {
+      const user = await resolveAuthUser().catch(() => null)
+      if (user) {
+        try {
+          const refreshedToken = await user.getIdToken(true)
+          config._retriedAuth = true
+          setAuthorizationHeader(config, refreshedToken)
+          return api.request(config)
+        } catch {
+          // fall through to session clear
+        }
+      }
+    }
+
+    if ((status === 401 || status === 403) && !config?.skipSessionExpired) {
       clearStoredSession()
       notifySessionExpired()
+      signOut(auth).catch(() => {})
     }
 
     return Promise.reject(error)

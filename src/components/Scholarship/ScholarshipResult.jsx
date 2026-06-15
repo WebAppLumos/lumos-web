@@ -4,8 +4,7 @@ export default function ScholarshipResult({
   user, 
   userProfile, 
   eligibleScholarships, 
-  onEditProfile, 
-  onBackToHome 
+  onEditProfile,
 }) {
   return (
     <div className="results-section">
@@ -72,7 +71,6 @@ export default function ScholarshipResult({
           </div>
         )}
       </div>
-      <button className="back-to-home" onClick={onBackToHome}>홈으로 돌아가기</button>
     </div>
   )
 }

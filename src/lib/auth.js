@@ -99,6 +99,9 @@ export async function syncBackendLogin(firebaseUser, profile = {}) {
   const response = await api.post('/api/auth/login', {
     idToken,
     ...profile,
+  }, {
+    authToken: idToken,
+    skipSessionExpired: true,
   })
   return response.data?.user ?? response.data
 }
@@ -142,35 +145,18 @@ export async function completeAccountWithdrawal(firebaseUser) {
   clearStoredSession()
 }
 
-export function trimSignupForm({ name, email, department, studentNumber, phoneNumber }) {
+export function trimSignupForm({ name, email, phoneNumber }) {
   return {
     name: name.trim(),
     email: email.trim(),
-    department: department.trim(),
-    studentNumber: studentNumber.trim(),
     phoneNumber: phoneNumber.trim(),
   }
 }
 
-export function validateSignupForm({ name, department, grade, studentNumber, email, phoneNumber }) {
-  if (name) {
-    const nameMessage = getNameValidationMessage(name)
-    if (nameMessage) {
-      return nameMessage
-    }
-  }
-
-  if (!department) {
-    return '학과명을 입력해 주세요.'
-  }
-
-  const gradeNumber = Number(grade)
-  if (!grade || isNaN(gradeNumber) || gradeNumber < 1 || gradeNumber > 4) {
-    return '학년을 올바르게 선택해 주세요.'
-  }
-
-  if (!/^\d{7}$/.test(studentNumber)) {
-    return '학번은 숫자 7자리로 입력해 주세요. 예: 2024001'
+export function validateSignupForm({ name, email, phoneNumber }) {
+  const nameMessage = getNameValidationMessage(name)
+  if (nameMessage) {
+    return nameMessage
   }
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

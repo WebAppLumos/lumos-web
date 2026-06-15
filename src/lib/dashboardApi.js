@@ -80,7 +80,9 @@ export function clearCachedDashboardWidgets() {
 }
 
 export async function fetchDashboardWidgets() {
-  const { data } = await api.get('/api/users/me/dashboard/widgets')
+  const { data } = await api.get('/api/users/me/dashboard/widgets', {
+    skipSessionExpired: true,
+  })
   return mergeDashboardWidgets(data)
 }
 

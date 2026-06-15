@@ -19,6 +19,11 @@ const TERM_OPTIONS = [
 
 const SYNC_OPTIONS = [
   {
+    key: 'profile',
+    label: '학적 정보',
+    description: '학번, 학년, 소속학부/과(전공)',
+  },
+  {
     key: 'timetable',
     label: '시간표',
     description: '선택한 학년도·학기의 수강 시간표',
@@ -42,7 +47,7 @@ function isPageRefreshError(message) {
 }
 
 function extractRefreshNotice(result) {
-  for (const item of [result?.timetable, result?.grades]) {
+  for (const item of [result?.profile, result?.timetable, result?.grades]) {
     if (item && !item.ok && isPageRefreshError(item.error)) {
       return PAGE_REFRESH_NOTICE
     }
@@ -70,10 +75,12 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   const [year, setYear] = useState(() => new Date().getFullYear())
   const [termCode, setTermCode] = useState(guessDefaultTermCode)
   const [syncTargets, setSyncTargets] = useState({
+    profile: true,
     timetable: true,
     grades: true,
   })
   const [syncResults, setSyncResults] = useState({
+    profile: null,
     timetable: null,
     grades: null,
   })
@@ -86,10 +93,10 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
 
     setError('')
     setExtensionNotice('')
-    setSyncResults({ timetable: null, grades: null })
+    setSyncResults({ profile: null, timetable: null, grades: null })
     setYear(new Date().getFullYear())
     setTermCode(guessDefaultTermCode())
-    setSyncTargets({ timetable: true, grades: true })
+    setSyncTargets({ profile: true, timetable: true, grades: true })
     setCheckingExtension(true)
     pingExtension()
       .then(({ installed }) => setExtensionReady(installed))
@@ -98,6 +105,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
 
   if (!open) return null
 
+  const syncProfile = syncTargets.profile
   const syncTimetable = syncTargets.timetable
   const syncGrades = syncTargets.grades
 
@@ -127,7 +135,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       return
     }
 
-    if (!syncTimetable && !syncGrades) {
+    if (!syncProfile && !syncTimetable && !syncGrades) {
       setError('동기화할 항목을 하나 이상 선택해 주세요.')
       return
     }
@@ -141,6 +149,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
     setSyncing(true)
     setExtensionNotice('')
     setSyncResults({
+      profile: syncProfile ? { status: 'pending', message: null } : null,
       timetable: syncTimetable ? { status: 'pending', message: null } : null,
       grades: syncGrades ? { status: 'pending', message: null } : null,
     })
@@ -148,6 +157,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
     try {
       const token = await user.getIdToken()
       const result = await syncEdwardViaExtension(token, {
+        syncProfile,
         syncTimetable,
         syncGrades,
         year: syncTimetable ? parsedYear : undefined,
@@ -155,6 +165,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       })
 
       const nextResults = {
+        profile: syncProfile ? buildItemResult(result.profile) : null,
         timetable: syncTimetable ? buildItemResult(result.timetable) : null,
         grades: syncGrades ? buildItemResult(result.grades) : null,
       }
@@ -163,7 +174,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       const refreshNotice = extensionReady ? extractRefreshNotice(result) : null
       setExtensionNotice(refreshNotice || '')
 
-      const otherError = [result.timetable, result.grades]
+      const otherError = [result.profile, result.timetable, result.grades]
         .filter((item) => item && !item.ok && !(refreshNotice && isPageRefreshError(item.error)))
         .map((item) => item.error)[0]
       setError(otherError || '')
@@ -172,9 +183,10 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         clearTimetableSession()
       }
 
-      const hasSuccess = Boolean(result.timetable?.ok || result.grades?.ok)
+      const hasSuccess = Boolean(result.profile?.ok || result.timetable?.ok || result.grades?.ok)
       if (hasSuccess) {
         onSuccess?.({
+          syncProfile: Boolean(result.profile?.ok),
           syncTimetable: Boolean(result.timetable?.ok),
           syncGrades: Boolean(result.grades?.ok),
         })
@@ -190,6 +202,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
         setError(message)
       }
       setSyncResults({
+        profile: syncProfile ? { status: 'error', message: '실패' } : null,
         timetable: syncTimetable ? { status: 'error', message: '실패' } : null,
         grades: syncGrades ? { status: 'error', message: '실패' } : null,
       })

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
-import { deleteUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
 import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
@@ -10,6 +9,7 @@ import { formatPhoneNumber } from '../../lib/phoneNumber';
 import { getNameValidationMessage, sanitizeNameInput } from '../../lib/name';
 import { completeAccountWithdrawal } from '../../lib/auth';
 import { useAuth } from '../../app/providers/AuthProvider';
+import { useScholarship } from '../../app/providers/ScholarshipProvider';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
 import CertificationManager from '../../components/MyPage/CertificationManager';
 import './MyPage.css';
@@ -22,17 +22,27 @@ const emptyGradeSummary = {
   semesters: [],
 };
 
+function isAcademicProfileSynced(user) {
+  if (!user) return false;
+
+  const major = (user.major || user.department || '').trim();
+  const studentNumber = (user.studentNumber || '').trim();
+  const grade = user.grade;
+
+  return Boolean(major && studentNumber && grade != null && grade >= 1);
+}
+
 export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser, logout, refreshUser } = useAuth();
+  const { refreshSession } = useScholarship();
 
   const [formData, setFormData] = useState({
     name: '',
     major: '',
-    grade: 1,
-    incomeBracket: 5,
+    grade: '',
     phoneNumber: '',
     studentNumber: '',
     email: '',
@@ -65,7 +75,7 @@ export default function MyPage() {
     setFormData({
       name: user.name || '',
       major: user.major || user.department || '',
-      grade: user.grade || 1,
+      grade: user.grade ?? '',
       phoneNumber: formatPhoneNumber(user.phoneNumber || ''),
       studentNumber: user.studentNumber || '',
       email: user.email || '',
@@ -160,9 +170,6 @@ export default function MyPage() {
     try {
       const payload = {
         name: formData.name.trim(),
-        major: formData.major.trim(),
-        grade: Number(formData.grade),
-        incomeBracket: Number(formData.incomeBracket),
       };
 
       const response = await api.patch('/api/users/me', payload);
@@ -251,8 +258,13 @@ export default function MyPage() {
     }
   };
 
-  const handleEdwardSyncSuccess = async ({ syncGrades } = {}) => {
+  const handleEdwardSyncSuccess = async ({ syncGrades, syncProfile } = {}) => {
+    await refreshUser();
     await fetchSemesterCredits();
+
+    if (syncGrades || syncProfile) {
+      await refreshSession();
+    }
 
     if (syncGrades && showGradeDetails) {
       try {
@@ -268,6 +280,7 @@ export default function MyPage() {
   };
 
   const semesterGradeData = gradeSummary.semesters || [];
+  const academicProfileSynced = isAcademicProfileSynced(user);
   const totalCompletedCredits = gradeSummary.totalCompletedCredits || 0;
   const averageGpa = gradeSummary.averageGpa || 0;
   const academicWarningCount = gradeSummary.academicWarningCount || 0;
@@ -327,7 +340,11 @@ export default function MyPage() {
 
                 <div className="profileBasicInfo">
                   <h3>{user.name}</h3>
-                  <span>{user.major || user.department || ''}</span>
+                  <span>
+                    {academicProfileSynced
+                      ? (user.major || user.department)
+                      : '학적 정보 미연동'}
+                  </span>
 
                   <div className="creditInfo">
                     이번 학기 신청 학점 <strong>{totalCredits}</strong>
@@ -377,6 +394,15 @@ export default function MyPage() {
             <div className="myPagePanel">
               {activeMenu === 'profile' && (
                 <form className="infoForm" onSubmit={handleSubmit}>
+                  {!academicProfileSynced && (
+                    <div className="academicSyncNotice">
+                      <p>
+                        학번, 학년, 전공은 EDWARD와 연동해야 표시됩니다.
+                        상단 <strong>EDWARD 동기화</strong>에서 학적 정보를 선택해 주세요.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="formGroup">
                     <label>이름</label>
                     <input
@@ -394,25 +420,37 @@ export default function MyPage() {
                       type="text"
                       name="major"
                       value={formData.major}
-                      onChange={handleChange}
-                      disabled={!isEditing}
+                      disabled
+                      className="disabledInput"
+                      placeholder={academicProfileSynced ? '' : 'EDWARD 동기화 후 표시됩니다'}
                     />
                   </div>
 
                   <div className="formGrid">
                     <div className="formGroup">
                       <label>학년</label>
-                      <select
-                        name="grade"
-                        value={formData.grade}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                      >
-                        <option value={1}>1학년</option>
-                        <option value={2}>2학년</option>
-                        <option value={3}>3학년</option>
-                        <option value={4}>4학년</option>
-                      </select>
+                      {academicProfileSynced ? (
+                        <select
+                          name="grade"
+                          value={formData.grade}
+                          disabled
+                          className="disabledInput"
+                        >
+                          <option value={1}>1학년</option>
+                          <option value={2}>2학년</option>
+                          <option value={3}>3학년</option>
+                          <option value={4}>4학년</option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          name="grade"
+                          value=""
+                          disabled
+                          className="disabledInput"
+                          placeholder="EDWARD 동기화 후 표시됩니다"
+                        />
+                      )}
                     </div>
 
                     <div className="formGroup">
@@ -423,37 +461,21 @@ export default function MyPage() {
                         value={formData.studentNumber}
                         disabled
                         className="disabledInput"
+                        placeholder={academicProfileSynced ? '' : 'EDWARD 동기화 후 표시됩니다'}
                       />
                     </div>
                   </div>
 
-                  <div className="formGrid">
-                    <div className="formGroup">
-                      <label>소득 분위</label>
-                      <select
-                        name="incomeBracket"
-                        value={formData.incomeBracket}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                      >
-                        {[...Array(10)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>{i + 1}구간</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="formGroup">
-                      <label>전화번호</label>
-                      <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        disabled
-                        className="disabledInput"
-                        placeholder="010-0000-0000"
-                      />
-                    </div>
+                  <div className="formGroup">
+                    <label>전화번호</label>
+                    <input
+                      type="text"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      disabled
+                      className="disabledInput"
+                      placeholder="010-0000-0000"
+                    />
                   </div>
 
                   <div className="formGroup">
@@ -649,7 +671,7 @@ export default function MyPage() {
 
               {activeMenu === 'certifications' && (
                 <div className="certificationPanel">
-                   <CertificationManager userId={localStorage.getItem('lumos_uid')} />
+                  <CertificationManager userId={user?.userId} />
                 </div>
               )}
 
