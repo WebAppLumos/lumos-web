@@ -32,6 +32,7 @@ export default function MyPage() {
     name: '',
     major: '',
     grade: 1,
+    incomeBracket: 5,
     phoneNumber: '',
     studentNumber: '',
     email: '',
@@ -161,6 +162,7 @@ export default function MyPage() {
         name: formData.name.trim(),
         major: formData.major.trim(),
         grade: Number(formData.grade),
+        incomeBracket: Number(formData.incomeBracket),
       };
 
       const response = await api.patch('/api/users/me', payload);
@@ -425,6 +427,35 @@ export default function MyPage() {
                     </div>
                   </div>
 
+                  <div className="formGrid">
+                    <div className="formGroup">
+                      <label>소득 분위</label>
+                      <select
+                        name="incomeBracket"
+                        value={formData.incomeBracket}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                      >
+                        {[...Array(10)].map((_, i) => (
+                          <option key={i + 1} value={i + 1}>{i + 1}구간</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="formGroup">
+                      <label>전화번호</label>
+                      <input
+                        type="text"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        disabled
+                        className="disabledInput"
+                        placeholder="010-0000-0000"
+                      />
+                    </div>
+                  </div>
+
                   <div className="formGroup">
                     <label>이메일</label>
                     <input
@@ -433,19 +464,6 @@ export default function MyPage() {
                       value={formData.email}
                       disabled
                       className="disabledInput"
-                    />
-                  </div>
-
-                  <div className="formGroup">
-                    <label>전화번호</label>
-                    <input
-                      type="text"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      disabled
-                      className="disabledInput"
-                      placeholder="010-0000-0000"
                     />
                   </div>
 
