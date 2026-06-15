@@ -13,7 +13,7 @@ export const allScholarships = [
         '기초/차상위', '기초', '차상위',
         '1구간', '2구간', '3구간', '4구간', '5구간', '6구간', '7구간', '8구간', '9구간'
       ].includes(bracketStr)
-      return credits >= 12 && gpa >= 2.6 && isEligibleBracket
+      return credits >= 12 && gpa >= 2.51 && isEligibleBracket
     },
   },
   {
