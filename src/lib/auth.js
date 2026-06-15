@@ -152,10 +152,21 @@ export function trimSignupForm({ name, email, department, studentNumber, phoneNu
   }
 }
 
-export function validateSignupForm({ name, studentNumber, email, phoneNumber }) {
-  const nameMessage = getNameValidationMessage(name)
-  if (nameMessage) {
-    return nameMessage
+export function validateSignupForm({ name, department, grade, studentNumber, email, phoneNumber }) {
+  if (name) {
+    const nameMessage = getNameValidationMessage(name)
+    if (nameMessage) {
+      return nameMessage
+    }
+  }
+
+  if (!department) {
+    return '학과명을 입력해 주세요.'
+  }
+
+  const gradeNumber = Number(grade)
+  if (!grade || isNaN(gradeNumber) || gradeNumber < 1 || gradeNumber > 4) {
+    return '학년을 올바르게 선택해 주세요.'
   }
 
   if (!/^\d{7}$/.test(studentNumber)) {

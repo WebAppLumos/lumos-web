@@ -47,7 +47,7 @@ export default function Signup() {
     }
 
     const form = trimSignupForm({ name, email, department, studentNumber, phoneNumber })
-    const validationMessage = validateSignupForm(form)
+    const validationMessage = validateSignupForm({ ...form, grade })
 
     if (validationMessage) {
       setHint(validationMessage)
@@ -78,7 +78,7 @@ export default function Signup() {
         rollbackFirebaseUser = userCredential.user
 
         const profile = await syncBackendLogin(userCredential.user, {
-          name: form.name,
+          name: form.name || undefined,
           department: form.department,
           grade: Number(grade),
           studentNumber: form.studentNumber,
@@ -138,10 +138,9 @@ export default function Signup() {
             id="su-name"
             className="input"
             type="text"
-            placeholder="홍길동"
+            placeholder="홍길동 (선택)"
             value={name}
             onChange={(e) => setName(sanitizeNameInput(e.target.value))}
-            required
           />
 
           <label className="label" htmlFor="su-std">
