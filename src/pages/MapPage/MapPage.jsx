@@ -133,16 +133,18 @@ useEffect(() => {
       setSelectedPlace(null);
     };
  
+  /* 
   // 가장 가까운 수업 계산
   const now = new Date();
   const currentDay = now.getDay() - 1;
   const currentTime = now.getHours() * 60 + now.getMinutes();
+  */
 
-  /* 
+  
   // 일단 시간 월요일로 강제
   const currentDay = 0; // 월요일 강제
   const currentTime = 8 * 60; // 오전 8시 강제
-  */
+ 
 
   const todayCourses = mockCourses.filter((course) =>
     course.schedules.some( (schedule) => schedule.day === currentDay))
