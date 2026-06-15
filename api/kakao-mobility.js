@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(405).send('Method Not Allowed')
     return
@@ -24,7 +24,10 @@ export default async function handler(req, res) {
     const body = await upstream.text()
     res.setHeader('Content-Type', upstream.headers.get('content-type') ?? 'application/json')
     res.status(upstream.status).send(body)
-  } catch {
-    res.status(502).json({ error: 'Failed to reach Kakao Mobility API' })
+  } catch (error) {
+    res.status(502).json({
+      error: 'Failed to reach Kakao Mobility API',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    })
   }
 }

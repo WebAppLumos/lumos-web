@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/kakao-mobility/v1/directions",
-      "destination": "/api/kakao-mobility/v1/directions"
+      "destination": "/api/kakao-mobility"
     },
     {
       "source": "/((?!api|assets|.*\\..*).*)",
