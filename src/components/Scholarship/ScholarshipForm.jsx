@@ -78,6 +78,7 @@ export default function ScholarshipForm({
             onChange={handleProfileChange}
             className="income-select"
           >
+            <option value="기초/차상위">기초/차상위</option>
             {[...Array(10)].map((_, i) => (
               <option key={i + 1} value={`${i + 1}구간`}>{i + 1}구간</option>
             ))}

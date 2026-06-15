@@ -13,7 +13,7 @@ import './Scholarship.css'
 
 export default function Scholarship() {
   const location = useLocation()
-  const { user, refreshUser } = useAuth()
+  const { user, updateUser, refreshUser } = useAuth()
   const {
     session,
     isLoading,
@@ -160,9 +160,12 @@ export default function Scholarship() {
 
       const profilePayload = { scholarshipCurationCompleted: true }
       if (userProfile.incomeBracket) {
-        profilePayload.incomeBracket = parseInt(userProfile.incomeBracket.replace('구간', ''), 10)
+        profilePayload.incomeBracket = userProfile.incomeBracket
       }
-      await scholarshipApi.updateUserProfile(profilePayload)
+      const response = await scholarshipApi.updateUserProfile(profilePayload)
+      const updatedUser = response.data
+
+      updateUser(updatedUser)
 
       updateUserProfile((prev) => ({
         ...prev,
@@ -170,9 +173,8 @@ export default function Scholarship() {
         prevExamId: newIds.prevExamId,
       }))
 
-      await refreshUser()
       setCurationCompleted(true)
-      await refreshSession()
+      await refreshSession(updatedUser)
       setViewOverride('results')
     } catch (error) {
       console.error('Failed to save scholarship profile:', error)

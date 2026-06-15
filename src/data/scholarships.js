@@ -3,12 +3,17 @@ export const allScholarships = [
     id: 1,
     name: '국가장학금 Ⅰ유형',
     provider: '한국장학재단',
-    amount: '학기별 최대 260만원',
+    amount: '학기별 최대 300만원',
     tag: '소득연계',
     checkEligibility: (profile) => {
       const credits = parseInt(profile.credits) || 0
       const gpa = parseFloat(profile.gpa) || 0
-      return credits >= 12 && gpa >= 2.51
+      const bracketStr = profile.incomeBracket || ''
+      const isEligibleBracket = [
+        '기초/차상위', '기초', '차상위',
+        '1구간', '2구간', '3구간', '4구간', '5구간', '6구간', '7구간', '8구간', '9구간'
+      ].includes(bracketStr)
+      return credits >= 12 && gpa >= 2.6 && isEligibleBracket
     },
   },
   {
