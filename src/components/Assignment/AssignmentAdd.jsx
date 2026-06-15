@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './AssignmentAdd.css';
 
-export default function AssignmentAdd({ onAdd, onCancel }) {
+export default function AssignmentAdd({ onAdd, onCancel, isSaving = false }) {
   const [course, setCourse] = useState('');
   const [title, setTitle] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -32,8 +32,10 @@ export default function AssignmentAdd({ onAdd, onCancel }) {
           onChange={(e) => setDeadline(e.target.value)}/>
       </div>
       <div className="button-group">
-        <button type="button" className="btn-cancel" onClick={onCancel}>취소</button>
-        <button type="submit" className="btn-submit">추가하기</button>
+        <button type="button" className="btn-cancel" onClick={onCancel} disabled={isSaving}>취소</button>
+        <button type="submit" className="btn-submit" disabled={isSaving}>
+          {isSaving ? '추가 중...' : '추가하기'}
+        </button>
       </div>
     </form>
   );

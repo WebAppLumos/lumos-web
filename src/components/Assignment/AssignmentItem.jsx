@@ -7,16 +7,28 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDeadline, setEditDeadline] = useState(task.deadline);
 
+  const handleEditClick = () => {
+    setEditCourse(task.course);
+    setEditTitle(task.title);
+    setEditDeadline(task.deadline);
+    setIsEditing(true);
+  };
+
   const handleSave = () => {
     if (!editCourse || !editTitle || !editDeadline) {
       alert('모든 항목을 입력해주세요.');
       return;
     }
     onUpdate(task.id, {
+      ...task,
       course: editCourse,
       title: editTitle,
       deadline: editDeadline
     });
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
     setIsEditing(false);
   };
 
@@ -25,7 +37,7 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
       <input 
         type="checkbox" 
         checked={task.isCompleted}
-        onChange={() => onUpdate(task.id, { isCompleted: !task.isCompleted })}
+        onChange={() => onUpdate(task.id, { ...task, isCompleted: !task.isCompleted })}
         className="task-checkbox"
       />
       <div className="task-info">
@@ -60,11 +72,16 @@ export default function AssignmentItem({ task, onDelete, onUpdate }) {
       </div>
       <div className="actions">
         {isEditing ? (
-          <button className="btn-toss btn-edit" onClick={handleSave}>저장</button>
+          <>
+            <button className="btn-toss btn-edit" onClick={handleSave}>저장</button>
+            <button className="btn-toss btn-delete" onClick={handleCancelEdit}>취소</button>
+          </>
         ) : (
-          <button className="btn-toss btn-edit" onClick={() => setIsEditing(true)}>수정</button>
+          <button className="btn-toss btn-edit" onClick={handleEditClick}>수정</button>
         )}
-        <button className="btn-toss btn-delete" onClick={() => onDelete(task.id)}>삭제</button>
+        {!isEditing && (
+          <button className="btn-toss btn-delete" onClick={() => onDelete(task.id)}>삭제</button>
+        )}
       </div>
     </div>
   );
