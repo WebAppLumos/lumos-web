@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
+import { Award, BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
+import { deleteUser } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import api from '../../lib/api';
 import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
@@ -10,6 +11,7 @@ import { getNameValidationMessage, sanitizeNameInput } from '../../lib/name';
 import { completeAccountWithdrawal } from '../../lib/auth';
 import { useAuth } from '../../app/providers/AuthProvider';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
+import CertificationManager from '../../components/MyPage/CertificationManager';
 import './MyPage.css';
 
 const emptyGradeSummary = {
@@ -30,6 +32,7 @@ export default function MyPage() {
     name: '',
     major: '',
     grade: 1,
+    incomeBracket: 5,
     phoneNumber: '',
     studentNumber: '',
     email: '',
@@ -159,6 +162,7 @@ export default function MyPage() {
         name: formData.name.trim(),
         major: formData.major.trim(),
         grade: Number(formData.grade),
+        incomeBracket: Number(formData.incomeBracket),
       };
 
       const response = await api.patch('/api/users/me', payload);
@@ -352,6 +356,15 @@ export default function MyPage() {
 
                 <button
                   type="button"
+                  className={`myPageMenuBtn ${activeMenu === 'certifications' ? 'active' : ''}`}
+                  onClick={() => handleSelectMenu('certifications')}
+                >
+                  <Award size={17} aria-hidden="true" />
+                  자격증 관리
+                </button>
+
+                <button
+                  type="button"
                   className={`myPageMenuBtn ${activeMenu === 'account' ? 'active' : ''}`}
                   onClick={() => handleSelectMenu('account')}
                 >
@@ -414,6 +427,35 @@ export default function MyPage() {
                     </div>
                   </div>
 
+                  <div className="formGrid">
+                    <div className="formGroup">
+                      <label>소득 분위</label>
+                      <select
+                        name="incomeBracket"
+                        value={formData.incomeBracket}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                      >
+                        {[...Array(10)].map((_, i) => (
+                          <option key={i + 1} value={i + 1}>{i + 1}구간</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="formGroup">
+                      <label>전화번호</label>
+                      <input
+                        type="text"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        disabled
+                        className="disabledInput"
+                        placeholder="010-0000-0000"
+                      />
+                    </div>
+                  </div>
+
                   <div className="formGroup">
                     <label>이메일</label>
                     <input
@@ -422,19 +464,6 @@ export default function MyPage() {
                       value={formData.email}
                       disabled
                       className="disabledInput"
-                    />
-                  </div>
-
-                  <div className="formGroup">
-                    <label>전화번호</label>
-                    <input
-                      type="text"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      disabled
-                      className="disabledInput"
-                      placeholder="010-0000-0000"
                     />
                   </div>
 
@@ -616,6 +645,12 @@ export default function MyPage() {
                     </div>
                   )}
                 </section>
+              )}
+
+              {activeMenu === 'certifications' && (
+                <div className="certificationPanel">
+                   <CertificationManager userId={localStorage.getItem('lumos_uid')} />
+                </div>
               )}
 
               {activeMenu === 'account' && (

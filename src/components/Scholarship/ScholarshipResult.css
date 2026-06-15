@@ -1,0 +1,211 @@
+.results-section {
+  text-align: left;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.results-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f4f3ec;
+}
+
+.results-header h2 {
+  font-size: 1.8rem;
+  color: #08060d;
+}
+
+.results-header p {
+  color: #6b6375;
+  font-weight: 500;
+}
+
+.user-profile-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0.5rem 0 1rem 0;
+}
+
+.user-profile-summary span {
+  background-color: #f4f3ec;
+  color: #6b6375;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #e5e4e7;
+}
+
+.cert-summary {
+  margin-bottom: 1rem;
+}
+
+.cert-summary h4 {
+  margin: 0 0 0.5rem 0;
+  color: #6b6375;
+}
+
+.cert-summary-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cert-summary-item {
+  background-color: #00000010;
+  color: #000000;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #00000030;
+}
+
+.no-certs {
+  color: #6b6375;
+  font-size: 0.85rem;
+}
+
+.edit-profile-btn {
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+  background-color: white;
+  border: 1px solid #e5e4e7;
+  color: #6b6375;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-profile-btn:hover {
+  background-color: #f4f3ec;
+  border-color: #000000;
+  color: #000000;
+}
+
+.scholarship-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.scholarship-card {
+  background: white;
+  padding: 1.8rem;
+  border-radius: 16px;
+  border: 1px solid #e5e4e7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scholarship-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: #00000044;
+  transform: scale(1.01);
+}
+
+.card-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #00000015;
+  color: #000000;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 1rem;
+  border-bottom-right-radius: 12px;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-info h3 {
+  margin: 0.8rem 0 0.4rem 0;
+  font-size: 1.3rem;
+  color: #08060d;
+}
+
+.provider {
+  color: #6b6375;
+  font-size: 0.95rem;
+  margin-bottom: 1.2rem;
+}
+
+.card-details {
+  display: flex;
+  gap: 2rem;
+  font-size: 1rem;
+}
+
+.amount {
+  color: #000000;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.amount::before {
+  content: '💰';
+  font-size: 0.9rem;
+}
+
+.apply-btn {
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 1.5rem;
+}
+
+.apply-btn:hover {
+  background-color: #333333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.empty-results {
+  text-align: center;
+  padding: 3rem;
+  color: #6b6375;
+}
+
+.back-to-home {
+  display: block;
+  margin: 0 auto;
+  background: none;
+  border: none;
+  color: #888888;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.back-to-home:hover {
+  color: #6b6375;
+  text-decoration: underline;
+}

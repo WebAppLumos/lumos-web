@@ -1,3 +1,5 @@
+import './ScholarshipResult.css'
+
 export default function ScholarshipResult({ 
   user, 
   userProfile, 
@@ -19,25 +21,17 @@ export default function ScholarshipResult({
           {userProfile.prevToeic && <span>이전 TOEIC {userProfile.prevToeic}</span>}
         </div>
         
-        <div className="cert-summary" style={{ marginBottom: '1rem' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#6b6375' }}>취득 자격증</h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div className="cert-summary">
+          <h4>취득 자격증</h4>
+          <div className="cert-summary-list">
             {userProfile.certificates.length > 0 ? (
               userProfile.certificates.map((cert, index) => (
-                <span key={index} style={{ 
-                  backgroundColor: '#aa3bff10', 
-                  color: '#aa3bff', 
-                  padding: '0.3rem 0.8rem', 
-                  borderRadius: '20px', 
-                  fontSize: '0.85rem', 
-                  fontWeight: '600',
-                  border: '1px solid #aa3bff30'
-                }}>
-                  {cert.name} ({cert.date})
+                <span key={index} className="cert-summary-item">
+                  {cert.name} ({cert.acquisitionDate || cert.date})
                 </span>
               ))
             ) : (
-              <span style={{ color: '#6b6375', fontSize: '0.85rem' }}>취득한 자격증이 없습니다.</span>
+              <span className="no-certs">취득한 자격증이 없습니다.</span>
             )}
           </div>
         </div>
@@ -59,11 +53,21 @@ export default function ScholarshipResult({
                   <span className="amount">{s.amount}</span>
                 </div>
               </div>
-              <button className="apply-btn">상세보기</button>
+              <button 
+                className="apply-btn"
+                onClick={() => {
+                  const url = s.name.includes('국가장학금')
+                    ? 'https://www.kosaf.go.kr/ko/scholar.do?pg=scholarship05_12_01_01&naviParam=JH,02,02,00'
+                    : 'https://janghak.kmu.ac.kr/janghak/9308/subview.do';
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }}
+              >
+                상세보기
+              </button>
             </div>
           ))
         ) : (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#6b6375' }}>
+          <div className="empty-results">
             <p>조건에 맞는 장학금이 없습니다.</p>
           </div>
         )}

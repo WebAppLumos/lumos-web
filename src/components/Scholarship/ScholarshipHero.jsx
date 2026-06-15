@@ -1,3 +1,5 @@
+import './ScholarshipHero.css'
+
 export default function ScholarshipHero({ onStartCuration }) {
   return (
     <div className="hero-section">

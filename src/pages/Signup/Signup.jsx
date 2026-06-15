@@ -31,6 +31,7 @@ export default function Signup() {
   const [grade, setGrade] = useState('')
   const [studentNumber, setStudentNumber] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [incomeBracket, setIncomeBracket] = useState('5')
 
   const [hint, setHint] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -82,6 +83,7 @@ export default function Signup() {
           grade: Number(grade),
           studentNumber: form.studentNumber,
           phoneNumber: form.phoneNumber,
+          incomeBracket: Number(incomeBracket),
         })
 
         updateUser(profile)
@@ -212,6 +214,21 @@ export default function Signup() {
             <option value="2">2학년</option>
             <option value="3">3학년</option>
             <option value="4">4학년</option>
+          </select>
+
+          <label className="label" htmlFor="su-income">
+            소득 분위
+          </label>
+          <select
+            id="su-income"
+            className="input"
+            value={incomeBracket}
+            onChange={(e) => setIncomeBracket(e.target.value)}
+            required
+          >
+            {[...Array(10)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1}구간</option>
+            ))}
           </select>
 
           <label className="label" htmlFor="su-pw">
