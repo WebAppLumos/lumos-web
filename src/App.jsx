@@ -11,6 +11,7 @@ import {
   SESSION_EXPIRED_EVENT,
 } from './lib/session'
 import { AuthProvider, useAuth } from './app/providers/AuthProvider'
+import { ScholarshipProvider } from './app/providers/ScholarshipProvider'
 import Router from './Router.jsx'
 
 const publicPaths = new Set(['/login', '/signup'])
@@ -55,10 +56,10 @@ function SessionGuard() {
 }
 
 function DashboardWidgetsPrefetch() {
-  const { user } = useAuth()
+  const { isSessionReady } = useAuth()
 
   useEffect(() => {
-    if (!user) return undefined
+    if (!isSessionReady) return undefined
 
     Promise.all([
       fetchDashboardWidgets()
@@ -69,7 +70,7 @@ function DashboardWidgetsPrefetch() {
     ])
 
     return undefined
-  }, [user])
+  }, [isSessionReady])
 
   return null
 }
@@ -78,9 +79,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <SessionGuard />
-        <DashboardWidgetsPrefetch />
-        <Router />
+        <ScholarshipProvider>
+          <SessionGuard />
+          <DashboardWidgetsPrefetch />
+          <Router />
+        </ScholarshipProvider>
       </AuthProvider>
     </BrowserRouter>
   )

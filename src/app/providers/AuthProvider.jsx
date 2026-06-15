@@ -17,6 +17,7 @@ import {
   SESSION_EXPIRED_EVENT,
   setStoredUser,
 } from '../../lib/session'
+import { startSessionValidation } from '../../lib/sessionValidation'
 
 const AuthContext = createContext(null)
 
@@ -57,6 +58,7 @@ async function loadProfile(firebaseUser) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => getStoredUser())
   const [isLoading, setIsLoading] = useState(true)
+  const [isSessionReady, setIsSessionReady] = useState(false)
 
   const updateUser = useCallback((nextUser) => {
     setStoredUser(nextUser)
@@ -86,11 +88,13 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) {
         setUser(null)
+        setIsSessionReady(false)
         setIsLoading(false)
         return
       }
 
       localStorage.setItem('lumos_uid', firebaseUser.uid)
+      setIsSessionReady(false)
 
       await waitForBackendSync()
 
@@ -103,8 +107,10 @@ export function AuthProvider({ children }) {
         const profile = await loadProfile(firebaseUser)
         setStoredUser(profile)
         setUser(profile)
+        setIsSessionReady(true)
       } catch (error) {
         console.error(error)
+        setIsSessionReady(false)
 
         if (isOrphanedBackendSessionError(error)) {
           setUser(null)
@@ -123,23 +129,33 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const handleSessionExpired = () => {
-      setUser(null)
+      setIsSessionReady(false)
+      logout()
     }
 
     window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired)
-  }, [])
+  }, [logout])
+
+  useEffect(() => {
+    if (!user || !isSessionReady) {
+      return undefined
+    }
+
+    return startSessionValidation()
+  }, [user, isSessionReady])
 
   const value = useMemo(
     () => ({
       user,
       isLoading,
+      isSessionReady,
       isAuthenticated: Boolean(user),
       updateUser,
       refreshUser,
       logout,
     }),
-    [user, isLoading, updateUser, refreshUser, logout],
+    [user, isLoading, isSessionReady, updateUser, refreshUser, logout],
   )
 
   return (

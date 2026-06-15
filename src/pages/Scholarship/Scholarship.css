@@ -12,6 +12,12 @@
   width: 100%;
 }
 
+.scholarshipPage .scholarshipLoadingText {
+  text-align: center;
+  color: #6b6375;
+  font-size: 0.95rem;
+}
+
 .scholarshipPage .hero-section {
   text-align: center;
 }

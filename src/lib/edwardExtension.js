@@ -52,6 +52,7 @@ function sendExtensionMessage(payload) {
 export async function syncEdwardViaExtension(token, {
   syncTimetable = false,
   syncGrades = false,
+  syncProfile = false,
   year,
   termCode,
 } = {}) {
@@ -61,6 +62,7 @@ export async function syncEdwardViaExtension(token, {
     apiBaseUrl: API_BASE_URL,
     syncTimetable,
     syncGrades,
+    syncProfile,
     year,
     termCode,
   })

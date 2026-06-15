@@ -246,6 +246,28 @@
   border-top: 1px solid #e5e5e5;
 }
 
+.myPageScope .academicSyncNotice {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #fcd34d;
+  border-radius: 0.75rem;
+  background: #fffbeb;
+}
+
+.myPageScope .academicSyncNotice p {
+  margin: 0;
+  color: #92400e;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.myPageScope .disabledInput::placeholder {
+  color: #9ca3af;
+}
+
 .myPageScope .editActions,
 .myPageScope .dangerActions {
   display: flex;

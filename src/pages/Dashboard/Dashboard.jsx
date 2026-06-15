@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
   ClipboardCheck,
-  GraduationCap,
   MapPinned,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -26,10 +25,12 @@ import {
 } from '../../lib/timetable/session'
 import { getStoredUser } from '../../lib/session'
 import { useAuth } from '../../app/providers/AuthProvider'
+import { useScholarship } from '../../app/providers/ScholarshipProvider'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
 import DashboardWidgetEditor from '../../components/Dashboard/DashboardWidgetEditor'
 import ScheduleSummaryWidget from '../../components/Dashboard/ScheduleSummaryWidget'
+import ScholarshipSummaryWidget from '../../components/Dashboard/ScholarshipSummaryWidget'
 import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidget'
 
 import './Dashboard.css'
@@ -43,14 +44,6 @@ const dashboardSummaries = {
     description: '마감이 가까운 과제를 놓치지 않도록 관리하세요.',
     items: ['미완료 과제 2개', '가장 가까운 마감: 데이터베이스 ERD 설계'],
   },
-  scholarship: {
-    Icon: GraduationCap,
-    title: '장학금',
-    link: '/scholarship',
-    linkText: '장학금 보기',
-    description: '내 조건에 맞는 장학금 추천을 확인하세요.',
-    items: ['추천 가능 장학금 3개', '프로필을 입력하면 더 정확해져요'],
-  },
   'campus-map': {
     Icon: MapPinned,
     title: '캠퍼스맵',
@@ -62,25 +55,31 @@ const dashboardSummaries = {
 }
 
 function DashboardSummaryWidget({ summary, type, isEditing }) {
-  const { Icon } = summary
+  const Icon = summary.Icon
 
   return (
     <div className={`dashboardCard summaryWidget summaryWidget-${type} ${isEditing ? 'editing' : ''}`}>
       <div className="cardHead">
         <h3 className="cardTitle">
-          <Icon className="summaryIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
+          {Icon ? (
+            <Icon className="summaryIcon" size={18} strokeWidth={2.2} aria-hidden="true" />
+          ) : null}
           {summary.title}
         </h3>
         <Link to={summary.link} className="cardLink">{summary.linkText}</Link>
       </div>
 
       <div className="cardContent">
-        <p className="summaryDescription">{summary.description}</p>
-        <ul className="summaryList">
-          {summary.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+        {summary.description ? (
+          <p className="summaryDescription">{summary.description}</p>
+        ) : null}
+        {summary.items?.length ? (
+          <ul className="summaryList">
+            {summary.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </div>
   )
@@ -90,10 +89,12 @@ function renderDashboardWidget(widget, {
   DAYS,
   todayCourses,
   todayEvents,
+  scholarshipSession,
   isEditing,
   isWeekend,
   isLoadingTodayTimetable,
   isLoadingSchedule,
+  isLoadingScholarship,
 }) {
   if (widget.type === 'timetable') {
     return (
@@ -117,6 +118,16 @@ function renderDashboardWidget(widget, {
     )
   }
 
+  if (widget.type === 'scholarship') {
+    return (
+      <ScholarshipSummaryWidget
+        session={scholarshipSession}
+        isEditing={isEditing}
+        isLoading={isLoadingScholarship}
+      />
+    )
+  }
+
   return (
     <DashboardSummaryWidget
       summary={dashboardSummaries[widget.type]}
@@ -129,8 +140,9 @@ function renderDashboardWidget(widget, {
 export default function Dashboard() {
   const timetableSession = getTimetableSession()
   const calendarSession = getCalendarSession()
+  const { session: scholarshipSession, isLoading: isLoadingScholarship } = useScholarship()
 
-  const { user } = useAuth()
+  const { user, isSessionReady } = useAuth()
   const [widgets, setWidgets] = useState(() => {
     if (!getStoredUser()) return DEFAULT_DASHBOARD_WIDGETS
     return getCachedDashboardWidgets() ?? DEFAULT_DASHBOARD_WIDGETS
@@ -152,7 +164,7 @@ export default function Dashboard() {
   const [dragOverWidgetId, setDragOverWidgetId] = useState(null)
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !isSessionReady) {
       clearTimetableSession()
       clearCalendarSession()
       setTodayCourses([])
@@ -231,7 +243,7 @@ export default function Dashboard() {
     return () => {
       cancelled = true
     }
-  }, [user])
+  }, [user, isSessionReady])
 
   const persistWidgets = useCallback(async (nextWidgets) => {
     const previous = widgets
@@ -351,10 +363,12 @@ export default function Dashboard() {
                         DAYS,
                         todayCourses,
                         todayEvents,
+                        scholarshipSession,
                         isEditing,
                         isWeekend,
                         isLoadingTodayTimetable,
                         isLoadingSchedule,
+                        isLoadingScholarship,
                       })}
                     </div>
                   ))}

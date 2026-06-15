@@ -10,48 +10,62 @@ export default function ScholarshipForm({
   certAcquisitionDate, 
   setCertAcquisitionDate, 
   handleAddCertificate, 
-  handleSave, 
-  onBack 
+  handleSave,
+  showBackButton = false,
+  onBack,
 }) {
   return (
     <div className="profile-section">
       <h2>사용자 정보 확인 및 수정</h2>
       <p>더 정확한 장학금 추천을 위해 정보를 입력해 주세요.</p>
       <div className="profile-form">
+        <p className="readonly-field-note">
+          학과, 학년, 직전학기 성적, 이수 학점은 마이페이지 정보에서 자동으로 불러오며 수정할 수 없습니다.
+        </p>
         <div className="form-group">
           <label>학과</label>
-          <input 
-            name="major" 
-            value={userProfile.major} 
-            onChange={handleProfileChange}
+          <input
+            name="major"
+            value={userProfile.major}
+            disabled
+            readOnly
+            className="readonly-input"
+            placeholder="마이페이지에서 EDWARD 동기화 후 표시됩니다"
           />
         </div>
         <div className="form-group">
           <label>학년</label>
-          <input 
-            name="grade" 
-            value={userProfile.grade} 
-            onChange={handleProfileChange}
+          <input
+            name="grade"
+            value={userProfile.grade}
+            disabled
+            readOnly
+            className="readonly-input"
+            placeholder="마이페이지에서 EDWARD 동기화 후 표시됩니다"
           />
         </div>
         <div className="form-group">
           <div className="score-row" style={{ display: 'flex', gap: '1rem' }}>
             <div className="input-col" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label>직전학기 성적 (GPA)</label>
-              <input 
-                name="gpa" 
-                value={userProfile.gpa} 
-                onChange={handleProfileChange}
-                placeholder="예: 3.5"
+              <input
+                name="gpa"
+                value={userProfile.gpa}
+                disabled
+                readOnly
+                className="readonly-input"
+                placeholder="마이페이지 성적 동기화 후 표시됩니다"
               />
             </div>
             <div className="input-col" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label>이수 학점</label>
-              <input 
-                name="credits" 
-                value={userProfile.credits} 
-                onChange={handleProfileChange}
-                placeholder="예: 15"
+              <input
+                name="credits"
+                value={userProfile.credits}
+                disabled
+                readOnly
+                className="readonly-input"
+                placeholder="마이페이지 성적 동기화 후 표시됩니다"
               />
             </div>
           </div>
@@ -132,8 +146,10 @@ export default function ScholarshipForm({
           </div>
         </div>
         <div className="form-actions">
-          <button className="save-btn" onClick={handleSave}>장학금 산출하기</button>
-          <button className="back-btn" onClick={onBack}>돌아가기</button>
+          <button type="button" className="save-btn" onClick={handleSave}>장학금 산출하기</button>
+          {showBackButton && (
+            <button type="button" className="back-btn" onClick={onBack}>돌아가기</button>
+          )}
         </div>
       </div>
     </div>

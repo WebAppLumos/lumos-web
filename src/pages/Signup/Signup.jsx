@@ -27,11 +27,7 @@ export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
-  const [department, setDepartment] = useState('')
-  const [grade, setGrade] = useState('')
-  const [studentNumber, setStudentNumber] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [incomeBracket, setIncomeBracket] = useState('5')
 
   const [hint, setHint] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -46,8 +42,8 @@ export default function Signup() {
       return
     }
 
-    const form = trimSignupForm({ name, email, department, studentNumber, phoneNumber })
-    const validationMessage = validateSignupForm({ ...form, grade })
+    const form = trimSignupForm({ name, email, phoneNumber })
+    const validationMessage = validateSignupForm(form)
 
     if (validationMessage) {
       setHint(validationMessage)
@@ -78,12 +74,8 @@ export default function Signup() {
         rollbackFirebaseUser = userCredential.user
 
         const profile = await syncBackendLogin(userCredential.user, {
-          name: form.name || undefined,
-          department: form.department,
-          grade: Number(grade),
-          studentNumber: form.studentNumber,
+          name: form.name,
           phoneNumber: form.phoneNumber,
-          incomeBracket: Number(incomeBracket),
         })
 
         updateUser(profile)
@@ -138,24 +130,9 @@ export default function Signup() {
             id="su-name"
             className="input"
             type="text"
-            placeholder="홍길동 (선택)"
+            placeholder="홍길동"
             value={name}
             onChange={(e) => setName(sanitizeNameInput(e.target.value))}
-          />
-
-          <label className="label" htmlFor="su-std">
-            학번
-          </label>
-          <input
-            id="su-std"
-            className="input"
-            type="text"
-            placeholder="2024001"
-            value={studentNumber}
-            onChange={(e) => setStudentNumber(e.target.value)}
-            inputMode="numeric"
-            pattern="\d{7}"
-            maxLength={7}
             required
           />
 
@@ -184,51 +161,6 @@ export default function Signup() {
             maxLength={13}
             required
           />
-
-          <label className="label" htmlFor="su-dept">
-            학과(전공)
-          </label>
-          <input
-            id="su-dept"
-            className="input"
-            type="text"
-            placeholder="예: 컴퓨터공학과"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            required
-          />
-
-          <label className="label" htmlFor="su-grade">
-            학년
-          </label>
-          <select
-            id="su-grade"
-            className="input"
-            value={grade}
-            onChange={(e) => setGrade(e.target.value)}
-            required
-          >
-            <option value="">학년</option>
-            <option value="1">1학년</option>
-            <option value="2">2학년</option>
-            <option value="3">3학년</option>
-            <option value="4">4학년</option>
-          </select>
-
-          <label className="label" htmlFor="su-income">
-            소득 분위
-          </label>
-          <select
-            id="su-income"
-            className="input"
-            value={incomeBracket}
-            onChange={(e) => setIncomeBracket(e.target.value)}
-            required
-          >
-            {[...Array(10)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>{i + 1}구간</option>
-            ))}
-          </select>
 
           <label className="label" htmlFor="su-pw">
             비밀번호
