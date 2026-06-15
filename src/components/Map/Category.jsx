@@ -8,11 +8,15 @@ function Category(props) {
   const menuList = [
     "전체",
     "카페",
-    "도서관",
-    "프린트",
     "학식당",
     "편의점",
     "서점",
+    "기숙사",
+    "PC실습실",
+    "은행",
+    "생활편의",
+    "도서관",
+    "프린트",
   ];
 
   return (
@@ -39,7 +43,7 @@ function Category(props) {
             // 같은 카테고리 다시 누르면 해제
             if (category === item) {
 
-              setCategory(null);
+              setCategory("전체");
 
             } else {
 

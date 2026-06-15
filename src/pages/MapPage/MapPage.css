@@ -54,7 +54,8 @@ body {
 /* 카테고리 */
 .categoryBox {
   display: flex;
-  gap: 15px;
+  flex-wrap: wrap;
+  gap: 12px 15px;
   margin-top: 30px;
   margin-bottom: 20px;
 }
@@ -128,39 +129,175 @@ body {
 }
 
 .placeMapLabel {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 92px;
-  max-width: 150px;
-  padding: 7px 9px;
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
+  gap: 1px;
+  min-width: 72px;
+  max-width: 110px;
+  padding: 4px 6px 5px;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.96);
   color: #111827;
-  font-size: 11px;
-  line-height: 1.25;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-size: 10px;
+  line-height: 1.2;
   text-align: center;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
   pointer-events: none;
 }
 
-.placeMapLabel strong {
+.placeMapLabel::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.96);
+  border-right: 1px solid rgba(37, 99, 235, 0.2);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.placeMapLabel-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.placeMapLabel span {
-  color: #2563eb;
+.placeMapLabel-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.placeMapLabel.is-focused {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+
+.placeMapLabel-cafe { border-color: rgba(180, 83, 9, 0.25); }
+.placeMapLabel-canteen { border-color: rgba(194, 65, 12, 0.25); }
+.placeMapLabel-store { border-color: rgba(21, 128, 61, 0.25); }
+.placeMapLabel-book { border-color: rgba(109, 40, 217, 0.25); }
+.placeMapLabel-dorm { border-color: rgba(67, 56, 202, 0.25); }
+.placeMapLabel-pc { border-color: rgba(14, 116, 144, 0.25); }
+.placeMapLabel-bank { border-color: rgba(29, 78, 216, 0.25); }
+.placeMapLabel-life { border-color: rgba(190, 24, 93, 0.25); }
+.placeMapLabel-library { border-color: rgba(77, 124, 15, 0.25); }
+.placeMapLabel-print { border-color: rgba(55, 65, 81, 0.25); }
+
+/* 카카오맵 InfoWindow 팝업 */
+.mapBox .overlay_info,
+.mapBox .MapInfoWindow {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.mapBox .overlay_info .info,
+.mapBox .MapInfoWindow .info {
+  border: none !important;
+  background: transparent !important;
+}
+
+.mapBox .overlay_info .body,
+.mapBox .MapInfoWindow .body {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.mapBox .overlay_info .content,
+.mapBox .MapInfoWindow .content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.placeMapPopup {
+  min-width: 148px;
+  max-width: 180px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+.placeMapPopup-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 9px 6px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.placeMapPopup-type {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 9px;
   font-weight: 700;
 }
 
-.placeMapLabel em {
-  color: #6b7280;
-  font-style: normal;
+.placeMapPopup-name {
+  font-size: 11px;
+  line-height: 1.3;
+  color: #0f172a;
 }
+
+.placeMapPopup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 9px 7px;
+}
+
+.placeMapPopup-row {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 4px;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.placeMapPopup-label {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.placeMapPopup-value {
+  color: #1e293b;
+  word-break: keep-all;
+}
+
+.placeMapPopup-row-info .placeMapPopup-value {
+  color: #475569;
+}
+
+.placeMapPopup-cafe .placeMapPopup-type { background: #fef3c7; color: #b45309; }
+.placeMapPopup-canteen .placeMapPopup-type { background: #ffedd5; color: #c2410c; }
+.placeMapPopup-store .placeMapPopup-type { background: #dcfce7; color: #15803d; }
+.placeMapPopup-book .placeMapPopup-type { background: #ede9fe; color: #6d28d9; }
+.placeMapPopup-dorm .placeMapPopup-type { background: #e0e7ff; color: #4338ca; }
+.placeMapPopup-pc .placeMapPopup-type { background: #cffafe; color: #0e7490; }
+.placeMapPopup-bank .placeMapPopup-type { background: #dbeafe; color: #1d4ed8; }
+.placeMapPopup-life .placeMapPopup-type { background: #fce7f3; color: #be185d; }
+.placeMapPopup-library .placeMapPopup-type { background: #ecfccb; color: #4d7c0f; }
+.placeMapPopup-print .placeMapPopup-type { background: #f3f4f6; color: #374151; }
 
 .myLocationButton {
   position: absolute;
@@ -189,6 +326,12 @@ body {
 
 .myLocationButton:active {
   transform: translateY(0);
+}
+
+.myLocationButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
 }
 
 .myPositionMarker {
@@ -228,6 +371,22 @@ body {
   border-radius: 8px;
   background: #fff7ed;
   color: #c2410c;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+}
+
+.locationError {
+  position: absolute;
+  right: 76px;
+  bottom: 20px;
+  z-index: 2;
+  max-width: min(420px, calc(100% - 112px));
+  padding: 12px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
   font-size: 14px;
   line-height: 1.4;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
@@ -291,11 +450,27 @@ body {
 }
 
 .activePlace {
-  border: 2px solid #000;
+  border: 2px solid #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
 .placeBox h3 {
   margin-top: 0;
+}
+
+.placeFloor {
+  margin: 4px 0 0;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.placeInfo {
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 /* 버튼 */

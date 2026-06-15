@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/kakao-mobility/:path*",
+      "destination": "/api/kakao-mobility/:path*"
+    },
+    {
+      "source": "/((?!api|assets|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

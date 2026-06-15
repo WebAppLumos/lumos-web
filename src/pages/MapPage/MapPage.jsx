@@ -7,15 +7,92 @@ import { LocateFixed } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const KAKAO_MAP_APP_KEY =
-  import.meta.env.VITE_KAKAO_MAP_APP_KEY ||
-  "f45731d3a9216320487a08ab0fc72e69";
+const KAKAO_MAP_APP_KEY = import.meta.env.VITE_KAKAO_MAP_APP_KEY;
 
 const DEFAULT_POSITION = [35.8532, 128.4913];
-const RADIUS_OPTIONS = [100, 200, 300, 400];
+const CAMPUS_CENTER = DEFAULT_POSITION;
+const CAMPUS_BOUND_METERS = 1200;
+const RADIUS_MIN = 100;
+const RADIUS_MAX = 1200;
+const RADIUS_STEP = 100;
+const RADIUS_TICK_LABELS = [100, 400, 700, 1000, 1200];
+const DEFAULT_RADIUS = 800;
 
+const PLACE_TYPE_CLASS = {
+  카페: "placeMapLabel-cafe",
+  학식당: "placeMapLabel-canteen",
+  편의점: "placeMapLabel-store",
+  서점: "placeMapLabel-book",
+  기숙사: "placeMapLabel-dorm",
+  PC실습실: "placeMapLabel-pc",
+  은행: "placeMapLabel-bank",
+  생활편의: "placeMapLabel-life",
+  도서관: "placeMapLabel-library",
+  프린트: "placeMapLabel-print",
+};
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getPlaceTypeClass(type) {
+  return PLACE_TYPE_CLASS[type] || "placeMapLabel-default";
+}
+
+function buildPlaceMapLabelHtml(place, distance, isFocused = false) {
+  const typeClass = getPlaceTypeClass(place.type);
+  const focusedClass = isFocused ? " is-focused" : "";
+  const floor = escapeHtml(getPlaceFloor(place));
+
+  return `
+    <div class="placeMapLabel ${typeClass}${focusedClass}">
+      <strong class="placeMapLabel-name">${escapeHtml(place.name)}</strong>
+      <span class="placeMapLabel-meta">${floor} · ${distance}m</span>
+    </div>
+  `;
+}
+
+function buildPlaceMapPopupHtml(place) {
+  const popupTypeClass = getPlaceTypeClass(place.type).replace("placeMapLabel", "placeMapPopup");
+
+  return `
+    <div class="placeMapPopup ${popupTypeClass}">
+      <div class="placeMapPopup-header">
+        <span class="placeMapPopup-type">${escapeHtml(place.type)}</span>
+        <strong class="placeMapPopup-name">${escapeHtml(place.name)}</strong>
+      </div>
+      <div class="placeMapPopup-body">
+        <p class="placeMapPopup-row">
+          <span class="placeMapPopup-label">위치</span>
+          <span class="placeMapPopup-value">${escapeHtml(getPlaceFloor(place))}</span>
+        </p>
+        ${
+          place.time
+            ? `<p class="placeMapPopup-row">
+                <span class="placeMapPopup-label">운영</span>
+                <span class="placeMapPopup-value">${escapeHtml(place.time)}</span>
+              </p>`
+            : ""
+        }
+        ${
+          place.info
+            ? `<p class="placeMapPopup-row placeMapPopup-row-info">
+                <span class="placeMapPopup-label">안내</span>
+                <span class="placeMapPopup-value">${escapeHtml(place.info)}</span>
+              </p>`
+            : ""
+        }
+      </div>
+    </div>
+  `;
+}
 function getPlaceFloor(place) {
-  const floorText = place.floor || place.name.match(/(?:B\d+|지하\s*\d층|\d+\s*F|\d+\s*층)/i)?.[0];
+  if (place.floor) return place.floor;
+  const floorText = place.name.match(/(?:B\d+|지하\s*\d층|\d+\s*F|\d+\s*층)/i)?.[0];
   return floorText || "층 정보 확인 필요";
 }
 
@@ -35,6 +112,45 @@ function getDistanceMeters(from, to) {
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
+}
+
+function isOnCampus(position) {
+  return getDistanceMeters(CAMPUS_CENTER, position) <= CAMPUS_BOUND_METERS;
+}
+
+function getLocationErrorMessage(error) {
+  switch (error?.code) {
+    case 1:
+      return "위치 권한이 거부되었습니다. 브라우저 설정에서 위치 접근을 허용해주세요.";
+    case 2:
+      return "현재 위치를 확인할 수 없습니다.";
+    case 3:
+      return "위치 요청 시간이 초과되었습니다. 다시 시도해주세요.";
+    default:
+      return "내 위치를 불러오지 못했습니다.";
+  }
+}
+
+function requestCurrentPosition(options) {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options);
+  });
+}
+
+async function fetchUserLocation() {
+  try {
+    return await requestCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    });
+  } catch (highAccuracyError) {
+    return requestCurrentPosition({
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 60000,
+    });
+  }
 }
 
 async function getRoadRoutePath(origin, destination) {
@@ -80,18 +196,22 @@ function MapPage() {
   const [category, setCategory] = useState("전체");
   const [search, setSearch] = useState(initialSearch);
   const [selectedPosition, setSelectedPosition] = useState(DEFAULT_POSITION);
-  const [myPosition, setMyPosition] = useState(DEFAULT_POSITION);
-  const [radius, setRadius] = useState(400);
+  const [gpsPosition, setGpsPosition] = useState(null);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [routePath, setRoutePath] = useState([]);
   const [travelTimes, setTravelTimes] = useState({});
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const [focusedPlaceId, setFocusedPlaceId] = useState(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState("");
   const [routeError, setRouteError] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+
+  const myPosition = gpsPosition ?? CAMPUS_CENTER;
 
   const mapContainer = useRef(null);
   const mapInstance = useRef(null);
-  const myPositionRef = useRef(DEFAULT_POSITION);
   const markers = useRef([]);
   const infowindows = useRef([]);
   const placeOverlays = useRef([]);
@@ -99,43 +219,56 @@ function MapPage() {
   const radiusCircle = useRef(null);
   const polyline = useRef(null);
 
-  const moveToMyLocation = useCallback(() => {
-    const moveMap = (position) => {
-      setMyPosition(position);
-      setSelectedPosition(position);
-      setSelectedPlace(null);
-      setRoutePath([]);
-      setRouteError("");
-    };
+  const panMapTo = useCallback((position, zoomLevel = 3) => {
+    if (!mapInstance.current || !window.kakao?.maps) return;
+
+    const latLng = new window.kakao.maps.LatLng(position[0], position[1]);
+    mapInstance.current.panTo(latLng);
+    mapInstance.current.setLevel(zoomLevel);
+  }, []);
+
+  const moveToMyLocation = useCallback(async () => {
+    setIsLocating(true);
+    setLocationError("");
+    setSelectedPlace(null);
+    setFocusedPlaceId(null);
+    setRoutePath([]);
+    setRouteError("");
 
     if (!navigator.geolocation) {
-      moveMap(myPositionRef.current);
+      setGpsPosition(null);
+      setLocationError("이 브라우저에서는 위치 서비스를 사용할 수 없습니다.");
+      panMapTo(CAMPUS_CENTER);
+      setSelectedPosition(CAMPUS_CENTER);
+      setIsLocating(false);
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        moveMap([position.coords.latitude, position.coords.longitude]);
-      },
-      (error) => {
-        console.log(error);
-        moveMap(myPositionRef.current);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 30000,
-      }
-    );
-  }, []);
+    try {
+      const position = await fetchUserLocation();
+      const nextGpsPosition = [position.coords.latitude, position.coords.longitude];
 
-  useEffect(() => {
-    myPositionRef.current = myPosition;
-  }, [myPosition]);
+      setGpsPosition(nextGpsPosition);
+      panMapTo(nextGpsPosition);
+      setSelectedPosition(nextGpsPosition);
+
+      if (!isOnCampus(nextGpsPosition)) {
+        setLocationError("캠퍼스 밖에 있습니다. 지도는 내 위치 기준으로 이동합니다.");
+      }
+    } catch (error) {
+      console.log(error);
+      setGpsPosition(null);
+      setLocationError(getLocationErrorMessage(error));
+      panMapTo(CAMPUS_CENTER);
+      setSelectedPosition(CAMPUS_CENTER);
+    } finally {
+      setIsLocating(false);
+    }
+  }, [panMapTo]);
 
   useEffect(() => {
     if (!KAKAO_MAP_APP_KEY) {
-      setMapError("Kakao JavaScript key is missing.");
+      setMapError("VITE_KAKAO_MAP_APP_KEY 환경 변수가 설정되지 않았습니다.");
       return;
     }
 
@@ -222,21 +355,37 @@ function MapPage() {
     mapInstance.current.panTo(moveLatLon);
   }, [mapReady, selectedPosition]);
 
-  const filteredPlaces = useMemo(() => {
+  const listPlaces = useMemo(() => {
     return places.filter((item) => {
       const matchCategory =
-        category === "전체" ? true : category === null ? false : item.type === category;
+        !category || category === "전체" ? true : item.type === category;
 
       const matchSearch =
         item.name.includes(search) ||
         item.building?.some((keyword) => keyword.includes(search));
 
       const showBuilding = item.type !== "건물" ? true : search !== "";
-      const matchRadius = getDistanceMeters(myPosition, [item.lat, item.lng]) <= radius;
 
-      return matchCategory && matchSearch && showBuilding && matchRadius;
+      return matchCategory && matchSearch && showBuilding;
     });
-  }, [category, myPosition, radius, search]);
+  }, [category, search]);
+
+  const mapPlaces = useMemo(() => {
+    return listPlaces.filter(
+      (item) => getDistanceMeters(myPosition, [item.lat, item.lng]) <= radius
+    );
+  }, [listPlaces, myPosition, radius]);
+
+  useEffect(() => {
+    if (focusedPlaceId && !listPlaces.some((item) => item.id === focusedPlaceId)) {
+      setFocusedPlaceId(null);
+    }
+  }, [focusedPlaceId, listPlaces]);
+
+  const handleFocusPlace = useCallback((place) => {
+    setFocusedPlaceId(place.id);
+    setSelectedPosition([place.lat, place.lng]);
+  }, []);
 
   useEffect(() => {
     if (!mapReady || !mapInstance.current || !window.kakao?.maps) return;
@@ -286,7 +435,7 @@ function MapPage() {
       });
 
       const infowindow = new window.kakao.maps.InfoWindow({
-        content: `<div style="padding:8px;font-size:12px;"><strong>${selectedPlace.name}</strong><br/>${getPlaceFloor(selectedPlace)}</div>`,
+        content: buildPlaceMapPopupHtml(selectedPlace),
       });
 
       infowindow.open(mapInstance.current, marker);
@@ -294,7 +443,7 @@ function MapPage() {
       markers.current.push(marker);
       infowindows.current.push(infowindow);
     } else {
-      filteredPlaces.forEach((item) => {
+      mapPlaces.forEach((item) => {
         const position = new window.kakao.maps.LatLng(item.lat, item.lng);
         const marker = new window.kakao.maps.Marker({
           position,
@@ -302,30 +451,24 @@ function MapPage() {
         });
 
         const distance = Math.round(getDistanceMeters(myPosition, [item.lat, item.lng]));
-        const floor = getPlaceFloor(item);
+        const isFocused = focusedPlaceId === item.id;
         const overlay = new window.kakao.maps.CustomOverlay({
           position,
-          yAnchor: 1.45,
-          content: `
-            <div class="placeMapLabel">
-              <strong>${item.name}</strong>
-              <span>${floor}</span>
-              <em>${distance}m</em>
-            </div>
-          `,
+          yAnchor: 1.35,
+          content: buildPlaceMapLabelHtml(item, distance, isFocused),
         });
 
         overlay.setMap(mapInstance.current);
 
         const infowindow = new window.kakao.maps.InfoWindow({
-          content: `<div style="padding:8px;font-size:12px;"><strong>${item.name}</strong><br/>${floor}<br/>${
-            item.time || ""
-          }</div>`,
+          content: buildPlaceMapPopupHtml(item),
         });
 
         window.kakao.maps.event.addListener(marker, "click", () => {
           infowindows.current.forEach((info) => info.close());
           infowindow.open(mapInstance.current, marker);
+          setFocusedPlaceId(item.id);
+          setSelectedPosition([item.lat, item.lng]);
         });
 
         markers.current.push(marker);
@@ -357,7 +500,7 @@ function MapPage() {
       path.forEach((pos) => bounds.extend(pos));
       mapInstance.current.setBounds(bounds);
     }
-  }, [filteredPlaces, mapReady, myPosition, radius, routePath, selectedPlace]);
+  }, [focusedPlaceId, mapPlaces, mapReady, myPosition, radius, routePath, selectedPlace]);
 
   useEffect(() => {
     const times = {};
@@ -374,6 +517,7 @@ function MapPage() {
     const destinationPosition = [item.lat, item.lng];
 
     setSelectedPlace(item);
+    setFocusedPlaceId(item.id);
     setSelectedPosition(destinationPosition);
     setRoutePath([]);
     setRouteError("");
@@ -425,15 +569,15 @@ function MapPage() {
               <input
                 className="radiusSlider"
                 type="range"
-                min={RADIUS_OPTIONS[0]}
-                max={RADIUS_OPTIONS[RADIUS_OPTIONS.length - 1]}
-                step="100"
+                min={RADIUS_MIN}
+                max={RADIUS_MAX}
+                step={RADIUS_STEP}
                 value={radius}
                 onChange={(event) => setRadius(Number(event.target.value))}
                 aria-label="내 위치 반경"
               />
               <div className="radiusTicks">
-                {RADIUS_OPTIONS.map((option) => (
+                {RADIUS_TICK_LABELS.map((option) => (
                   <span key={option}>{option}</span>
                 ))}
               </div>
@@ -445,10 +589,12 @@ function MapPage() {
               aria-label="내 위치로 이동"
               title="내 위치로 이동"
               onClick={moveToMyLocation}
+              disabled={isLocating}
             >
               <LocateFixed size={22} strokeWidth={2.2} />
             </button>
 
+            {locationError && <div className="locationError">{locationError}</div>}
             {routeError && <div className="routeError">{routeError}</div>}
             {mapError && <div className="mapError">{mapError}</div>}
           </div>
@@ -458,8 +604,9 @@ function MapPage() {
           <h1>{category || "교내시설"}</h1>
 
           <PlaceList
-            places={filteredPlaces}
-            setSelectedPosition={setSelectedPosition}
+            places={listPlaces}
+            focusedPlaceId={focusedPlaceId}
+            onFocusPlace={handleFocusPlace}
             handleRoute={handleRoute}
             handleCancelRoute={handleCancelRoute}
             selectedPlace={selectedPlace}
