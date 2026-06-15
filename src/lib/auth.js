@@ -2,7 +2,7 @@ import api from './api'
 import { getNameValidationMessage } from './name'
 import { isValidPhoneNumber } from './phoneNumber'
 import { clearStoredSession } from './session'
-import { deleteUser, signOut } from 'firebase/auth'
+import { signOut } from 'firebase/auth'
 import { auth } from './firebase'
 
 export const EMAIL_DOMAIN_OPTIONS = [
@@ -141,8 +141,8 @@ export async function recoverOrphanedFirebaseSession() {
 
 export async function completeAccountWithdrawal(firebaseUser) {
   await deleteBackendAccount(firebaseUser)
-  await deleteUser(firebaseUser)
   clearStoredSession()
+  await signOut(auth).catch(() => {})
 }
 
 export function trimSignupForm({ name, email, phoneNumber }) {
