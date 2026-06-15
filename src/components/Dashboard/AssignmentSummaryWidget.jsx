@@ -46,7 +46,7 @@ export default function AssignmentSummaryWidget({ tasks, isEditing, isLoading })
         ) : (
           <>
             <p className="summaryDescription">
-              미완료 과제 {incompleteCount}개 · 마감이 가까운 순으로 보여줍니다.
+              미완료 과제 {incompleteCount}개
             </p>
             <ul className="classList">
               {upcomingTasks.map((task) => (

@@ -2,7 +2,7 @@ import api from './api'
 import { getNameValidationMessage } from './name'
 import { isValidPhoneNumber } from './phoneNumber'
 import { clearStoredSession } from './session'
-import { signOut } from 'firebase/auth'
+import { deleteUser, signOut } from 'firebase/auth'
 import { auth } from './firebase'
 
 export const EMAIL_DOMAIN_OPTIONS = [
@@ -139,8 +139,46 @@ export async function recoverOrphanedFirebaseSession() {
   await signOut(auth).catch(() => {})
 }
 
+export async function deleteFirebaseAccountClient(firebaseUser) {
+  try {
+    await deleteUser(firebaseUser)
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      return
+    }
+    throw error
+  }
+}
+
 export async function completeAccountWithdrawal(firebaseUser) {
-  await deleteBackendAccount(firebaseUser)
+  let backendError = null
+
+  try {
+    await deleteBackendAccount(firebaseUser)
+  } catch (error) {
+    if (error.response?.status !== 404) {
+      backendError = error
+    }
+  }
+
+  try {
+    await deleteFirebaseAccountClient(firebaseUser)
+  } catch (error) {
+    if (error.code === 'auth/requires-recent-login') {
+      throw error
+    }
+    if (error.code !== 'auth/user-not-found' && !backendError) {
+      throw error
+    }
+    if (error.code !== 'auth/user-not-found') {
+      throw backendError
+    }
+  }
+
+  if (backendError) {
+    throw backendError
+  }
+
   clearStoredSession()
   await signOut(auth).catch(() => {})
 }
