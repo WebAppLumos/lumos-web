@@ -76,6 +76,8 @@ export default function CertificationManager({ userId }) {
     const isDuplicate = userCerts?.some((cert) => cert.certName === certInfo.name);
     if (isDuplicate) {
       alert('이미 등록된 자격증입니다.');
+      setSelectedCertId('');
+      setIssueDate('');
       return;
     }
 

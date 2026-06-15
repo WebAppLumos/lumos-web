@@ -63,6 +63,8 @@ export default function Scholarship() {
     const isDuplicate = userProfile?.certificates?.some((cert) => cert.name === certInfo.name)
     if (isDuplicate) {
       alert('이미 등록된 자격증입니다.')
+      setSelectedCertId('')
+      setCertAcquisitionDate('')
       return
     }
 
