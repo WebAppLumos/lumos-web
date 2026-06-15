@@ -31,6 +31,28 @@ const PLACE_TYPE_CLASS = {
   프린트: "placeMapLabel-print",
 };
 
+function normalizeSearchText(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "");
+}
+
+function matchesPlaceSearch(item, rawSearch) {
+  const query = normalizeSearchText(rawSearch);
+  if (!query) return true;
+
+  const fields = [
+    item.name,
+    item.type,
+    item.floor,
+    item.info,
+    ...(item.building ?? []),
+  ];
+
+  return fields.some((field) => normalizeSearchText(field).includes(query));
+}
+
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -267,6 +289,11 @@ function MapPage() {
   }, [panMapTo]);
 
   useEffect(() => {
+    const nextSearch = searchParams.get("q") ?? "";
+    setSearch(nextSearch);
+  }, [searchParams]);
+
+  useEffect(() => {
     if (!KAKAO_MAP_APP_KEY) {
       setMapError("VITE_KAKAO_MAP_APP_KEY 환경 변수가 설정되지 않았습니다.");
       return;
@@ -355,26 +382,42 @@ function MapPage() {
     mapInstance.current.panTo(moveLatLon);
   }, [mapReady, selectedPosition]);
 
+  const trimmedSearch = search.trim();
+
   const listPlaces = useMemo(() => {
     return places.filter((item) => {
       const matchCategory =
         !category || category === "전체" ? true : item.type === category;
 
-      const matchSearch =
-        item.name.includes(search) ||
-        item.building?.some((keyword) => keyword.includes(search));
+      const matchSearch = matchesPlaceSearch(item, trimmedSearch);
 
-      const showBuilding = item.type !== "건물" ? true : search !== "";
+      const showBuilding = item.type !== "건물" ? true : trimmedSearch !== "";
 
       return matchCategory && matchSearch && showBuilding;
     });
-  }, [category, search]);
+  }, [category, trimmedSearch]);
 
   const mapPlaces = useMemo(() => {
+    if (trimmedSearch) {
+      return listPlaces;
+    }
+
     return listPlaces.filter(
       (item) => getDistanceMeters(myPosition, [item.lat, item.lng]) <= radius
     );
-  }, [listPlaces, myPosition, radius]);
+  }, [listPlaces, myPosition, radius, trimmedSearch]);
+
+  useEffect(() => {
+    const query = (searchParams.get("q") ?? "").trim();
+    if (!query) return;
+
+    const matches = places.filter((item) => matchesPlaceSearch(item, query));
+    if (matches.length === 0) return;
+
+    const firstPlace = matches[0];
+    setFocusedPlaceId(firstPlace.id);
+    setSelectedPosition([firstPlace.lat, firstPlace.lng]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (focusedPlaceId && !listPlaces.some((item) => item.id === focusedPlaceId)) {

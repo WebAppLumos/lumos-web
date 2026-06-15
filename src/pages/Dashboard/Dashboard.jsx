@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import {
-  ClipboardCheck,
   MapPinned,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -24,10 +23,12 @@ import {
   getTimetableSession,
 } from '../../lib/timetable/session'
 import { getStoredUser } from '../../lib/session'
+import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { useScholarship } from '../../app/providers/ScholarshipProvider'
 
 import DashboardHeader from '../../components/Dashboard/DashboardHeader'
+import AssignmentSummaryWidget from '../../components/Dashboard/AssignmentSummaryWidget'
 import DashboardWidgetEditor from '../../components/Dashboard/DashboardWidgetEditor'
 import ScheduleSummaryWidget from '../../components/Dashboard/ScheduleSummaryWidget'
 import ScholarshipSummaryWidget from '../../components/Dashboard/ScholarshipSummaryWidget'
@@ -36,14 +37,6 @@ import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidge
 import './Dashboard.css'
 
 const dashboardSummaries = {
-  assignment: {
-    Icon: ClipboardCheck,
-    title: '과제',
-    link: '/assignment',
-    linkText: '과제 보기',
-    description: '마감이 가까운 과제를 놓치지 않도록 관리하세요.',
-    items: ['미완료 과제 2개', '가장 가까운 마감: 데이터베이스 ERD 설계'],
-  },
   'campus-map': {
     Icon: MapPinned,
     title: '캠퍼스맵',
@@ -89,11 +82,13 @@ function renderDashboardWidget(widget, {
   DAYS,
   todayCourses,
   todayEvents,
+  assignmentTasks,
   scholarshipSession,
   isEditing,
   isWeekend,
   isLoadingTodayTimetable,
   isLoadingSchedule,
+  isLoadingAssignments,
   isLoadingScholarship,
 }) {
   if (widget.type === 'timetable') {
@@ -128,6 +123,16 @@ function renderDashboardWidget(widget, {
     )
   }
 
+  if (widget.type === 'assignment') {
+    return (
+      <AssignmentSummaryWidget
+        tasks={assignmentTasks}
+        isEditing={isEditing}
+        isLoading={isLoadingAssignments}
+      />
+    )
+  }
+
   return (
     <DashboardSummaryWidget
       summary={dashboardSummaries[widget.type]}
@@ -143,6 +148,9 @@ export default function Dashboard() {
   const { session: scholarshipSession, isLoading: isLoadingScholarship } = useScholarship()
 
   const { user, isSessionReady } = useAuth()
+  const [assignmentTasks, , { isLoading: isLoadingAssignments }] = useAssignmentTasks({
+    enabled: !!user && isSessionReady,
+  })
   const [widgets, setWidgets] = useState(() => {
     if (!getStoredUser()) return DEFAULT_DASHBOARD_WIDGETS
     return getCachedDashboardWidgets() ?? DEFAULT_DASHBOARD_WIDGETS
@@ -363,11 +371,13 @@ export default function Dashboard() {
                         DAYS,
                         todayCourses,
                         todayEvents,
+                        assignmentTasks: user && isSessionReady ? assignmentTasks : [],
                         scholarshipSession,
                         isEditing,
                         isWeekend,
                         isLoadingTodayTimetable,
                         isLoadingSchedule,
+                        isLoadingAssignments: !!user && isSessionReady && isLoadingAssignments,
                         isLoadingScholarship,
                       })}
                     </div>

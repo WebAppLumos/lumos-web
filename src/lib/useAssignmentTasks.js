@@ -3,7 +3,7 @@ import { fetchAssignments } from './assignmentApi'
 
 const ASSIGNMENT_TASKS_STORAGE_KEY = 'lumos.assignmentTasks'
 
-function readStoredTasks() {
+export function getStoredAssignmentTasks() {
   if (typeof window === 'undefined') return []
   try {
     const storedTasks = window.localStorage.getItem(ASSIGNMENT_TASKS_STORAGE_KEY)
@@ -11,6 +11,10 @@ function readStoredTasks() {
   } catch {
     return []
   }
+}
+
+function readStoredTasks() {
+  return getStoredAssignmentTasks()
 }
 
 export function useAssignmentTasks({ enabled = true } = {}) {

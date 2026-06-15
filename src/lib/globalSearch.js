@@ -1,7 +1,8 @@
-import { initialAssignmentTasks } from '../data/assignmentTasks'
 import places from '../data/places'
 import { allScholarships } from '../data/scholarships'
+import { getStoredAssignmentTasks } from './useAssignmentTasks'
 import { getCalendarSession } from './calendar/session'
+import { getStoredUser } from './session'
 import { getTimetableSession } from './timetable/session'
 
 const NAV_ITEMS = [
@@ -75,7 +76,7 @@ const CATEGORY_LABELS = {
 const CATEGORY_ORDER = ['page', 'course', 'event', 'assignment', 'scholarship', 'place']
 
 function normalize(text) {
-  return String(text ?? '').toLowerCase().trim()
+  return String(text ?? '').toLowerCase().trim().replace(/\s+/g, '')
 }
 
 function matchesQuery(query, ...fields) {
@@ -85,15 +86,6 @@ function matchesQuery(query, ...fields) {
 }
 
 function buildStaticIndex() {
-  const assignments = initialAssignmentTasks.map((task) => ({
-    id: `assignment-${task.id}`,
-    title: task.title,
-    subtitle: `${task.course} · 마감 ${task.deadline}`,
-    path: '/assignment',
-    category: 'assignment',
-    keywords: [task.title, task.course, task.deadline],
-  }))
-
   const scholarships = allScholarships.map((scholarship) => ({
     id: `scholarship-${scholarship.id}`,
     title: scholarship.name,
@@ -112,11 +104,24 @@ function buildStaticIndex() {
     keywords: [place.name, place.type, ...(place.building ?? [])],
   }))
 
-  return [...NAV_ITEMS, ...assignments, ...scholarships, ...mapPlaces]
+  return [...NAV_ITEMS, ...scholarships, ...mapPlaces]
 }
 
 function buildDynamicIndex() {
   const items = []
+
+  if (getStoredUser()) {
+    for (const task of getStoredAssignmentTasks()) {
+      items.push({
+        id: `assignment-${task.id}`,
+        title: task.title,
+        subtitle: `${task.course} · 마감 ${task.deadline}`,
+        path: '/assignment',
+        category: 'assignment',
+        keywords: [task.title, task.course, task.deadline],
+      })
+    }
+  }
 
   const timetableSession = getTimetableSession()
   if (timetableSession?.courses?.length) {
