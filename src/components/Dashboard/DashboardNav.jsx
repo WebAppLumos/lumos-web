@@ -3,9 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../lib/firebase'
 import { getDeadlineLabel, getImminentAssignments } from '../../lib/assignmentNotifications'
-import { clearStoredSession } from '../../lib/session'
 import { useAssignmentTasks } from '../../lib/useAssignmentTasks'
-import GlobalSearchModal from './GlobalSearchModal'
 import './DashboardNav.css'
 
 export default function DashboardNav({ user, onLogout }) {
@@ -236,7 +234,6 @@ export default function DashboardNav({ user, onLogout }) {
               {user.name?.[0] || ''}
             </button>
 
-
             {isDropdownOpen && (
               <>
                 <button
@@ -251,9 +248,6 @@ export default function DashboardNav({ user, onLogout }) {
                     <p>{user.name || ''}</p>
                     <span>{user.major || user.department || ''}</span>
                   </div>
-
-
-
 
                   <Link
                     to="/mypage"

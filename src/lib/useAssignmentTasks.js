@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
-import { initialAssignmentTasks } from '../data/assignmentTasks'
 import { fetchAssignments } from './assignmentApi'
 
 const ASSIGNMENT_TASKS_STORAGE_KEY = 'lumos.assignmentTasks'
 
 function readStoredTasks() {
-  if (typeof window === 'undefined') return initialAssignmentTasks
+  if (typeof window === 'undefined') return []
   try {
     const storedTasks = window.localStorage.getItem(ASSIGNMENT_TASKS_STORAGE_KEY)
-    return storedTasks ? JSON.parse(storedTasks) : initialAssignmentTasks
+    return storedTasks ? JSON.parse(storedTasks) : []
   } catch {
-    return initialAssignmentTasks
+    return []
   }
 }
 
