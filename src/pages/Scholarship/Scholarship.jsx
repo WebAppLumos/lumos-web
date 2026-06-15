@@ -13,7 +13,7 @@ import './Scholarship.css'
 
 export default function Scholarship() {
   const location = useLocation()
-  const { user, refreshUser } = useAuth()
+  const { user, updateUser, refreshUser } = useAuth()
   const {
     session,
     isLoading,
@@ -60,25 +60,22 @@ export default function Scholarship() {
     const certInfo = certificationsData.find((c) => c.id === parseInt(selectedCertId, 10))
     if (!certInfo) return
 
+    const isDuplicate = userProfile?.certificates?.some((cert) => cert.name === certInfo.name)
+    if (isDuplicate) {
+      alert('이미 등록된 자격증입니다.')
+      setSelectedCertId('')
+      setCertAcquisitionDate('')
+      return
+    }
+
     try {
       const uid = localStorage.getItem('lumos_uid')
-      const res = await scholarshipApi.addCertification(uid, {
+      await scholarshipApi.addCertification(uid, {
         certName: certInfo.name,
         issueDate: certAcquisitionDate,
       })
 
-      updateUserProfile((prev) => ({
-        ...prev,
-        certificates: [
-          ...prev.certificates,
-          {
-            certId: res.data.certId,
-            name: res.data.certName,
-            date: res.data.issueDate,
-            score: certInfo.score,
-          },
-        ],
-      }))
+      await refreshSession()
 
       setSelectedCertId('')
       setCertAcquisitionDate('')
@@ -94,17 +91,12 @@ export default function Scholarship() {
     if (certToRemove.certId) {
       try {
         await scholarshipApi.deleteCertification(certToRemove.certId)
+        await refreshSession()
       } catch (error) {
         console.error('Failed to delete certification:', error)
         alert('자격증 삭제 중 오류가 발생했습니다.')
-        return
       }
     }
-
-    updateUserProfile((prev) => ({
-      ...prev,
-      certificates: prev.certificates.filter((_, i) => i !== index),
-    }))
   }
 
   const handleSave = async () => {
@@ -160,9 +152,12 @@ export default function Scholarship() {
 
       const profilePayload = { scholarshipCurationCompleted: true }
       if (userProfile.incomeBracket) {
-        profilePayload.incomeBracket = parseInt(userProfile.incomeBracket.replace('구간', ''), 10)
+        profilePayload.incomeBracket = userProfile.incomeBracket
       }
-      await scholarshipApi.updateUserProfile(profilePayload)
+      const response = await scholarshipApi.updateUserProfile(profilePayload)
+      const updatedUser = response.data
+
+      updateUser(updatedUser)
 
       updateUserProfile((prev) => ({
         ...prev,
@@ -170,9 +165,8 @@ export default function Scholarship() {
         prevExamId: newIds.prevExamId,
       }))
 
-      await refreshUser()
       setCurationCompleted(true)
-      await refreshSession()
+      await refreshSession(updatedUser)
       setViewOverride('results')
     } catch (error) {
       console.error('Failed to save scholarship profile:', error)

@@ -259,11 +259,11 @@ export default function MyPage() {
   };
 
   const handleEdwardSyncSuccess = async ({ syncGrades, syncProfile } = {}) => {
-    await refreshUser();
+    const updatedUser = await refreshUser();
     await fetchSemesterCredits();
 
     if (syncGrades || syncProfile) {
-      await refreshSession();
+      await refreshSession(updatedUser);
     }
 
     if (syncGrades && showGradeDetails) {

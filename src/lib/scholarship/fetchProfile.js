@@ -18,6 +18,18 @@ export function buildScholarshipSession(userProfile, curationCompleted = false) 
   }
 }
 
+export function normalizeIncomeBracket(val) {
+  if (val === undefined || val === null) return null
+  const trimmed = String(val).trim()
+  if (trimmed === '기초/차상위' || trimmed.endsWith('구간')) {
+    return trimmed
+  }
+  if (/^\d+$/.test(trimmed)) {
+    return `${trimmed}구간`
+  }
+  return trimmed
+}
+
 export function patchSessionWithUser(session, user) {
   if (!session || !user) {
     return session
@@ -27,6 +39,7 @@ export function patchSessionWithUser(session, user) {
     ...session.userProfile,
     major: user.major || user.department || session.userProfile.major,
     grade: user.grade ? `${user.grade}학년` : session.userProfile.grade,
+    incomeBracket: normalizeIncomeBracket(user.incomeBracket) || session.userProfile.incomeBracket,
   }
 
   return buildScholarshipSession(
@@ -77,8 +90,8 @@ export async function fetchScholarshipProfile(user) {
     let incomeBracket = baseProfile.incomeBracket
     try {
       const profileRes = await scholarshipApi.getUserProfile()
-      if (profileRes.data?.incomeBracket) {
-        incomeBracket = `${profileRes.data.incomeBracket}구간`
+      if (profileRes.data?.incomeBracket !== undefined && profileRes.data?.incomeBracket !== null) {
+        incomeBracket = normalizeIncomeBracket(profileRes.data.incomeBracket) || incomeBracket
       }
     } catch (err) {
       console.error('Failed to fetch user income bracket:', err)

@@ -13,11 +13,20 @@ export default function CertificationManager({ userId }) {
   const [submitting, setSubmitting] = useState(false);
   const [selectedCertId, setSelectedCertId] = useState('');
   const [issueDate, setIssueDate] = useState('');
-  const [incomeBracket, setIncomeBracket] = useState('5');
+  const [incomeBracket, setIncomeBracket] = useState('5구간');
   const [savingIncomeBracket, setSavingIncomeBracket] = useState(false);
 
   useEffect(() => {
-    setIncomeBracket(String(user?.incomeBracket ?? 5));
+    if (user?.incomeBracket) {
+      const val = String(user.incomeBracket).trim()
+      if (val === '기초/차상위' || val.endsWith('구간')) {
+        setIncomeBracket(val)
+      } else {
+        setIncomeBracket(`${val}구간`)
+      }
+    } else {
+      setIncomeBracket('5구간')
+    }
   }, [user?.incomeBracket]);
 
   const fetchCerts = async () => {
@@ -43,10 +52,10 @@ export default function CertificationManager({ userId }) {
     try {
       setSavingIncomeBracket(true);
       const response = await scholarshipApi.updateUserProfile({
-        incomeBracket: Number(incomeBracket),
+        incomeBracket: incomeBracket,
       });
       updateUser(response.data);
-      await refreshSession();
+      await refreshSession(response.data);
       alert('소득 분위가 저장되었습니다.');
     } catch (error) {
       console.error('Failed to update income bracket:', error);
@@ -63,6 +72,14 @@ export default function CertificationManager({ userId }) {
 
     const certInfo = certificationsData.find((c) => c.id === parseInt(selectedCertId));
     if (!certInfo) return;
+
+    const isDuplicate = userCerts?.some((cert) => cert.certName === certInfo.name);
+    if (isDuplicate) {
+      alert('이미 등록된 자격증입니다.');
+      setSelectedCertId('');
+      setIssueDate('');
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -112,8 +129,9 @@ export default function CertificationManager({ userId }) {
             onChange={(e) => setIncomeBracket(e.target.value)}
             required
           >
+            <option value="기초/차상위">기초/차상위</option>
             {[...Array(10)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>{i + 1}구간</option>
+              <option key={i + 1} value={`${i + 1}구간`}>{i + 1}구간</option>
             ))}
           </select>
           <button

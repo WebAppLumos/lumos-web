@@ -75,15 +75,16 @@ export function ScholarshipProvider({ children }) {
     }
   }, [user, isSessionReady, applySession])
 
-  const refreshSession = useCallback(async () => {
-    if (!user) {
+  const refreshSession = useCallback(async (overrideUser) => {
+    const activeUser = overrideUser || user
+    if (!activeUser) {
       return null
     }
 
     setIsLoading(true)
     try {
-      const data = await refreshScholarshipSession(user)
-      return applySession(patchSessionWithUser(data, user))
+      const data = await refreshScholarshipSession(activeUser)
+      return applySession(patchSessionWithUser(data, activeUser))
     } finally {
       setIsLoading(false)
     }
