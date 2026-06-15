@@ -144,7 +144,7 @@ async function fetchUserLocation() {
       timeout: 10000,
       maximumAge: 0,
     });
-  } catch (highAccuracyError) {
+  } catch {
     return requestCurrentPosition({
       enableHighAccuracy: false,
       timeout: 15000,

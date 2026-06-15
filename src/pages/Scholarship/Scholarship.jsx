@@ -13,7 +13,7 @@ import './Scholarship.css'
 
 export default function Scholarship() {
   const location = useLocation()
-  const { user, updateUser, refreshUser } = useAuth()
+  const { user, updateUser } = useAuth()
   const {
     session,
     isLoading,
@@ -29,13 +29,8 @@ export default function Scholarship() {
   const userProfile = session?.userProfile
   const eligibleScholarships = session?.eligibleScholarships ?? []
   const defaultView = user?.scholarshipCurationCompleted ? 'results' : 'hero'
-  const view = viewOverride ?? (isLoading && !session ? 'loading' : defaultView)
-
-  useEffect(() => {
-    if (!user?.scholarshipCurationCompleted) {
-      setViewOverride(null)
-    }
-  }, [location.pathname, user?.scholarshipCurationCompleted])
+  const effectiveViewOverride = user?.scholarshipCurationCompleted ? viewOverride : null
+  const view = effectiveViewOverride ?? (isLoading && !session ? 'loading' : defaultView)
 
   useEffect(() => {
     if (!user) return

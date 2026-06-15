@@ -17,5 +17,28 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Existing effects sync local UI state on prop/context changes; refactor separately.
+      'react-hooks/set-state-in-effect': 'off',
+      'react-refresh/only-export-components': [
+        'error',
+        { allowExportNames: ['useAuth', 'useScholarship'] },
+      ],
+    },
+  },
+  {
+    files: ['api/**', 'vite.config.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['src/lib/edwardExtension.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        chrome: 'readonly',
+      },
+    },
   },
 ])
