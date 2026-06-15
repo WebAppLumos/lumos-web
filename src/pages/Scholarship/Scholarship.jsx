@@ -79,6 +79,17 @@ export default function Scholarship() {
           .filter(e => !(e.year === currentYear && e.semester === currentSemester) && e.examCategory === 'TOEIC')
           .sort((a, b) => (b.year !== a.year ? b.year - a.year : b.semester.localeCompare(a.semester)))[0]
         
+        // 5. 소득 분위 조회
+        let incomeBracket = '5구간'
+        try {
+          const profileRes = await scholarshipApi.getUserProfile()
+          if (profileRes.data && profileRes.data.incomeBracket) {
+            incomeBracket = `${profileRes.data.incomeBracket}구간`
+          }
+        } catch (err) {
+          console.error('Failed to fetch user income bracket:', err)
+        }
+        
         setUserProfile(prev => ({
           ...prev,
           major: user.major || user.department || '',
@@ -90,7 +101,8 @@ export default function Scholarship() {
           toeic: currentExam ? currentExam.score.toString() : '',
           prevToeic: prevExam ? prevExam.score.toString() : '',
           currentExamId: currentExam ? currentExam.examId : null,
-          prevExamId: prevExam ? prevExam.examId : null
+          prevExamId: prevExam ? prevExam.examId : null,
+          incomeBracket: incomeBracket
         }))
       } catch (error) {
         console.error('Failed to fetch user scholarship profile:', error)
@@ -242,6 +254,12 @@ export default function Scholarship() {
           const res = await scholarshipApi.addLanguageExam(uid, prevExamData)
           newIds.prevExamId = res.data.examId
         }
+      }
+
+      // 4. 소득 분위 저장
+      if (userProfile.incomeBracket) {
+        const bracketValue = parseInt(userProfile.incomeBracket.replace('구간', ''))
+        await scholarshipApi.updateUserProfile({ incomeBracket: bracketValue })
       }
 
       // 로컬 상태 업데이트 (중복 방지 및 즉시 반영)

@@ -21,4 +21,8 @@ export const scholarshipApi = {
 
   // Recent Semester Credits
   getRecentSemesterCredits: () => api.get('/api/recent-semester/total-credits'),
+
+  // User Profile (Income Bracket)
+  getUserProfile: () => api.get('/api/users/me'),
+  updateUserProfile: (data) => api.patch('/api/users/me', data),
 }
