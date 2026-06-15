@@ -2,7 +2,7 @@ import api from './api'
 import { getNameValidationMessage } from './name'
 import { isValidPhoneNumber } from './phoneNumber'
 import { clearStoredSession } from './session'
-import { deleteUser, signOut } from 'firebase/auth'
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, signOut } from 'firebase/auth'
 import { auth } from './firebase'
 
 export const EMAIL_DOMAIN_OPTIONS = [
@@ -95,7 +95,7 @@ export function getSignupErrorMessage(error) {
 }
 
 export async function syncBackendLogin(firebaseUser, profile = {}) {
-  const idToken = await firebaseUser.getIdToken(true)
+  const idToken = await ensureFreshIdToken(firebaseUser)
   const response = await api.post('/api/auth/login', {
     idToken,
     ...profile,
@@ -106,17 +106,60 @@ export async function syncBackendLogin(firebaseUser, profile = {}) {
   return response.data?.user ?? response.data
 }
 
-export async function deleteBackendAccount(firebaseUser) {
-  const token = await firebaseUser.getIdToken(true)
+export async function ensureFreshIdToken(firebaseUser) {
+  const user = firebaseUser ?? auth.currentUser
+  if (!user) {
+    const error = new Error('로그인 세션이 없습니다.')
+    error.code = 'auth/user-not-found'
+    throw error
+  }
 
+  await user.reload()
+  const activeUser = auth.currentUser ?? user
+  return activeUser.getIdToken(true)
+}
+
+async function deleteBackendAccountOnce(firebaseUser) {
+  const token = await ensureFreshIdToken(firebaseUser)
+  return api.delete('/api/users/me', {
+    authToken: token,
+    skipSessionExpired: true,
+  })
+}
+
+export async function validateWithdrawalSession(firebaseUser) {
+  const token = await ensureFreshIdToken(firebaseUser)
+  await api.get('/api/users/me', {
+    authToken: token,
+    skipSessionExpired: true,
+  })
+}
+
+export async function reauthenticateForWithdrawal(firebaseUser, password) {
+  if (!firebaseUser?.email) {
+    const error = new Error('MISSING_EMAIL')
+    error.code = 'auth/user-not-found'
+    throw error
+  }
+
+  const credential = EmailAuthProvider.credential(firebaseUser.email, password)
+  await reauthenticateWithCredential(firebaseUser, credential)
+  await firebaseUser.reload()
+}
+
+export async function deleteBackendAccount(firebaseUser) {
   try {
-    await api.delete('/api/users/me', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      skipSessionExpired: true,
-    })
+    await deleteBackendAccountOnce(firebaseUser)
   } catch (error) {
+    if (error.response?.status === 401) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 600)
+      })
+      const activeUser = auth.currentUser ?? firebaseUser
+      await deleteBackendAccountOnce(activeUser)
+      return
+    }
+
     // 탈퇴 도중 이탈 후 재시도 등: 이미 DB에서 삭제된 경우 계속 진행
     if (error.response?.status !== 404) {
       throw error
@@ -151,36 +194,72 @@ export async function deleteFirebaseAccountClient(firebaseUser) {
 }
 
 export async function completeAccountWithdrawal(firebaseUser) {
-  let backendError = null
-
-  try {
-    await deleteBackendAccount(firebaseUser)
-  } catch (error) {
-    if (error.response?.status !== 404) {
-      backendError = error
-    }
+  const activeUser = auth.currentUser ?? firebaseUser
+  if (!activeUser) {
+    const error = new Error('로그인 세션이 없습니다.')
+    error.code = 'auth/user-not-found'
+    throw error
   }
 
-  try {
-    await deleteFirebaseAccountClient(firebaseUser)
-  } catch (error) {
-    if (error.code === 'auth/requires-recent-login') {
-      throw error
-    }
-    if (error.code !== 'auth/user-not-found' && !backendError) {
-      throw error
-    }
-    if (error.code !== 'auth/user-not-found') {
-      throw backendError
-    }
-  }
+  await validateWithdrawalSession(activeUser)
 
-  if (backendError) {
-    throw backendError
+  try {
+    await deleteBackendAccount(activeUser)
+  } catch (error) {
+    if (error.response?.status === 404) {
+      await deleteFirebaseAccountClient(activeUser)
+    } else {
+      throw error
+    }
   }
 
   clearStoredSession()
   await signOut(auth).catch(() => {})
+}
+
+export function getWithdrawalErrorMessage(error) {
+  const code = error?.code
+  if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+    return '비밀번호가 올바르지 않습니다.'
+  }
+  if (
+    code === 'auth/requires-recent-login'
+    || code === 'auth/user-token-expired'
+    || code === 'auth/user-not-found'
+  ) {
+    return '로그인 세션이 만료되었습니다. 로그아웃 후 다시 로그인해 주세요.'
+  }
+
+  const status = error?.response?.status
+  if (status === 401 || status === 403) {
+    return '인증이 만료되었습니다. 로그아웃 후 다시 로그인해 주세요.'
+  }
+
+  const serverMessage = error?.response?.data?.message
+  if (serverMessage) {
+    return serverMessage
+  }
+
+  const message = String(error?.message ?? '')
+  if (message.includes('user-token-expired')) {
+    return '로그인 세션이 만료되었습니다. 로그아웃 후 다시 로그인해 주세요.'
+  }
+
+  return '탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'
+}
+
+export function shouldLogoutAfterWithdrawalFailure(error) {
+  const code = error?.code
+  if (
+    code === 'auth/requires-recent-login'
+    || code === 'auth/user-token-expired'
+    || code === 'auth/user-not-found'
+  ) {
+    return true
+  }
+
+  const status = error?.response?.status
+  return status === 401 || status === 403
 }
 
 export function trimSignupForm({ name, email, phoneNumber }) {

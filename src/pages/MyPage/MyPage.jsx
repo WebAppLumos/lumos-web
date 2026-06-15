@@ -7,7 +7,12 @@ import { fetchActiveSemesterCredits } from '../../lib/timetable/api';
 import { fetchSemesterGrades } from '../../lib/grades/api';
 import { formatPhoneNumber } from '../../lib/phoneNumber';
 import { getNameValidationMessage, sanitizeNameInput } from '../../lib/name';
-import { completeAccountWithdrawal } from '../../lib/auth';
+import {
+  completeAccountWithdrawal,
+  getWithdrawalErrorMessage,
+  reauthenticateForWithdrawal,
+  shouldLogoutAfterWithdrawalFailure,
+} from '../../lib/auth';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useScholarship } from '../../app/providers/ScholarshipProvider';
 import EdwardSyncModal from '../../components/MyPage/EdwardSyncModal';
@@ -36,7 +41,7 @@ export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const { user, updateUser, logout, refreshUser } = useAuth();
+  const { user, updateUser, logout, refreshUser, isSessionReady } = useAuth();
   const { refreshSession } = useScholarship();
 
   const [formData, setFormData] = useState({
@@ -59,6 +64,9 @@ export default function MyPage() {
   const [gradeLoading, setGradeLoading] = useState(false);
   const [gradeError, setGradeError] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [withdrawModalStep, setWithdrawModalStep] = useState(null);
+  const [withdrawPassword, setWithdrawPassword] = useState('');
+  const [withdrawError, setWithdrawError] = useState('');
 
   const fetchSemesterCredits = async () => {
     try {
@@ -188,42 +196,52 @@ export default function MyPage() {
     }
   };
 
-  const handleWithdrawal = async () => {
-    if (!window.confirm('정말 탈퇴하시겠습니까? 모든 데이터와 계정은 영구적으로 삭제됩니다.')) {
+  const openWithdrawModal = () => {
+    setWithdrawError('');
+    setWithdrawPassword('');
+    setWithdrawModalStep('confirm');
+  };
+
+  const closeWithdrawModal = () => {
+    if (isWithdrawing) return;
+    setWithdrawModalStep(null);
+    setWithdrawPassword('');
+    setWithdrawError('');
+  };
+
+  const handleWithdrawalSubmit = async () => {
+    if (!withdrawPassword.trim()) {
+      setWithdrawError('비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    if (!isSessionReady) {
+      setWithdrawError('계정 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
       return;
     }
 
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      alert('로그인 세션이 만료되었습니다. 다시 로그인한 후 탈퇴를 진행해 주세요.');
-      handleLogout();
+      setWithdrawError('로그인 세션이 만료되었습니다. 로그아웃 후 다시 로그인해 주세요.');
       return;
     }
 
+    setWithdrawError('');
     setIsWithdrawing(true);
 
     try {
-      await completeAccountWithdrawal(currentUser);
-
-      alert('탈퇴 처리가 완료되었습니다.');
+      await reauthenticateForWithdrawal(currentUser, withdrawPassword.trim());
+      const activeUser = auth.currentUser ?? currentUser;
+      await completeAccountWithdrawal(activeUser);
       window.location.href = '/';
     } catch (error) {
-      if (error.code === 'auth/requires-recent-login') {
-        alert('보안을 위해 다시 로그인한 후 탈퇴를 진행해 주세요.');
-        handleLogout();
-        return;
+      const message = getWithdrawalErrorMessage(error);
+      setWithdrawError(message);
+      setWithdrawModalStep('password');
+
+      if (shouldLogoutAfterWithdrawalFailure(error)) {
+        await handleLogout();
       }
-
-      const status = error.response?.status;
-      const serverMessage = error.response?.data?.message;
-
-      if (status === 401 || status === 403) {
-        alert('인증이 만료되었습니다. 다시 로그인한 후 탈퇴를 진행해 주세요.');
-        handleLogout();
-        return;
-      }
-
-      alert(`탈퇴 처리에 실패했습니다. (사유: ${serverMessage || error.message})`);
     } finally {
       setIsWithdrawing(false);
     }
@@ -690,8 +708,8 @@ export default function MyPage() {
 
                     <button
                       className="withdrawBtn"
-                      onClick={handleWithdrawal}
-                      disabled={isWithdrawing}
+                      onClick={openWithdrawModal}
+                      disabled={isWithdrawing || !isSessionReady}
                     >
                       {isWithdrawing ? '탈퇴 처리 중...' : '회원 탈퇴'}
                     </button>
@@ -700,18 +718,85 @@ export default function MyPage() {
               )}
             </div>
           </div>
+
+          {withdrawModalStep && !isWithdrawing ? (
+            <div className="withdrawalOverlay" role="dialog" aria-modal="true" aria-labelledby="withdrawModalTitle">
+              <div className="withdrawalOverlayCard withdrawalModalCard">
+                {withdrawModalStep === 'confirm' ? (
+                  <>
+                    <h3 id="withdrawModalTitle" className="withdrawalOverlayTitle">회원 탈퇴</h3>
+                    <p className="withdrawalOverlayDesc">
+                      탈퇴하면 모든 데이터와 계정이 영구적으로 삭제됩니다. 계속하시겠습니까?
+                    </p>
+                    <div className="withdrawalModalActions">
+                      <button type="button" className="withdrawalModalCancel" onClick={closeWithdrawModal}>
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        className="withdrawalModalConfirm"
+                        onClick={() => {
+                          setWithdrawError('');
+                          setWithdrawModalStep('password');
+                        }}
+                      >
+                        계속
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 id="withdrawModalTitle" className="withdrawalOverlayTitle">본인 확인</h3>
+                    <p className="withdrawalOverlayDesc">탈퇴를 진행하려면 비밀번호를 입력해 주세요.</p>
+                    <label className="withdrawalPasswordField">
+                      <span className="srOnly">비밀번호</span>
+                      <input
+                        type="password"
+                        value={withdrawPassword}
+                        onChange={(event) => setWithdrawPassword(event.target.value)}
+                        autoComplete="current-password"
+                        placeholder="비밀번호"
+                        disabled={isWithdrawing}
+                      />
+                    </label>
+                    {withdrawError ? (
+                      <p className="withdrawalErrorText" role="alert">{withdrawError}</p>
+                    ) : null}
+                    <div className="withdrawalModalActions">
+                      <button
+                        type="button"
+                        className="withdrawalModalCancel"
+                        onClick={closeWithdrawModal}
+                        disabled={isWithdrawing}
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        className="withdrawalModalConfirm"
+                        onClick={handleWithdrawalSubmit}
+                        disabled={isWithdrawing}
+                      >
+                        {isWithdrawing ? '처리 중...' : '탈퇴하기'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {isWithdrawing ? (
+            <div className="withdrawalOverlay" role="alertdialog" aria-live="assertive" aria-busy="true">
+              <div className="withdrawalOverlayCard">
+                <span className="withdrawalOverlaySpinner" aria-hidden="true" />
+                <p className="withdrawalOverlayTitle">회원 탈퇴 처리 중</p>
+                <p className="withdrawalOverlayDesc">완료될 때까지 페이지를 닫거나 이동하지 마세요.</p>
+              </div>
+            </div>
+          ) : null}
         </div>
       </main>
-
-      {isWithdrawing ? (
-        <div className="withdrawalOverlay" role="alertdialog" aria-live="assertive" aria-busy="true">
-          <div className="withdrawalOverlayCard">
-            <span className="withdrawalOverlaySpinner" aria-hidden="true" />
-            <p className="withdrawalOverlayTitle">회원 탈퇴 처리 중</p>
-            <p className="withdrawalOverlayDesc">완료될 때까지 페이지를 닫거나 이동하지 마세요.</p>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -567,6 +567,88 @@
   background: #fff;
   text-align: center;
   box-shadow: 0 20px 40px rgb(0 0 0 / 15%);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.myPageScope .withdrawalModalCard {
+  text-align: left;
+}
+
+.myPageScope .withdrawalPasswordField {
+  display: block;
+  margin: 1rem 0 0.75rem;
+  min-width: 0;
+}
+
+.myPageScope .withdrawalPasswordField input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 0.625rem;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.myPageScope .withdrawalPasswordField input:focus {
+  outline: 2px solid rgb(23 23 23 / 15%);
+  border-color: #171717;
+}
+
+.myPageScope .withdrawalErrorText {
+  margin: 0 0 0.75rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.myPageScope .withdrawalModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  margin-top: 1rem;
+}
+
+.myPageScope .withdrawalModalCancel,
+.myPageScope .withdrawalModalConfirm {
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.625rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.myPageScope .withdrawalModalCancel {
+  border: 1px solid #d4d4d4;
+  background: #fff;
+  color: #171717;
+}
+
+.myPageScope .withdrawalModalConfirm {
+  border: none;
+  background: #dc2626;
+  color: #fff;
+}
+
+.myPageScope .withdrawalModalCancel:disabled,
+.myPageScope .withdrawalModalConfirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.myPageScope .srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .myPageScope .withdrawalOverlaySpinner {

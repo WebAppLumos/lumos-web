@@ -247,6 +247,11 @@ export async function fetchEntriesForSemester(semesterId, timetables) {
   return results.flat()
 }
 
+/** 학기 수업 학점 합산 */
+export function sumCourseCredits(courses) {
+  return courses.reduce((total, course) => total + (Number(course?.credit) || 0), 0)
+}
+
 /** 시간표에 배치된 수업만 학점 합산 (DB에만 남은 수업 제외) */
 export function sumRegisteredCredits(courses, entries) {
   const enrolledCourseIds = new Set(
@@ -265,12 +270,8 @@ export async function fetchActiveSemesterCredits() {
   const activeSemester = pickDashboardSemester(semesters)
   if (!activeSemester) return 0
 
-  const [timetables, courses] = await Promise.all([
-    fetchTimetables(activeSemester.id),
-    fetchCourses(activeSemester.id),
-  ])
-  const entries = await fetchEntriesForSemester(activeSemester.id, timetables)
-  return sumRegisteredCredits(courses, entries)
+  const courses = await fetchCourses(activeSemester.id)
+  return sumCourseCredits(courses)
 }
 
 export function buildTimetableSessionSnapshot({
