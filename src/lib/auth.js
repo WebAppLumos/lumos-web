@@ -1,4 +1,5 @@
 import api from './api'
+import { getNameValidationMessage } from './name'
 import { isValidPhoneNumber } from './phoneNumber'
 import { clearStoredSession } from './session'
 import { deleteUser, signOut } from 'firebase/auth'
@@ -151,7 +152,12 @@ export function trimSignupForm({ name, email, department, studentNumber, phoneNu
   }
 }
 
-export function validateSignupForm({ studentNumber, email, phoneNumber }) {
+export function validateSignupForm({ name, studentNumber, email, phoneNumber }) {
+  const nameMessage = getNameValidationMessage(name)
+  if (nameMessage) {
+    return nameMessage
+  }
+
   if (!/^\d{7}$/.test(studentNumber)) {
     return '학번은 숫자 7자리로 입력해 주세요. 예: 2024001'
   }
