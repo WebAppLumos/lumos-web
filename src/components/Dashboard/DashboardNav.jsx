@@ -21,7 +21,7 @@ export default function DashboardNav({ user, onLogout }) {
       return []
     }
   })
-  const [tasks] = useAssignmentTasks()
+  const [tasks] = useAssignmentTasks({ enabled: Boolean(user) })
   const [failedAvatarSrc, setFailedAvatarSrc] = useState('')
   const profileImage = user?.profileImage
   const avatarInitial = user?.name?.[0] || ''

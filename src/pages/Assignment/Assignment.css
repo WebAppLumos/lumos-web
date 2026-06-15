@@ -86,7 +86,7 @@
 }
 
 .assignmentPage .imminent-box {
-  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); /* 오리지널 핑크 배경 유지 */
+  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
   border: 1px solid #fecaca;
   border-radius: 1rem;
   padding: 1.25rem;

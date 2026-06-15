@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 import DashboardNav from '../../components/Dashboard/DashboardNav.jsx';
 import AssignmentCount from '../../components/Assignment/AssignmentCount.jsx';
 import AssignmentAdd from '../../components/Assignment/AssignmentAdd.jsx';
@@ -10,12 +12,19 @@ import '../Dashboard/Dashboard.css';
 import './Assignment.css';
 
 export default function Assignment() {
-  const [user, setUser] = useState({ id: 1, name: 'User' }); // 임시 유저 상태
+  const [user, setUser] = useState(null);
   const [tasks, setTasks, { isLoading, error }] = useAssignmentTasks({ enabled: true });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const imminentTask = getImminentAssignments(tasks)[0];
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleAddTask = async (newTask) => {
     setIsSaving(true);
