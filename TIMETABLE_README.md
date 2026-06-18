@@ -1,127 +1,138 @@
-# Lumos Web
+# 시간표 · 학사 연동
 
-대학생을 위한 학습용 대시보드 웹 앱입니다. Vite + React 기반으로 인증, 대시보드, 시간표 관리 화면을 제공합니다.
+Lumos Web의 **시간표** 화면과 **EDWARD/CTL 학사 연동** 기능 문서입니다.
 
-**기술 스택**
+---
 
-- React 19
-- Vite
-- React Router
-- Firebase Auth / Analytics
-- ESLint
+## 개요
 
-## 빠른 시작
+시간표는 백엔드 API와 PostgreSQL에 저장된 **개인 데이터**를 사용합니다. 초기 개발 단계의 `mock-data.js` 더미 데이터는 제거되었으며, 모든 학기·수업·배치·노트는 API를 통해 관리합니다.
 
-요구사항: Node.js 16 이상, npm
+학교 포털 데이터는 **Lumos Sync Chrome 확장**이 수집하고, 백엔드 `sync` 모듈이 파싱·저장합니다.
 
-```bash
-npm install
-npm run dev
-```
+---
 
-빌드 및 미리보기:
+## 시간표 화면 (`/timetable`)
 
-```bash
-npm run build
-npm run preview
-```
+### 주요 기능
 
-코드 스타일 검사:
+- 학기 탭 선택 및 순서 변경
+- 시간표 탭 생성·이름 수정·삭제·순서 변경
+- 주간 그리드에 수업 배치 표시
+- 수업 추가/삭제, 노트 작성·고정, 난이도(1~5) 설정
+- 온라인 수업·학점 정보 표시
+- `수업 정보` / `노트` / `난이도` 보기 모드 전환
 
-```bash
-npm run lint
-```
+### 관련 파일
 
-## 라우팅
+| 파일 | 역할 |
+|------|------|
+| `src/pages/Timetable/Timetable.jsx` | 시간표 페이지 진입점 |
+| `src/components/Timetable/*` | 그리드, 수업 목록, 컨트롤, 모달 |
+| `src/lib/timetable/api.js` | 학기·시간표·수업·노트·엔트리 API |
+| `src/lib/timetable/session.js` | 세션 캐시 (대시보드·전역 검색 공유) |
+| `src/lib/timetable/constants.js` | 그리드 시간 상수 |
 
-라우터는 [src/Router.jsx](src/Router.jsx)에서 관리합니다.
+### API 연동
 
-| 경로 | 페이지 | 설명 |
-|------|--------|------|
-| `/` | Dashboard | 메인 대시보드 |
-| `/timetable` | Timetable | 시간표 관리 |
-| `/login` | Signin | 로그인 |
-| `/signup` | Signup | 회원가입 |
+| 동작 | 메서드 | 엔드포인트 |
+|------|--------|------------|
+| 학기 목록 | GET | `/api/semesters` |
+| 학기 순서 변경 | PUT | `/api/semesters/reorder` |
+| 시간표 목록 | GET | `/api/semesters/{id}/timetables` |
+| 시간표 생성 | POST | `/api/semesters/{id}/timetables` |
+| 수업 목록 | GET | `/api/semesters/{id}/courses` |
+| 엔트리 목록 | GET | `/api/timetables/{id}/entries` |
+| 수업 배치 추가 | POST | `/api/timetables/{id}/entries` |
+| 노트 CRUD | * | `/api/courses/{id}/notes`, `/api/notes/{id}` |
 
-## 주요 기능
+상세 스펙은 [`lumos-api` 도메인 README](../lumos-api/README.md)를 참고하세요.
 
-### 인증
+### 세션 캐시
 
-- [src/pages/Signin/Signin.jsx](src/pages/Signin/Signin.jsx)
-  - 이메일/비밀번호 로그인
-  - Firebase `signInWithEmailAndPassword` 사용
-  - 로그인 성공 시 `localStorage`에 `unidash_user` 저장
-  - 성공 후 `/` 대시보드로 이동
+`lib/timetable/session.js`는 로그인 직후 `App.jsx`의 프리페치로 시간표 스냅샷을 저장합니다. 대시보드 **오늘의 시간표** 위젯과 **전역 검색**의 수업 카테고리가 이 캐시를 사용합니다.
 
-- [src/pages/Signup/Signup.jsx](src/pages/Signup/Signup.jsx)
-  - 이름, 이메일, 비밀번호, 학과, 학년 입력
-  - 비밀번호 확인 및 최소 길이 검증
-  - Firebase `createUserWithEmailAndPassword` 사용
-  - 회원가입 성공 시 `localStorage`에 `unidash_user` 저장
-  - 성공 후 `/` 대시보드로 이동
+---
 
-### 대시보드
+## 학사 연동 (EDWARD · CTL)
 
-- [src/pages/Dashboard/Dashboard.jsx](src/pages/Dashboard/Dashboard.jsx)
-  - `localStorage`의 `unidash_user`를 기준으로 로그인 상태 판단
-  - 비로그인 사용자는 로그인 안내 카드 표시
-  - 로그인 사용자는 대시보드 위젯 표시
-  - 위젯 편집 모드에서 위젯 표시/숨김 가능
-  - 기본 시간표 데이터를 이용해 오늘의 시간표 위젯 표시
-
-대시보드 컴포넌트:
-
-- `DashboardNav` — 공통 상단 내비게이션, 로그인/회원가입/로그아웃 UI
-- `DashboardHeader` — 대시보드 제목 및 위젯 편집 버튼
-- `DashboardLoginCard` — 비로그인 사용자 안내 카드
-- `DashboardWidgetEditor` — 위젯 표시 상태 편집
-- `TodayTimetableWidget` — 오늘의 시간표 요약 카드
-
-### 시간표
-
-- [src/pages/Timetable/Timetable.jsx](src/pages/Timetable/Timetable.jsx)
-  - `src/lib/mock-data.js`의 더미 데이터 사용
-  - 학기 및 시간표 선택
-  - 수업 추가 모달에서 선택한 수업을 현재 시간표에 추가
-  - 시간표 그리드와 수업 카드 목록에서 수업 삭제 가능
-  - `수업 정보`, `노트`, `난이도` 보기 모드 제공
-  - 공통 대시보드 내비게이션 사용
-
-## 프로젝트 구조
+### 동기화 흐름
 
 ```text
-src/
-  App.jsx
-  Router.jsx
-  lib/
-    firebase.js
-    mock-data.js
-  components/
-    Dashboard/
-    Timetable/
-  pages/
-    Dashboard/
-    Signin/
-    Signup/
-    Timetable/
+1. 사용자: 마이페이지 → 학사 정보 동기화
+2. lumos-web: Firebase ID 토큰 + 옵션을 Chrome 확장에 전달
+3. lumos-extension: portal.kmu.ac.kr SSO로 EDWARD/CTL 데이터 수집
+4. lumos-extension → lumos-api: import API 호출
+5. lumos-api: 파싱 후 DB 저장 (users, semesters, courses, entries, grades, assignments)
+6. lumos-web: 세션 캐시 갱신 후 UI 반영
 ```
 
-## 환경 변수 권장 사항
+### 동기화 항목
 
-현재 [src/lib/firebase.js](src/lib/firebase.js)에는 Firebase 설정값이 직접 작성되어 있습니다. 추후 배포 시에는 Key를 새로 발급 받은 후 `.env.local`에 `VITE_` 접두사 환경변수를 분리해야 합니다.
+| UI 라벨 | 확장 키 | 백엔드 API | 저장 대상 |
+|---------|---------|------------|-----------|
+| 학적 정보 | `profile` | `POST /api/sync/profile/import` | 학번, 학년, 전공(학부/과) |
+| 시간표 | `timetable` | `POST /api/sync/timetable/import` | 학기, 수업, 시간표, 엔트리 |
+| 성적 정보 | `grades` | `POST /api/sync/grades/import` | 학기별 GPA, 이수학점, 학사경고 |
+| CTL 과제 | `assignments` | `POST /api/sync/assignments/import` | 진행 중·미제출 과제 |
 
-```text
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_FIREBASE_MEASUREMENT_ID=
-```
+### 관련 파일
 
-## 개발 메모
+| 파일 | 역할 |
+|------|------|
+| `src/components/MyPage/EdwardSyncModal.jsx` | 동기화 UI (학년도·학기·항목 선택) |
+| `src/lib/edwardExtension.js` | 확장 ping, 메시지 전송 |
+| `lumos-extension/lib/edwardSync.js` | EDWARD SSV/MML 수집 |
+| `lumos-extension/lib/ctlSync.js` | CTL 과제 수집 |
+| `lumos-api/.../sync/` | 파서·서비스·import 컨트롤러 |
 
-- 현재 사용자 세션은 학습용으로 `localStorage`의 `unidash_user`에 저장합니다.
-- 시간표 데이터는 실제 DB가 아닌 mock 데이터 기반입니다.
-- 인증은 Firebase Auth를 사용하지만 사용자 프로필 정보는 별도 DB에 저장하지 않습니다.
+### 선행 조건
+
+1. Lumos에 로그인
+2. **Lumos Sync** Chrome 확장 설치 (개발자 모드 unpacked)
+3. 동일 브라우저에서 `portal.kmu.ac.kr` SSO 로그인 유지
+
+확장 ID: `mjbkpdkmolfjmkfaollkpnjfhejnahop` (manifest `key`로 고정)
+
+### EDWARD 시간표 파싱
+
+1. **수강신청확인 SSV** — 정확한 강의 시간
+2. **수강신청확인서 MML** — 학점 보강
+3. SSV 실패 시 MML 확인서로 fallback (`ConfirmationMmlParser`)
+
+동기화된 시간표는 `"EDWARD 동기화"` 이름의 시간표 탭에 반영됩니다.
+
+---
+
+## 마이페이지 연동 정보
+
+마이페이지(`/mypage`)에서 학사 연동 결과를 확인할 수 있습니다.
+
+| 영역 | 데이터 소스 |
+|------|-------------|
+| 학번·학년·전공 | `GET /api/users/me` (EDWARD profile sync 후 갱신) |
+| 신청 학점 (활성 학기) | 활성 학기 수업 `credit` 합산 |
+| 성적 요약 | `GET /api/users/me/semester-grades` |
+| 학사 동기화 버튼 | `EdwardSyncModal` |
+
+---
+
+## 대시보드 연동
+
+- **오늘의 시간표** 위젯: `lib/timetable/session.js`의 오늘 수업 스냅샷
+- EDWARD 동기화 시간표가 있으면 해당 시간표를 우선 표시 (`pickDashboardTimetable`)
+
+---
+
+## 데이터 정책
+
+- **개인 데이터** (시간표, 성적, 프로필): 백엔드 API + DB. 프론트엔드 목데이터 미사용.
+- **공통 데이터** (장학금, 캠퍼스 시설, 자격증 마스터): `src/data/` 정적 파일 유지.
+
+---
+
+## 추가 문서
+
+- [lumos-web/README.md](README.md) — 프론트엔드 전체
+- [lumos-extension/README.md](../lumos-extension/README.md) — 확장 설치·배포
+- [lumos-api/sync/README.md](../lumos-api/src/main/java/com/group4/lumos_api/sync/README.md) — 동기화 API 상세

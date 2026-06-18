@@ -29,7 +29,7 @@ const places = [
   // ── 편의점 / 마트 ──
   { id: 30, name: "emart24 바우어관", building: ["구바우어관"], type: "편의점", floor: "1F", time: "평일 08:00 - 22:00 (주말 무인)", lat: BAUER[0], lng: BAUER[1] },
   { id: 31, name: "세븐일레븐 체육관", building: ["체육관"], type: "편의점", floor: "1F", time: "평일 07:40 - 18:40", lat: GYM[0], lng: GYM[1] },
-  { id: 32, name: "산학협력관 마트", building: ["산학협력관"], type: "편의점", floor: "1F", time: "입점 예정 (2026. 6. 중)", lat: INDUSTRY[0], lng: INDUSTRY[1] },
+  // { id: 32, name: "산학협력관 마트", building: ["산학협력관"], type: "편의점", floor: "1F", time: "입점 예정 (2026. 6. 중)", lat: INDUSTRY[0], lng: INDUSTRY[1] },
 
   // ── 서점 / 문구 / 안경 / 우편 ──
   { id: 40, name: "구내서점", building: ["구바우어관"], type: "서점", floor: "B1F", time: "08:30 - 18:30", lat: BAUER[0], lng: BAUER[1] },
@@ -39,7 +39,7 @@ const places = [
   { id: 44, name: "계명아트센터 간이판매점", building: ["계명아트센터"], type: "생활편의", floor: "1F", time: "공연일 운영", lat: 35.8542, lng: 128.4905 },
 
   // ── 은행 ──
-  { id: 50, name: "iM뱅크 계명대지점", building: ["산학협력관"], type: "은행", floor: "1F", time: "평일 09:00 - 16:00", lat: INDUSTRY[0], lng: INDUSTRY[1] },
+  // { id: 50, name: "iM뱅크 계명대지점", building: ["산학협력관"], type: "은행", floor: "1F", time: "평일 09:00 - 16:00", lat: INDUSTRY[0], lng: INDUSTRY[1] },
 
   // ── 도서관 ──
   { id: 60, name: "동산도서관", building: ["동산도서관", "도서관"], type: "도서관", time: "09:00 - 19:00", lat: LIBRARY[0], lng: LIBRARY[1] },

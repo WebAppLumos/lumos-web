@@ -18,8 +18,9 @@
 - [페이지 및 라우팅](#페이지-및-라우팅)
 - [인증 및 세션](#인증-및-세션)
 - [백엔드 API 연동](#백엔드-api-연동)
-- [EDWARD 확장 프로그램 연동](#edward-확장-프로그램-연동)
+- [학사 연동 (EDWARD · CTL)](#학사-연동-edward--ctl)
 - [전역 검색](#전역-검색)
+- [시간표 상세 문서](TIMETABLE_README.md)
 - [개발 스크립트](#개발-스크립트)
 - [빌드 및 배포](#빌드-및-배포)
 
@@ -36,7 +37,7 @@
   - **과제** — 과제 현황 요약
   - **장학금** — 장학금 추천 요약
   - **캠퍼스맵** — 교내 시설 안내 요약
-- 위젯 설정은 백엔드 API에 저장되며, `localStorage` 캐시로 초기 로딩 속도 개선
+- 위젯 설정은 백엔드 API(`PUT /api/users/me/dashboard/widgets`)에 저장되며, `localStorage` 캐시로 초기 로딩 속도 개선
 
 ### 시간표 (`/timetable`)
 - 학기·시간표 탭 관리
@@ -67,9 +68,10 @@
 
 ### 마이페이지 (`/mypage`)
 - 프로필 조회·수정, 프로필 이미지 변경
-- 학기 학점 조회
-- EDWARD 시간표 동기화 모달
-- 회원 탈퇴
+- 활성 학기 신청 학점 조회 (수업 `credit` 합산)
+- 학기별 성적 요약 (`GET /api/users/me/semester-grades`)
+- **학사 정보 동기화** 모달 — 학적 정보, 시간표, 성적, CTL 과제 선택 동기화
+- 회원 탈퇴 (Firebase 재인증 + `DELETE /api/users/me`)
 
 ### 전역 검색 (상단 네비게이션)
 - 모든 페이지 공통 검색 아이콘
@@ -78,8 +80,18 @@
 
 ### 인증
 - Firebase Authentication (이메일/비밀번호)
-- 로그인 후 백엔드 사용자 정보 연동
+- 로그인 후 백엔드 사용자 정보 연동 (`GET /api/users/me`)
+- 회원가입: Firebase 계정 생성 → `POST /api/auth/login`으로 백엔드 등록
 - 세션 만료 시 자동 로그아웃 및 로그인 페이지 리다이렉트
+
+### 데이터 전략
+
+| 구분 | 예시 | 소스 |
+|------|------|------|
+| **개인 데이터** | 시간표, 일정, 과제, 프로필, 위젯, 성적 | 백엔드 API ↔ DB (연동 완료) |
+| **공통 데이터** | 장학금 목록, 캠퍼스 시설, 자격증 마스터 | `src/data/` 정적 파일 (DB 왕복 오버헤드 방지) |
+
+개인 데이터용 프론트엔드 목데이터(`mock-data.js` 등)는 제거되었습니다.
 
 ---
 
@@ -238,8 +250,7 @@ lumos-web/
 │   │   ├── useStoredUser.js    # 사용자 상태 커스텀 훅
 │   │   ├── dashboardApi.js     # 대시보드 위젯 API
 │   │   ├── globalSearch.js     # 전역 검색 인덱스·검색 로직
-│   │   ├── edwardExtension.js  # Chrome 확장 연동
-│   │   ├── mock-data.js        # 시간표 더미 데이터
+│   │   ├── edwardExtension.js  # Chrome 확장 연동 (EDWARD/CTL)
 │   │   ├── calendar/
 │   │   │   ├── api.js          # 일정 API, 필터, 세션 스냅샷
 │   │   │   └── session.js      # 일정 세션 캐시
@@ -248,11 +259,10 @@ lumos-web/
 │   │       ├── session.js      # 시간표 세션 캐시
 │   │       └── constants.js    # 시간표 그리드 상수
 │   │
-│   └── data/                   # 정적 데이터
+│   └── data/                   # 공통 정적 데이터 (목데이터)
 │       ├── places.js           # 캠퍼스 시설·건물 좌표
 │       ├── scholarships.js     # 장학금 목록·적합도 로직
-│       ├── assignmentTasks.js  # 과제 초기 데이터
-│       └── certifications.json # 자격증 목록
+│       └── certifications.json # 자격증 마스터 목록
 │
 ├── index.html
 ├── vite.config.js
@@ -269,7 +279,7 @@ lumos-web/
 | `src/pages/` | URL 단위 화면. 데이터 로딩·상태 관리의 진입점 |
 | `src/components/` | 페이지에서 재사용하는 UI 단위 |
 | `src/lib/` | API 호출, 인증, 세션 캐시, 공통 유틸 |
-| `src/data/` | 프론트엔드 정적 데이터 (지도, 장학금, 과제 시드) |
+| `src/data/` | 공통 정적 데이터 (지도, 장학금, 자격증 마스터). 개인 데이터는 API 사용 |
 | `public/` | 빌드 시 그대로 복사되는 정적 파일 |
 
 ---
@@ -389,9 +399,11 @@ Axios 인스턴스(`src/lib/api.js`)가 모든 API 요청을 처리합니다.
 
 ---
 
-## EDWARD 확장 프로그램 연동
+## 학사 연동 (EDWARD · CTL)
 
-학교 포털(EDWARD)에서 시간표를 자동으로 가져오는 Chrome 확장 프로그램과 연동합니다.
+학교 포털(EDWARD·CTL)에서 학적 정보, 시간표, 성적, 과제를 자동으로 가져오는 Chrome 확장 프로그램과 연동합니다.
+
+상세 흐름은 [TIMETABLE_README.md](TIMETABLE_README.md) 및 [lumos-api sync README](../lumos-api/src/main/java/com/group4/lumos_api/sync/README.md)를 참고하세요.
 
 ### 설정 방법
 
@@ -403,11 +415,20 @@ Axios 인스턴스(`src/lib/api.js`)가 모든 API 요청을 처리합니다.
 # VITE_LUMOS_EXTENSION_ID=mjbkpdkmolfjmkfaollkpnjfhejnahop
 ```
 
-4. Vite dev server 재시작 후 마이페이지에서 **EDWARD 동기화** 실행
+4. Vite dev server 재시작 후 마이페이지에서 **학사 정보 동기화** 실행
+
+### 동기화 항목
+
+| 항목 | 설명 |
+|------|------|
+| 학적 정보 | 학번, 학년, 소속학부/과(전공) |
+| 시간표 | 선택 학년도·학기 수강 시간표 |
+| 성적 정보 | 학기별 이수학점, 평균학점, 학사경고 |
+| CTL 과제 | 진행 중인 미제출 과제 |
 
 ### 관련 파일
 
-- `src/lib/edwardExtension.js` — 확장 ping, 시간표 동기화 메시지
+- `src/lib/edwardExtension.js` — 확장 ping, EDWARD/CTL 동기화 메시지
 - `src/components/MyPage/EdwardSyncModal.jsx` — 동기화 UI 모달
 
 ---
@@ -423,7 +444,7 @@ Axios 인스턴스(`src/lib/api.js`)가 모든 API 요청을 처리합니다.
 | 페이지 | 앱 내 주요 메뉴 |
 | 시간표 | 시간표 세션 캐시의 수업 목록 |
 | 일정 | 캘린더 세션 캐시의 이벤트 |
-| 과제 | `data/assignmentTasks.js` |
+| 과제 | 과제 API 세션 캐시 (`useAssignmentTasks`) |
 | 장학금 | `data/scholarships.js` |
 | 캠퍼스맵 | `data/places.js` |
 
