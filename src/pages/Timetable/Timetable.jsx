@@ -2,7 +2,7 @@
  * 시간표 페이지.
  * 학기·시간표 탭, 수업 배치·노트·난이도를 백엔드 API로 관리하고 세션 캐시를 갱신합니다.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '../../app/providers/AuthProvider'
 import { DAYS, TIME_SLOTS } from '../../lib/timetable/constants'
@@ -14,7 +14,7 @@ import {
   createEntry,
   createNote,
   createTimetable,
-  deleteEntry,
+  deleteCourseFromTimetable,
   deleteNote,
   deleteTimetable,
   fetchCourses,
@@ -23,9 +23,12 @@ import {
   fetchNotesForCourses,
   fetchTimetables,
   formatTime,
+  isEntryForCourseOnTimetable,
+  isEntryOnTimetable,
   mapCourse,
   mergeSchedulesByDay,
   pruneNotesByEntries,
+  resolveAddCourseSlots,
   reorderSemesters,
   reorderTimetables,
   slotStyleFromTimes,
@@ -71,6 +74,7 @@ export default function Timetable() {
   const [allSemesterEntries, setAllSemesterEntries] = useState(() => session?.allSemesterEntries ?? [])
   const [notes, setNotes] = useState(() => session?.notes ?? [])
   const [selectedCourseId, setSelectedCourseId] = useState(() => session?.selectedCourseId ?? '')
+  const removedCourseSchedulesRef = useRef({})
 
   /** API·캐시에서 받은 스냅샷을 React state 전체에 반영합니다. */
   const applySession = useCallback((nextSession) => {
@@ -219,12 +223,12 @@ export default function Timetable() {
     const fetchedNotes = courseIds.length > 0 ? await fetchNotesForCourses(courseIds) : []
 
     setEntries((prev) => {
-      const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
+      const others = prev.filter((entry) => !isEntryOnTimetable(entry, targetTimetableId))
       return [...others, ...timetableEntries]
     })
 
     setAllSemesterEntries((prev) => {
-      const others = prev.filter((entry) => entry.timetableId !== targetTimetableId)
+      const others = prev.filter((entry) => !isEntryOnTimetable(entry, targetTimetableId))
       const merged = [...others, ...timetableEntries]
 
       setNotes((prevNotes) => {
@@ -265,16 +269,20 @@ export default function Timetable() {
   const availableCourses = useMemo(() => {
     const onBoardIds = new Set(
       entries
-        .filter((entry) => entry.timetableId === timetableId)
-        .map((entry) => entry.courseId),
+        .filter((entry) => isEntryOnTimetable(entry, timetableId))
+        .map((entry) => Number(entry.courseId)),
     )
 
     return semesterCourses
-      .filter((course) => !onBoardIds.has(course.id))
+      .filter((course) => !onBoardIds.has(Number(course.id)))
       .map((course) => {
         const mapped = mapCourse(course)
         const schedules = buildSchedulesFromEntries(allSemesterEntries, course.id)
-        return { ...mapped, schedules }
+        const cachedSchedules = removedCourseSchedulesRef.current[course.id] ?? []
+        return {
+          ...mapped,
+          schedules: schedules.length > 0 ? schedules : cachedSchedules,
+        }
       })
   }, [semesterCourses, entries, timetableId, allSemesterEntries])
 
@@ -451,7 +459,7 @@ export default function Timetable() {
 
   /**
    * 선택한 수업을 현재 시간표에 배치합니다.
-   * 다른 시간표에 이미 있던 수업이면 기존 요일·시간을 복사하고, 없으면 월 09:00 기본 슬롯을 씁니다.
+   * 다른 시간표·삭제 직전 시간을 우선 복원하고, 겹치면 빈 슬롯을 찾습니다.
    */
   const onAddCourse = async () => {
     const course = availableCourses.find((c) => c.id === selectedAvailableCourseId)
@@ -460,21 +468,26 @@ export default function Timetable() {
       return
     }
 
-    const templates = allSemesterEntries
+    const otherTimetableTemplates = allSemesterEntries
       .filter((entry) => Number(entry.courseId) === Number(course.id))
+      .filter((entry) => !isEntryOnTimetable(entry, timetableId))
       .filter((entry) => Number(entry.dayOfWeek) >= 1 && Number(entry.dayOfWeek) <= 5)
 
-    const slots = templates.length > 0
-      ? mergeSchedulesByDay(templates.map((entry) => ({
+    const preferredSchedules = otherTimetableTemplates.length > 0
+      ? mergeSchedulesByDay(otherTimetableTemplates.map((entry) => ({
           day: apiDayToUi(entry.dayOfWeek),
           startTime: formatTime(entry.startTime),
           endTime: formatTime(entry.endTime),
-        }))).map((schedule) => ({
-          dayOfWeek: uiDayToApi(schedule.day),
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-        }))
-      : [{ dayOfWeek: uiDayToApi(0), startTime: '09:00', endTime: '10:30' }]
+        })))
+      : (course.schedules?.length > 0
+        ? course.schedules
+        : (removedCourseSchedulesRef.current[course.id] ?? []))
+
+    const slots = resolveAddCourseSlots(preferredSchedules, entries, timetableId)
+    if (!slots?.length) {
+      window.alert('배치할 수 있는 빈 시간이 없습니다.')
+      return
+    }
 
     try {
       const created = await Promise.all(
@@ -485,6 +498,7 @@ export default function Timetable() {
           endTime: slot.endTime,
         })),
       )
+      delete removedCourseSchedulesRef.current[course.id]
       setEntries((prev) => [...prev, ...created])
       setAllSemesterEntries((prev) => [...prev, ...created])
 
@@ -495,22 +509,32 @@ export default function Timetable() {
       }
     } catch (err) {
       console.error(err)
-      window.alert('수업을 시간표에 추가하지 못했습니다.')
+      const message = err.response?.data?.message
+      window.alert(message || '수업을 시간표에 추가하지 못했습니다.')
     }
   }
 
   /** 현재 시간표에서 수업의 모든 엔트리를 삭제하고 고아 노트를 정리합니다. */
   const onDeleteCourse = async (courseId) => {
-    const targetEntries = entries.filter(
-      (entry) => entry.timetableId === timetableId && entry.courseId === courseId,
+    if (!timetableId) return
+
+    const removedSchedules = buildSchedulesFromEntries(
+      allSemesterEntries.filter((entry) => isEntryForCourseOnTimetable(entry, timetableId, courseId)),
+      courseId,
     )
-    if (targetEntries.length === 0) return
+    if (removedSchedules.length > 0) {
+      removedCourseSchedulesRef.current[courseId] = removedSchedules
+    }
 
     try {
-      await Promise.all(targetEntries.map((entry) => deleteEntry(entry.id)))
-      const targetIds = new Set(targetEntries.map((entry) => entry.id))
-      const nextEntries = entries.filter((entry) => !targetIds.has(entry.id))
-      const nextAllSemesterEntries = allSemesterEntries.filter((entry) => !targetIds.has(entry.id))
+      await deleteCourseFromTimetable(timetableId, courseId)
+
+      const nextEntries = entries.filter(
+        (entry) => !isEntryForCourseOnTimetable(entry, timetableId, courseId),
+      )
+      const nextAllSemesterEntries = allSemesterEntries.filter(
+        (entry) => !isEntryForCourseOnTimetable(entry, timetableId, courseId),
+      )
 
       setEntries(nextEntries)
       setAllSemesterEntries(nextAllSemesterEntries)

@@ -3,7 +3,7 @@
  * 백엔드 dayOfWeek(1=월~7=일) ↔ UI 그리드 인덱스(0=월) 변환을 담당합니다.
  */
 import api from '../api'
-import { TIMETABLE_GRID_START_HOUR, TIMETABLE_HOUR_HEIGHT_REM } from './constants'
+import { DAYS, TIME_SLOTS, TIMETABLE_GRID_START_HOUR, TIMETABLE_HOUR_HEIGHT_REM } from './constants'
 
 const COURSE_COLORS = [
   '#6366f1',
@@ -121,6 +121,25 @@ export function mapCourse(course) {
   }
 }
 
+/** API 엔트리 응답을 UI state 형식으로 정규화합니다. */
+export function mapEntry(entry, fallbackTimetableId) {
+  return {
+    ...entry,
+    id: entry.id,
+    timetableId: entry.timetableId ?? fallbackTimetableId,
+    courseId: Number(entry.courseId),
+  }
+}
+
+export function isEntryOnTimetable(entry, timetableId, fallbackTimetableId = timetableId) {
+  return Number(entry.timetableId ?? fallbackTimetableId) === Number(timetableId)
+}
+
+export function isEntryForCourseOnTimetable(entry, timetableId, courseId, fallbackTimetableId = timetableId) {
+  return isEntryOnTimetable(entry, timetableId, fallbackTimetableId)
+    && Number(entry.courseId) === Number(courseId)
+}
+
 /** API 노트 응답을 UI snake_case 형식으로 변환합니다. */
 export function mapNote(note) {
   return {
@@ -236,6 +255,103 @@ export function buildSchedulesFromEntries(entries, courseId) {
   return mergeSchedulesByDay(schedules)
 }
 
+function addMinutesToTime(startTime, minutes) {
+  const totalMinutes = Math.round(timeToNumber(startTime) * 60) + minutes
+  const hours = Math.floor(totalMinutes / 60)
+  const mins = totalMinutes % 60
+  if (hours > 17 || (hours === 17 && mins > 0)) return null
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
+}
+
+/** 두 시간 구간이 겹치는지 검사합니다. */
+export function intervalsOverlap(startA, endA, startB, endB) {
+  return timeToNumber(startA) < timeToNumber(endB) && timeToNumber(startB) < timeToNumber(endA)
+}
+
+/** 현재 시간표에 이미 배치된 요일·시간 목록 */
+export function getTimetableOccupiedIntervals(entries, timetableId) {
+  return entries
+    .filter((entry) => isEntryOnTimetable(entry, timetableId))
+    .filter((entry) => entry.dayOfWeek != null && entry.startTime && entry.endTime)
+    .map((entry) => ({
+      day: apiDayToUi(entry.dayOfWeek),
+      startTime: formatTime(entry.startTime),
+      endTime: formatTime(entry.endTime),
+    }))
+}
+
+function slotConflictsWithOccupied(slot, occupied) {
+  const day = apiDayToUi(slot.dayOfWeek)
+  return occupied.some((item) => item.day === day
+    && intervalsOverlap(slot.startTime, slot.endTime, item.startTime, item.endTime))
+}
+
+/** 겹치지 않는 첫 빈 슬롯을 찾습니다. */
+export function findFirstFreeSlot(occupied, { durationMinutes = 90, preferDay = null } = {}) {
+  const allDays = DAYS.map((_, index) => index)
+  const dayOrder = preferDay != null
+    ? [preferDay, ...allDays.filter((day) => day !== preferDay)]
+    : allDays
+
+  for (const day of dayOrder) {
+    for (const startTime of TIME_SLOTS) {
+      const endTime = addMinutesToTime(startTime, durationMinutes)
+      if (!endTime) continue
+
+      const slot = {
+        dayOfWeek: uiDayToApi(day),
+        startTime,
+        endTime,
+      }
+      if (!slotConflictsWithOccupied(slot, occupied)) {
+        return slot
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * 수업 추가 시 배치할 슬롯을 결정합니다.
+ * 선호 시간이 겹치면 같은 요일·다른 시간, 그래도 안 되면 다른 요일의 빈 슬롯을 찾습니다.
+ */
+export function resolveAddCourseSlots(schedules, entries, timetableId) {
+  const occupied = getTimetableOccupiedIntervals(entries, timetableId)
+  const resolved = []
+
+  for (const schedule of schedules) {
+    const preferred = {
+      dayOfWeek: uiDayToApi(schedule.day),
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+    }
+
+    let slot = preferred
+    if (slotConflictsWithOccupied(preferred, occupied)) {
+      slot = findFirstFreeSlot(occupied, { preferDay: schedule.day })
+    }
+
+    if (!slot) {
+      return null
+    }
+
+    resolved.push(slot)
+    occupied.push({
+      day: apiDayToUi(slot.dayOfWeek),
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+    })
+  }
+
+  if (resolved.length === 0) {
+    const fallback = findFirstFreeSlot(occupied)
+    return fallback ? [fallback] : null
+  }
+
+  return resolved
+}
+
 /** GET /api/semesters — 학기 목록 조회 */
 export async function fetchSemesters() {
   const { data } = await api.get('/api/semesters')
@@ -257,7 +373,7 @@ export async function fetchCourses(semesterId) {
 /** GET /api/timetables/:id/entries — 시간표별 수업 배치 목록 */
 export async function fetchEntries(timetableId) {
   const { data } = await api.get(`/api/timetables/${timetableId}/entries`)
-  return data
+  return data.map((entry) => mapEntry(entry, timetableId))
 }
 
 /** 학기 내 모든 시간표의 엔트리를 병렬 조회해 flat 배열로 반환합니다. */
@@ -265,10 +381,7 @@ export async function fetchEntriesForSemester(semesterId, timetables) {
   if (timetables.length === 0) return []
 
   const results = await Promise.all(
-    timetables.map(async (timetable) => {
-      const entries = await fetchEntries(timetable.id)
-      return entries.map((entry) => ({ ...entry, timetableId: entry.timetableId ?? timetable.id }))
-    }),
+    timetables.map((timetable) => fetchEntries(timetable.id)),
   )
   return results.flat()
 }
@@ -446,12 +559,17 @@ export async function createEntry(timetableId, { courseId, dayOfWeek, startTime,
     startTime,
     endTime,
   })
-  return data
+  return mapEntry(data, timetableId)
 }
 
-/** DELETE /api/entries/:id — 시간표에서 수업 배치 제거 */
+/** DELETE /api/entries/:id — 시간표에서 수업 배치 1건 제거 */
 export async function deleteEntry(entryId) {
   await api.delete(`/api/entries/${entryId}`)
+}
+
+/** DELETE /api/timetables/:id/courses/:courseId/entries — 해당 시간표에서 수업 배치 전체 제거 */
+export async function deleteCourseFromTimetable(timetableId, courseId) {
+  await api.delete(`/api/timetables/${timetableId}/courses/${courseId}/entries`)
 }
 
 /** POST /api/courses/:id/notes — 수업 노트 생성 (핀 설정 포함) */
