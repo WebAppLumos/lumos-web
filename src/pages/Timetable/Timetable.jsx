@@ -2,7 +2,7 @@
  * 시간표 페이지.
  * 학기·시간표 탭, 수업 배치·노트·난이도를 백엔드 API로 관리하고 세션 캐시를 갱신합니다.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '../../app/providers/AuthProvider'
 import { DAYS, TIME_SLOTS } from '../../lib/timetable/constants'
@@ -32,7 +32,6 @@ import {
   reorderSemesters,
   reorderTimetables,
   slotStyleFromTimes,
-  uiDayToApi,
   updateNote,
   updateSemester,
   updateTimetable,
@@ -74,7 +73,7 @@ export default function Timetable() {
   const [allSemesterEntries, setAllSemesterEntries] = useState(() => session?.allSemesterEntries ?? [])
   const [notes, setNotes] = useState(() => session?.notes ?? [])
   const [selectedCourseId, setSelectedCourseId] = useState(() => session?.selectedCourseId ?? '')
-  const removedCourseSchedulesRef = useRef({})
+  const [removedCourseSchedules, setRemovedCourseSchedules] = useState({})
 
   /** API·캐시에서 받은 스냅샷을 React state 전체에 반영합니다. */
   const applySession = useCallback((nextSession) => {
@@ -278,13 +277,13 @@ export default function Timetable() {
       .map((course) => {
         const mapped = mapCourse(course)
         const schedules = buildSchedulesFromEntries(allSemesterEntries, course.id)
-        const cachedSchedules = removedCourseSchedulesRef.current[course.id] ?? []
+        const cachedSchedules = removedCourseSchedules[course.id] ?? []
         return {
           ...mapped,
           schedules: schedules.length > 0 ? schedules : cachedSchedules,
         }
       })
-  }, [semesterCourses, entries, timetableId, allSemesterEntries])
+  }, [semesterCourses, entries, timetableId, allSemesterEntries, removedCourseSchedules])
 
   /** 학기 탭 표시 순서 */
   const sortedSemesters = useMemo(
@@ -481,7 +480,7 @@ export default function Timetable() {
         })))
       : (course.schedules?.length > 0
         ? course.schedules
-        : (removedCourseSchedulesRef.current[course.id] ?? []))
+        : (removedCourseSchedules[course.id] ?? []))
 
     const slots = resolveAddCourseSlots(preferredSchedules, entries, timetableId)
     if (!slots?.length) {
@@ -498,7 +497,12 @@ export default function Timetable() {
           endTime: slot.endTime,
         })),
       )
-      delete removedCourseSchedulesRef.current[course.id]
+      setRemovedCourseSchedules((prev) => {
+        if (!prev[course.id]) return prev
+        const next = { ...prev }
+        delete next[course.id]
+        return next
+      })
       setEntries((prev) => [...prev, ...created])
       setAllSemesterEntries((prev) => [...prev, ...created])
 
@@ -523,7 +527,7 @@ export default function Timetable() {
       courseId,
     )
     if (removedSchedules.length > 0) {
-      removedCourseSchedulesRef.current[courseId] = removedSchedules
+      setRemovedCourseSchedules((prev) => ({ ...prev, [courseId]: removedSchedules }))
     }
 
     try {
