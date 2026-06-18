@@ -1,3 +1,7 @@
+/**
+ * 학사 정보 동기화 모달 (EDWARD · CTL).
+ * Chrome 확장에 Firebase 토큰과 동기화 옵션을 전달하고 결과를 항목별로 표시합니다.
+ */
 import { useEffect, useState } from 'react'
 import { RefreshCw, ExternalLink } from 'lucide-react'
 import { auth } from '../../lib/firebase'
@@ -43,15 +47,18 @@ const SYNC_OPTIONS = [
 
 const PAGE_REFRESH_NOTICE = 'EDWARD 페이지를 새로고침했습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.'
 
+/** 현재 월 기준 기본 학기 코드 (3~8월: 1학기, 그 외: 2학기) */
 function guessDefaultTermCode() {
   const month = new Date().getMonth() + 1
   return month >= 3 && month <= 8 ? '1' : '2'
 }
 
+/** 확장이 EDWARD 페이지 새로고침 안내를 반환했는지 검사 */
 function isPageRefreshError(message) {
   return typeof message === 'string' && message.includes('새로고침')
 }
 
+/** 동기화 결과 중 페이지 새로고침 안내가 있으면 사용자 메시지로 추출 */
 function extractRefreshNotice(result) {
   for (const item of [result?.profile, result?.timetable, result?.grades]) {
     if (item && !item.ok && isPageRefreshError(item.error)) {
@@ -61,6 +68,7 @@ function extractRefreshNotice(result) {
   return null
 }
 
+/** EDWARD 항목(학적·시간표·성적) 동기화 결과를 UI 상태로 변환 */
 function buildItemResult(itemResult) {
   if (!itemResult) {
     return null
@@ -73,6 +81,7 @@ function buildItemResult(itemResult) {
   return { status: 'error', message: '실패' }
 }
 
+/** CTL 과제 동기화 결과를 UI 상태(반영 건수 등)로 변환 */
 function buildCtlResult(itemResult) {
   if (!itemResult) {
     return null
@@ -89,6 +98,7 @@ function buildCtlResult(itemResult) {
   return { status: 'error', message: '실패' }
 }
 
+/** 학사 정보 동기화 모달. EDWARD·CTL 항목 선택 후 Chrome 확장에 동기화를 요청합니다. */
 export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   const [syncing, setSyncing] = useState(false)
   const [error, setError] = useState('')
@@ -146,6 +156,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
   }
 
   const handleSubmit = async (e) => {
+    // 선택한 항목만 확장에 전달. EDWARD·CTL은 Promise.all 로 병렬 실행
     e.preventDefault()
     setError('')
 
@@ -184,6 +195,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       const token = await user.getIdToken()
       const tasks = []
 
+      // EDWARD(학적·시간표·성적)와 CTL(과제)는 확장 내부에서 병렬 처리 가능
       if (syncProfile || syncTimetable || syncGrades) {
         tasks.push(
           syncEdwardViaExtension(token, {
@@ -228,6 +240,7 @@ export default function EdwardSyncModal({ open, onClose, onSuccess }) {
       setError(otherError || ctlError || '')
 
       if (edwardPayload?.timetable?.ok) {
+        // 동기화된 수업 목록을 다시 불러오도록 캐시 무효화
         clearTimetableSession()
       }
 

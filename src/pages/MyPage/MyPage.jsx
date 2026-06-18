@@ -1,3 +1,7 @@
+/**
+ * 마이페이지.
+ * 프로필 수정, EDWARD/CTL 학사 동기화, 성적·신청학점 조회, 회원 탈퇴를 담당합니다.
+ */
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, BarChart3, RefreshCw, Shield, UserRound } from 'lucide-react';
@@ -27,6 +31,7 @@ const emptyGradeSummary = {
   semesters: [],
 };
 
+/** EDWARD 학적 동기화 완료 여부: 학번·학년·전공이 모두 채워졌는지 검사 */
 function isAcademicProfileSynced(user) {
   if (!user) return false;
 
@@ -37,6 +42,7 @@ function isAcademicProfileSynced(user) {
   return Boolean(major && studentNumber && grade != null && grade >= 1);
 }
 
+/** 마이페이지: 프로필·학사 동기화·성적·회원 탈퇴 */
 export default function MyPage() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -69,6 +75,7 @@ export default function MyPage() {
   const [withdrawError, setWithdrawError] = useState('');
 
   const fetchSemesterCredits = async () => {
+    // 활성 학기 수업 credit 합산 → 마이페이지 신청 학점 표시
     try {
       const credits = await fetchActiveSemesterCredits();
       setTotalCredits(credits);
@@ -196,6 +203,7 @@ export default function MyPage() {
     }
   };
 
+  /** 회원 탈퇴 확인 모달 1단계 열기 */
   const openWithdrawModal = () => {
     setWithdrawError('');
     setWithdrawPassword('');
@@ -209,6 +217,7 @@ export default function MyPage() {
     setWithdrawError('');
   };
 
+  /** 비밀번호 재인증 후 completeAccountWithdrawal 실행 */
   const handleWithdrawalSubmit = async () => {
     if (!withdrawPassword.trim()) {
       setWithdrawError('비밀번호를 입력해 주세요.');

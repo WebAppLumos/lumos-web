@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react'
 import './TimetableGrid.css'
 
+/**
+ * 주간 시간표 그리드와 수업 블록 렌더링.
+ * view 모드(정보/노트/난이도)에 따라 블록 내용이 바뀌고, 노트 모드에서는 블록 클릭 시 노트 모달을 엽니다.
+ */
 export default function TimetableGrid({
   DAYS,
   TIME_SLOTS,
@@ -27,6 +31,7 @@ export default function TimetableGrid({
   const [newNoteContent, setNewNoteContent] = useState('')
   const [newNotePinned, setNewNotePinned] = useState(false)
 
+  /** course_id 기준으로 노트를 그룹화 (그리드 블록·모달에서 재사용) */
   const notesByCourse = useMemo(() => {
     return notes.reduce((acc, note) => {
       acc[note.course_id] = [...(acc[note.course_id] ?? []), note]
@@ -34,6 +39,7 @@ export default function TimetableGrid({
     }, {})
   }, [notes])
 
+  /** 고정 노트 우선, 이후 최근 수정순 정렬 */
   const sortNotes = (items) => [...items].sort((a, b) => {
     if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1
     return new Date(b.updated_at) - new Date(a.updated_at)
@@ -43,12 +49,14 @@ export default function TimetableGrid({
     ? sortNotes(notesByCourse[selectedCourse.id] ?? [])
     : []
 
+  /** 노트 view에서 수업 블록 클릭 시 해당 수업의 노트 모달 열기 */
   const openNoteModal = (course) => {
     if (view !== 'note') return
     setSelectedCourse(course)
     setSelectedNoteIds([])
   }
 
+  /** 노트 모달 닫기 — 선택·편집·추가 폼 상태 전부 초기화 */
   const closeNoteModal = () => {
     setSelectedCourse(null)
     setSelectedNoteIds([])
@@ -59,6 +67,7 @@ export default function TimetableGrid({
     setNewNotePinned(false)
   }
 
+  /** 노트 일괄 삭제용 체크박스 토글 */
   const toggleNoteSelection = (noteId) => {
     setSelectedNoteIds((prev) => (
       prev.includes(noteId)
@@ -67,6 +76,7 @@ export default function TimetableGrid({
     ))
   }
 
+  /** 새 노트 생성 후 입력 폼 닫기 */
   const handleAddNote = () => {
     if (!selectedCourse || !newNoteTitle.trim()) return
 
@@ -81,11 +91,13 @@ export default function TimetableGrid({
     setIsAddNoteOpen(false)
   }
 
+  /** 체크된 노트 일괄 삭제 */
   const handleDeleteSelectedNotes = () => {
     onDeleteNotes(selectedNoteIds)
     setSelectedNoteIds([])
   }
 
+  /** 기존 노트 인라인 편집 모드 진입 */
   const startEditNote = (note) => {
     setIsAddNoteOpen(false)
     setEditingNoteId(note.note_id)
@@ -94,6 +106,7 @@ export default function TimetableGrid({
     setEditNotePinned(note.is_pinned)
   }
 
+  /** 노트 편집 취소 */
   const cancelEditNote = () => {
     setEditingNoteId(null)
     setEditNoteTitle('')
@@ -101,6 +114,7 @@ export default function TimetableGrid({
     setEditNotePinned(false)
   }
 
+  /** 수정 중인 노트 저장 후 편집 모드 종료 */
   const handleUpdateNote = () => {
     if (!editingNoteId || !editNoteTitle.trim()) return
 

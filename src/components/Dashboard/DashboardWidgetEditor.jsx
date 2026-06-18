@@ -1,5 +1,9 @@
 import './DashboardWidgetEditor.css'
 
+/**
+ * 대시보드 위젯 편집 패널.
+ * 표시할 위젯 종류를 토글 버튼으로 선택합니다 (저장은 부모 Dashboard가 처리).
+ */
 export default function DashboardWidgetEditor({ widgets, onToggleWidget }) {
   return (
     // 대시보드에 표시할 위젯 선택 영역

@@ -3,6 +3,7 @@ import { ClipboardCheck, ClipboardX } from 'lucide-react'
 import { getDaysUntilDeadline, getDeadlineLabel } from '../../lib/assignmentNotifications'
 import './TodayTimetableWidget.css'
 
+/** 미완료·마감 전 과제 중 가장 임박한 3개를 추출 (마감일·D-day 순) */
 function getUpcomingTasks(tasks) {
   return tasks
     .filter((task) => !task.isCompleted)
@@ -18,6 +19,10 @@ function getUpcomingTasks(tasks) {
     .slice(0, 3)
 }
 
+/**
+ * 과제 요약 대시보드 위젯.
+ * CTL 동기화 과제 중 미완료 건수와 마감 임박 상위 3개를 표시합니다.
+ */
 export default function AssignmentSummaryWidget({ tasks, isEditing, isLoading }) {
   const upcomingTasks = getUpcomingTasks(tasks ?? [])
   const incompleteCount = (tasks ?? []).filter((task) => !task.isCompleted).length

@@ -1,3 +1,7 @@
+/**
+ * Lumos 백엔드 Axios 인스턴스.
+ * Firebase ID 토큰 자동 첨부, 401 시 1회 재시도, 실패 시 세션 만료 처리.
+ */
 import axios, { AxiosHeaders } from 'axios'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from './firebase'
@@ -9,6 +13,7 @@ const api = axios.create({
 
 let initialAuthStatePromise = null
 
+/** Firebase 초기 인증 상태가 확정될 때까지 대기합니다. */
 function waitForInitialAuthState() {
   initialAuthStatePromise = new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -20,6 +25,7 @@ function waitForInitialAuthState() {
   return initialAuthStatePromise
 }
 
+/** 현재 Firebase 사용자를 반환합니다. 없으면 초기 auth 상태 대기 후 재확인. */
 async function resolveAuthUser() {
   if (auth.currentUser) {
     return auth.currentUser
@@ -30,6 +36,11 @@ async function resolveAuthUser() {
   return auth.currentUser
 }
 
+/**
+ * 요청 config 에 Authorization Bearer 헤더를 설정합니다.
+ * @param {import('axios').InternalAxiosRequestConfig} config
+ * @param {string} token
+ */
 export function setAuthorizationHeader(config, token) {
   const value = `Bearer ${token}`
   const headers = AxiosHeaders.from(config.headers ?? {})
@@ -38,6 +49,10 @@ export function setAuthorizationHeader(config, token) {
   config.headers = headers
 }
 
+/**
+ * 요청마다 Firebase ID 토큰을 Authorization 헤더에 첨부합니다.
+ * config.authToken 이 있으면 해당 토큰을 우선 사용합니다.
+ */
 async function attachAuthorizationHeader(config) {
   const headers = AxiosHeaders.from(config.headers ?? {})
   config.headers = headers

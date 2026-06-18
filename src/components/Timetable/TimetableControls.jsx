@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { GripVertical } from 'lucide-react'
 import './TimetableControls.css'
 
+/**
+ * 학기·시간표 선택기와 수업 추가 모달.
+ * 학기/시간표 이름 수정, 드래그 순서 변경, 시간표 탭 추가·삭제를 처리합니다.
+ */
 export default function TimetableControls({
   DAYS,
   semesterId,
@@ -21,7 +25,7 @@ export default function TimetableControls({
   onReorderSemesters,
   onReorderTimetables,
 }) {
-  // 수업 선택 모달에 표시할 수업 정보 문구 생성
+  /** 수업 추가 모달 옵션 한 줄 문구 (이름·교수·강의실·학점·시간) */
   const formatCourseOption = (course) => {
     const scheduleText = course.schedules
       .map((s) => `${DAYS[s.day]} ${s.startTime}-${s.endTime}`)
@@ -54,18 +58,20 @@ export default function TimetableControls({
   const selectorItems = selectorType === 'semester' ? semesters : semTimetables
   const canReorder = selectorType === 'semester' || selectorType === 'timetable'
 
-  // 선택한 수업을 추가한 뒤 모달 닫기
+  /** 부모 onAddCourse 호출 후 수업 추가 모달 닫기 */
   const handleAddCourse = () => {
     onAddCourse()
     setIsCourseModalOpen(false)
   }
 
+  /** 학기 또는 시간표 이름 인라인 편집 모드 진입 */
   const openRenameEditor = (type, item) => {
     setRenameType(type)
     setRenamingId(item.id)
     setRenameValue(item.name)
   }
 
+  /** renameType에 따라 학기/시간표 이름 저장 API 호출 */
   const handleRename = () => {
     if (renameType === 'semester') {
       onRenameSemester(renamingId, renameValue)
@@ -76,11 +82,13 @@ export default function TimetableControls({
     setRenameValue('')
   }
 
+  /** 이름 편집 취소 — 입력값 초기화 */
   const cancelRename = () => {
     setRenamingId(null)
     setRenameValue('')
   }
 
+  /** 시간표 삭제용 체크박스 토글 */
   const toggleTimetableSelection = (targetTimetableId) => {
     setSelectedTimetableIds((prev) => (
       prev.includes(targetTimetableId)
@@ -89,6 +97,7 @@ export default function TimetableControls({
     ))
   }
 
+  /** 새 시간표 생성 후 선택 모달·입력 상태 초기화 */
   const handleAddTimetable = () => {
     onAddTimetable(newTimetableName)
     setNewTimetableName('')
@@ -97,12 +106,14 @@ export default function TimetableControls({
     closeSelectorModal()
   }
 
+  /** 체크된 시간표 탭 일괄 삭제 */
   const handleDeleteSelectedTimetables = () => {
     onDeleteTimetables(selectedTimetableIds)
     setSelectedTimetableIds([])
     cancelRename()
   }
 
+  /** 학기/시간표 선택 모달 닫기 — 편집·드래그·추가 상태 모두 리셋 */
   const closeSelectorModal = () => {
     setSelectorType(null)
     cancelRename()
@@ -113,12 +124,14 @@ export default function TimetableControls({
     setDragOverItemId(null)
   }
 
+  /** 학기/시간표 목록 항목 드래그 시작 */
   const handleItemDragStart = (event, itemId) => {
     setDragItemId(itemId)
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('text/plain', String(itemId))
   }
 
+  /** 드롭 대상 위에 마우스가 올라왔을 때 시각적 하이라이트 */
   const handleItemDragOver = (event, itemId) => {
     event.preventDefault()
     if (itemId !== dragItemId) {
@@ -126,6 +139,7 @@ export default function TimetableControls({
     }
   }
 
+  /** 드롭 시 ID 배열 재정렬 후 학기/시간표 reorder API 호출 */
   const handleItemDrop = (event, targetId) => {
     event.preventDefault()
     const sourceId = dragItemId
@@ -150,6 +164,7 @@ export default function TimetableControls({
     }
   }
 
+  /** 드래그 종료 시 하이라이트 상태 제거 */
   const clearItemDrag = () => {
     setDragItemId(null)
     setDragOverItemId(null)

@@ -1,3 +1,7 @@
+/**
+ * 로그인 페이지.
+ * Firebase 인증 성공 후 syncBackendLogin 으로 백엔드 users 행을 조회·동기화합니다.
+ */
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
@@ -18,6 +22,7 @@ export default function Signin() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const onSubmit = async (e) => {
+    // Firebase 로그인 → syncBackendLogin → updateUser. 실패 시 signOut 롤백
     e.preventDefault()
     setErrorMessage('')
     setSuccessMessage('')
@@ -44,6 +49,7 @@ export default function Signin() {
         navigate(redirectPath, { replace: true })
       }, 1000)
     } catch (error) {
+      // 백엔드 동기화 실패 시 Firebase만 로그인된 상태를 방지
       if (auth.currentUser) {
         await signOut(auth).catch(() => {})
       }

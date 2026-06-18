@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { GraduationCap } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
+/** 장학금 세션 상태에 따라 위젯에 표시할 요약 문구 목록 생성 */
 function buildSummaryItems(session) {
   if (!session) {
     return ['장학금 정보를 불러오는 중입니다.']
@@ -32,6 +33,10 @@ function buildSummaryItems(session) {
   ]
 }
 
+/**
+ * 장학금 추천 요약 대시보드 위젯.
+ * 큐레이션 완료 여부에 따라 안내 문구 또는 추천 가능 장학금 수·상위 이름을 표시합니다.
+ */
 export default function ScholarshipSummaryWidget({ session, isLoading, isEditing }) {
   const items = buildSummaryItems(session)
   const description = session?.curationCompleted

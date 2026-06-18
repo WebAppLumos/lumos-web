@@ -1,3 +1,8 @@
+/**
+ * 회원가입 페이지.
+ * Firebase 계정 생성 → syncBackendLogin 으로 백엔드 등록.
+ * 백엔드 실패 시 rollbackFirebaseUser 를 deleteUser 로 롤백합니다.
+ */
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
@@ -34,6 +39,7 @@ export default function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onSubmit = async (e) => {
+    // Firebase 가입 → syncBackendLogin. 실패 시 rollbackFirebaseUser 삭제
     e.preventDefault()
     setHint('')
     setSuccessMessage('')

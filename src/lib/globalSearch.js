@@ -1,3 +1,7 @@
+/**
+ * 전역 검색 인덱스·검색 로직.
+ * 정적(메뉴·장학금·캠퍼스맵) + 동적(과제·시간표·일정 세션) 인덱스를 합쳐 검색합니다.
+ */
 import places from '../data/places'
 import { allScholarships } from '../data/scholarships'
 import { getStoredAssignmentTasks } from './useAssignmentTasks'
@@ -75,16 +79,19 @@ const CATEGORY_LABELS = {
 
 const CATEGORY_ORDER = ['page', 'course', 'event', 'assignment', 'scholarship', 'place']
 
+/** 검색어·대상 문자열을 소문자·공백 제거 후 비교용으로 정규화합니다. */
 function normalize(text) {
   return String(text ?? '').toLowerCase().trim().replace(/\s+/g, '')
 }
 
+/** 정규화된 쿼리가 필드 중 하나에 포함되는지 검사합니다. */
 function matchesQuery(query, ...fields) {
   const normalizedQuery = normalize(query)
   if (!normalizedQuery) return false
   return fields.some((field) => normalize(field).includes(normalizedQuery))
 }
 
+/** 공통 데이터 인덱스: 앱 메뉴·장학금·캠퍼스 시설 */
 function buildStaticIndex() {
   const scholarships = allScholarships.map((scholarship) => ({
     id: `scholarship-${scholarship.id}`,
@@ -107,6 +114,7 @@ function buildStaticIndex() {
   return [...NAV_ITEMS, ...scholarships, ...mapPlaces]
 }
 
+/** 개인 데이터 인덱스: 과제·시간표·일정 세션 캐시 (로그인 시만) */
 function buildDynamicIndex() {
   const items = []
 
@@ -162,6 +170,12 @@ function buildDynamicIndex() {
   return items
 }
 
+/**
+ * 전역 검색을 수행합니다.
+ * @param {string} query
+ * @param {{ limit?: number }} [options]
+ * @returns {Array<{id, title, subtitle, path, category, keywords}>}
+ */
 export function searchGlobal(query, { limit = 20 } = {}) {
   const trimmedQuery = query.trim()
   if (!trimmedQuery) return []
@@ -173,6 +187,10 @@ export function searchGlobal(query, { limit = 20 } = {}) {
   return results.slice(0, limit)
 }
 
+/**
+ * 검색 결과를 카테고리별 그룹으로 묶어 UI 표시 순서에 맞게 반환합니다.
+ * @param {Array} results
+ */
 export function groupSearchResults(results) {
   const groups = new Map()
 

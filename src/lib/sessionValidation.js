@@ -1,3 +1,7 @@
+/**
+ * 백그라운드 세션 유효성 검사.
+ * 5분 주기 + 토큰 만료 시점 + 탭 복귀 시 /api/users/me 재검증.
+ */
 import { signOut } from 'firebase/auth'
 import api from './api'
 import { auth } from './firebase'
@@ -10,6 +14,7 @@ import {
 const SESSION_CHECK_INTERVAL_MS = 5 * 60 * 1000
 const TOKEN_REFRESH_BUFFER_MS = 60 * 1000
 
+/** HTTP 401/403 또는 Firebase auth/ 오류인지 판별합니다. */
 function isAuthFailure(error) {
   const status = error?.response?.status
   if (status === 401 || status === 403) {
@@ -20,11 +25,16 @@ function isAuthFailure(error) {
   return code.startsWith('auth/')
 }
 
+/** localStorage 정리 후 세션 만료 이벤트를 발생시킵니다. */
 export function expireSession() {
   clearStoredSession()
   notifySessionExpired()
 }
 
+/**
+ * Firebase·백엔드 세션이 모두 유효한지 검증합니다.
+ * @returns {Promise<boolean>} 유효하면 true
+ */
 export async function validateActiveSession() {
   const firebaseUser = auth.currentUser
 
@@ -53,6 +63,10 @@ export async function validateActiveSession() {
   }
 }
 
+/**
+ * Firebase ID 토큰 만료 1분 전에 onExpire 콜백을 예약합니다.
+ * @returns {Promise<number|null>} setTimeout id
+ */
 async function scheduleTokenExpiryCheck(firebaseUser, onExpire) {
   try {
     const tokenResult = await firebaseUser.getIdTokenResult()
@@ -67,6 +81,10 @@ async function scheduleTokenExpiryCheck(firebaseUser, onExpire) {
   }
 }
 
+/**
+ * 주기적·만료 시점·탭 복귀 시 세션 검증을 시작합니다.
+ * @returns {() => void} cleanup 함수 (useEffect 반환용)
+ */
 export function startSessionValidation() {
   let intervalId = null
   let expiryTimerId = null

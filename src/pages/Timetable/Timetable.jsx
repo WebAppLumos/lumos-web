@@ -1,3 +1,7 @@
+/**
+ * 시간표 페이지.
+ * 학기·시간표 탭, 수업 배치·노트·난이도를 백엔드 API로 관리하고 세션 캐시를 갱신합니다.
+ */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '../../app/providers/AuthProvider'
@@ -47,6 +51,10 @@ import TimetableTabs from '../../components/Timetable/TimetableTabs'
 import '../Dashboard/Dashboard.css'
 import './Timetable.css'
 
+/**
+ * 시간표 메인 페이지.
+ * 학기·시간표 CRUD, 수업 배치·노트 관리, 세션 캐시 동기화를 담당합니다.
+ */
 export default function Timetable() {
   const session = getTimetableSession()
 
@@ -64,6 +72,7 @@ export default function Timetable() {
   const [notes, setNotes] = useState(() => session?.notes ?? [])
   const [selectedCourseId, setSelectedCourseId] = useState(() => session?.selectedCourseId ?? '')
 
+  /** API·캐시에서 받은 스냅샷을 React state 전체에 반영합니다. */
   const applySession = useCallback((nextSession) => {
     setSemesters(nextSession.semesters)
     setSemesterId(nextSession.semesterId)
@@ -77,6 +86,7 @@ export default function Timetable() {
     setSelectedCourseId(nextSession.selectedCourseId ?? '')
   }, [])
 
+  /** 선택 학기의 시간표·수업·엔트리·노트를 API에서 불러와 상태·세션 캐시를 갱신 */
   const loadSemesterData = useCallback(async (nextSemesterId, preferredTimetableId) => {
     const [nextTimetables, nextCourses] = await Promise.all([
       fetchTimetables(nextSemesterId),
@@ -130,6 +140,7 @@ export default function Timetable() {
     }
   }, [])
 
+  /** 마운트 시 세션 캐시 복원 또는 API로 초기 데이터 로드 */
   useEffect(() => {
     if (!user) {
       clearTimetableSession()
@@ -170,6 +181,7 @@ export default function Timetable() {
     }
   }, [user, applySession])
 
+  /** state 변경 시 대시보드·전역검색용 세션 캐시를 갱신합니다. */
   useEffect(() => {
     if (!user || loading) return
 
@@ -200,6 +212,7 @@ export default function Timetable() {
     selectedCourseId,
   ])
 
+  /** 특정 시간표 탭의 엔트리·노트만 다시 불러옵니다. (시간표 탭 전환 시) */
   const reloadTimetableEntries = useCallback(async (targetTimetableId) => {
     const timetableEntries = await fetchEntries(targetTimetableId)
     const courseIds = [...new Set(timetableEntries.map((entry) => entry.courseId))]
@@ -224,26 +237,31 @@ export default function Timetable() {
     })
   }, [])
 
+  /** 현재 학기에 속한 수업만 필터링 */
   const semesterCourses = useMemo(
     () => courses.filter((course) => course.semesterId === semesterId),
     [courses, semesterId],
   )
 
+  /** 현재 시간표 그리드에 배치된 수업 (schedules 포함) */
   const coursesOnBoard = useMemo(
     () => buildCoursesOnBoard(semesterCourses, entries, timetableId),
     [semesterCourses, entries, timetableId],
   )
 
+  /** 온라인 수업만 분리 (그리드 아래 별도 카드) */
   const onlineCourses = useMemo(
     () => coursesOnBoard.filter((course) => course.isOnline),
     [coursesOnBoard],
   )
 
+  /** 대면 수업만 그리드에 표시 */
   const inPersonCourses = useMemo(
     () => coursesOnBoard.filter((course) => !course.isOnline),
     [coursesOnBoard],
   )
 
+  /** 아직 현재 시간표에 배치되지 않은 학기 수업 (수업 추가 모달용) */
   const availableCourses = useMemo(() => {
     const onBoardIds = new Set(
       entries
@@ -260,6 +278,7 @@ export default function Timetable() {
       })
   }, [semesterCourses, entries, timetableId, allSemesterEntries])
 
+  /** 학기 탭 표시 순서 */
   const sortedSemesters = useMemo(
     () => [...semesters].sort((a, b) => a.sortOrder - b.sortOrder),
     [semesters],
@@ -276,6 +295,7 @@ export default function Timetable() {
     ? Number(selectedCourseId)
     : availableCourses[0]?.id ?? ''
 
+  /** 학기 탭 변경 → 해당 학기 데이터 로드 */
   const onChangeSemester = async (nextSemesterId) => {
     setSemesterId(nextSemesterId)
     try {
@@ -286,6 +306,7 @@ export default function Timetable() {
     }
   }
 
+  /** 시간표 탭 변경 → 해당 시간표 엔트리·노트 로드 */
   const onChangeTimetable = async (nextTimetableId) => {
     setTimetableId(nextTimetableId)
     try {
@@ -296,6 +317,7 @@ export default function Timetable() {
     }
   }
 
+  /** 학기 탭 드래그 순서 변경 (낙관적 UI → API → 실패 시 롤백) */
   const onReorderSemesters = async (orderedIds) => {
     if (orderedIds.length === 0) return
 
@@ -319,6 +341,7 @@ export default function Timetable() {
     }
   }
 
+  /** PATCH /api/semesters/:id — 학기 이름 수정 */
   const onRenameSemester = async (targetSemesterId, name) => {
     const nextName = name.trim()
     if (!nextName) return
@@ -332,6 +355,7 @@ export default function Timetable() {
     }
   }
 
+  /** PATCH /api/timetables/:id — 시간표 이름 수정 */
   const onRenameTimetable = async (targetTimetableId, name) => {
     const nextName = name.trim()
     if (!nextName) return
@@ -345,6 +369,7 @@ export default function Timetable() {
     }
   }
 
+  /** POST /api/semesters/:id/timetables — 새 시간표 탭 생성 */
   const onAddTimetable = async (name) => {
     const nextName = name.trim()
     if (!nextName) return
@@ -361,6 +386,7 @@ export default function Timetable() {
     }
   }
 
+  /** PUT /api/semesters/:id/timetables/reorder — 시간표 탭 순서 변경 */
   const onReorderTimetables = async (orderedIds) => {
     if (orderedIds.length === 0) return
 
@@ -393,6 +419,7 @@ export default function Timetable() {
     }
   }
 
+  /** DELETE /api/timetables/:id — 선택한 시간표 탭 일괄 삭제 */
   const onDeleteTimetables = async (targetTimetableIds) => {
     if (targetTimetableIds.length === 0) return
 
@@ -422,6 +449,10 @@ export default function Timetable() {
     }
   }
 
+  /**
+   * 선택한 수업을 현재 시간표에 배치합니다.
+   * 다른 시간표에 이미 있던 수업이면 기존 요일·시간을 복사하고, 없으면 월 09:00 기본 슬롯을 씁니다.
+   */
   const onAddCourse = async () => {
     const course = availableCourses.find((c) => c.id === selectedAvailableCourseId)
     if (!course) {
@@ -468,6 +499,7 @@ export default function Timetable() {
     }
   }
 
+  /** 현재 시간표에서 수업의 모든 엔트리를 삭제하고 고아 노트를 정리합니다. */
   const onDeleteCourse = async (courseId) => {
     const targetEntries = entries.filter(
       (entry) => entry.timetableId === timetableId && entry.courseId === courseId,
@@ -489,6 +521,7 @@ export default function Timetable() {
     }
   }
 
+  /** POST /api/courses/:id/notes — 수업 노트 생성 */
   const onAddNote = async (courseId, note) => {
     try {
       const created = await createNote(courseId, note)
@@ -499,6 +532,7 @@ export default function Timetable() {
     }
   }
 
+  /** DELETE /api/notes/:id — 선택한 노트 일괄 삭제 */
   const onDeleteNotes = async (noteIds) => {
     try {
       await Promise.all(noteIds.map((noteId) => deleteNote(noteId)))
@@ -509,6 +543,7 @@ export default function Timetable() {
     }
   }
 
+  /** PATCH /api/notes/:id — 노트 제목·내용·고정 상태 수정 */
   const onUpdateNote = async (noteId, updates) => {
     const previous = notes.find((note) => note.note_id === noteId)
     if (!previous) return

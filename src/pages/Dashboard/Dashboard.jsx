@@ -1,3 +1,7 @@
+/**
+ * 메인 대시보드.
+ * 위젯 표시/순서는 백엔드에 저장하고, 시간표·일정은 세션 캐시를 우선 표시합니다.
+ */
 import { Link } from 'react-router-dom'
 import {
   MapPinned,
@@ -36,6 +40,7 @@ import TodayTimetableWidget from '../../components/Dashboard/TodayTimetableWidge
 
 import './Dashboard.css'
 
+/** 정적 요약 위젯(캠퍼스맵 등) — API 없이 고정 콘텐츠만 표시 */
 const dashboardSummaries = {
   'campus-map': {
     Icon: MapPinned,
@@ -47,6 +52,7 @@ const dashboardSummaries = {
   },
 }
 
+/** type별 고정 요약 카드 (현재 캠퍼스맵) */
 function DashboardSummaryWidget({ summary, type, isEditing }) {
   const Icon = summary.Icon
 
@@ -78,6 +84,7 @@ function DashboardSummaryWidget({ summary, type, isEditing }) {
   )
 }
 
+/** 위젯 type 에 따라 해당 요약 카드 컴포넌트를 렌더링합니다. */
 function renderDashboardWidget(widget, {
   DAYS,
   todayCourses,
@@ -142,6 +149,7 @@ function renderDashboardWidget(widget, {
   )
 }
 
+/** 메인 대시보드 페이지. 위젯 편집·드래그 순서·세션 캐시 기반 데이터 로딩 */
 export default function Dashboard() {
   const timetableSession = getTimetableSession()
   const calendarSession = getCalendarSession()
@@ -171,6 +179,10 @@ export default function Dashboard() {
   const [dragWidgetId, setDragWidgetId] = useState(null)
   const [dragOverWidgetId, setDragOverWidgetId] = useState(null)
 
+  /**
+   * 로그인·세션 준비 후 대시보드 데이터 로드.
+   * 시간표·일정은 세션 캐시 우선, 위젯 설정은 API에서 불러옵니다.
+   */
   useEffect(() => {
     if (!user || !isSessionReady) {
       clearTimetableSession()
@@ -217,6 +229,7 @@ export default function Dashboard() {
 
     const loadDashboardData = async () => {
       try {
+        // 캐시가 없는 항목만 API 호출 (병렬)
         const [nextTimetable, nextCalendar, savedWidgets] = await Promise.all([
           cachedTimetable ? Promise.resolve(cachedTimetable) : ensureTimetableSession(),
           cachedCalendar ? Promise.resolve(cachedCalendar) : ensureCalendarSession(),
@@ -253,7 +266,9 @@ export default function Dashboard() {
     }
   }, [user, isSessionReady])
 
+  /** 위젯 변경을 서버에 저장. 실패 시 이전 상태로 롤백합니다. */
   const persistWidgets = useCallback(async (nextWidgets) => {
+    // 낙관적 UI: 실패 시 이전 상태로 롤백
     const previous = widgets
     setWidgets(nextWidgets)
 
@@ -269,12 +284,14 @@ export default function Dashboard() {
 
   const visibleWidgets = widgets.filter((widget) => widget.visible)
 
+  /** 위젯 표시/숨김 토글 후 persistWidgets 호출 */
   const onToggleWidget = (id) => {
     persistWidgets(widgets.map((widget) => (
       widget.id === id ? { ...widget, visible: !widget.visible } : widget
     )))
   }
 
+  /** 드래그 앤 드롭으로 위젯 순서 변경 후 persistWidgets 호출 */
   const onReorderWidgets = (fromId, toId) => {
     if (fromId === toId) return
 
@@ -288,6 +305,7 @@ export default function Dashboard() {
     persistWidgets(next)
   }
 
+  /** 위젯 드래그 종료 시 하이라이트 상태 제거 */
   const clearWidgetDrag = () => {
     setDragWidgetId(null)
     setDragOverWidgetId(null)

@@ -1,3 +1,7 @@
+/**
+ * 인증·회원가입·회원탈퇴 공통 로직.
+ * Firebase Auth(클라이언트) + Spring API(프로필·데이터) 이중 구조.
+ */
 import api from './api'
 import { getNameValidationMessage } from './name'
 import { isValidPhoneNumber } from './phoneNumber'
@@ -27,13 +31,14 @@ export const ALLOWED_EMAIL_DOMAINS = [
   'googlemail.com',
 ]
 
-
+/** 이메일 주소에서 @ 뒤 도메인 부분을 추출합니다. */
 export function getEmailDomain(email) {
   const at = String(email ?? '').lastIndexOf('@')
   if (at < 0) return ''
   return email.slice(at + 1).toLowerCase().trim()
 }
 
+/** 허용된 이메일 도메인인지 검사합니다. */
 export function isAllowedEmailDomain(email) {
   return ALLOWED_EMAIL_DOMAINS.includes(getEmailDomain(email))
 }
@@ -49,6 +54,7 @@ const FIREBASE_AUTH_MESSAGES = {
   'auth/too-many-requests': '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.',
 }
 
+/** 로그인 실패 시 사용자에게 보여줄 한글 메시지를 반환합니다. */
 export function getSigninErrorMessage(error) {
   if (error.code && FIREBASE_AUTH_MESSAGES[error.code]) {
     return FIREBASE_AUTH_MESSAGES[error.code]
@@ -73,6 +79,7 @@ export function getSigninErrorMessage(error) {
   return '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
+/** 회원가입 실패 시 사용자에게 보여줄 한글 메시지를 반환합니다. */
 export function getSignupErrorMessage(error) {
   if (error.code && FIREBASE_AUTH_MESSAGES[error.code]) {
     return FIREBASE_AUTH_MESSAGES[error.code]
@@ -94,6 +101,12 @@ export function getSignupErrorMessage(error) {
   return '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
+/**
+ * Firebase 로그인/가입 직후 백엔드 users 테이블을 동기화합니다.
+ * @param {import('firebase/auth').User} firebaseUser
+ * @param {object} [profile] - 회원가입 시 name, phoneNumber 등
+ * @returns {Promise<object>} 백엔드 사용자 프로필
+ */
 export async function syncBackendLogin(firebaseUser, profile = {}) {
   const idToken = await ensureFreshIdToken(firebaseUser)
   const response = await api.post('/api/auth/login', {
@@ -106,6 +119,11 @@ export async function syncBackendLogin(firebaseUser, profile = {}) {
   return response.data?.user ?? response.data
 }
 
+/**
+ * Firebase ID 토큰을 강제 갱신해 반환합니다.
+ * @param {import('firebase/auth').User} [firebaseUser]
+ * @returns {Promise<string>}
+ */
 export async function ensureFreshIdToken(firebaseUser) {
   const user = firebaseUser ?? auth.currentUser
   if (!user) {
@@ -119,6 +137,7 @@ export async function ensureFreshIdToken(firebaseUser) {
   return activeUser.getIdToken(true)
 }
 
+/** DELETE /api/users/me 를 한 번 호출합니다. */
 async function deleteBackendAccountOnce(firebaseUser) {
   const token = await ensureFreshIdToken(firebaseUser)
   return api.delete('/api/users/me', {
@@ -127,6 +146,7 @@ async function deleteBackendAccountOnce(firebaseUser) {
   })
 }
 
+/** 탈퇴 전 백엔드 세션이 유효한지 GET /api/users/me 로 확인합니다. */
 export async function validateWithdrawalSession(firebaseUser) {
   const token = await ensureFreshIdToken(firebaseUser)
   await api.get('/api/users/me', {
@@ -135,6 +155,11 @@ export async function validateWithdrawalSession(firebaseUser) {
   })
 }
 
+/**
+ * 탈퇴 직전 Firebase 비밀번호 재인증을 수행합니다.
+ * @param {import('firebase/auth').User} firebaseUser
+ * @param {string} password
+ */
 export async function reauthenticateForWithdrawal(firebaseUser, password) {
   if (!firebaseUser?.email) {
     const error = new Error('MISSING_EMAIL')
@@ -147,6 +172,10 @@ export async function reauthenticateForWithdrawal(firebaseUser, password) {
   await firebaseUser.reload()
 }
 
+/**
+ * 백엔드 사용자 데이터를 삭제합니다. 401 시 1회 재시도, 404는 이미 삭제된 것으로 간주합니다.
+ * @param {import('firebase/auth').User} firebaseUser
+ */
 export async function deleteBackendAccount(firebaseUser) {
   try {
     await deleteBackendAccountOnce(firebaseUser)
@@ -160,13 +189,17 @@ export async function deleteBackendAccount(firebaseUser) {
       return
     }
 
-    // 탈퇴 도중 이탈 후 재시도 등: 이미 DB에서 삭제된 경우 계속 진행
     if (error.response?.status !== 404) {
       throw error
     }
   }
 }
 
+/**
+ * Firebase는 로그인돼 있으나 DB users 행이 없는 고아 세션인지 판별합니다.
+ * @param {Error} error
+ * @returns {boolean}
+ */
 export function isOrphanedBackendSessionError(error) {
   const status = error.response?.status
   if (status === 404) {
@@ -177,11 +210,16 @@ export function isOrphanedBackendSessionError(error) {
   return status === 500 && message.includes('사용자를 찾을 수 없습니다')
 }
 
+/** 고아 세션 정리: localStorage 비우고 Firebase signOut. */
 export async function recoverOrphanedFirebaseSession() {
   clearStoredSession()
   await signOut(auth).catch(() => {})
 }
 
+/**
+ * 클라이언트에서 Firebase 계정을 삭제합니다. (이미 없으면 무시)
+ * @param {import('firebase/auth').User} firebaseUser
+ */
 export async function deleteFirebaseAccountClient(firebaseUser) {
   try {
     await deleteUser(firebaseUser)
@@ -193,6 +231,10 @@ export async function deleteFirebaseAccountClient(firebaseUser) {
   }
 }
 
+/**
+ * 회원 탈퇴 전체 흐름: 세션 확인 → 백엔드 삭제 → 로컬 세션·Firebase 로그아웃.
+ * @param {import('firebase/auth').User} firebaseUser
+ */
 export async function completeAccountWithdrawal(firebaseUser) {
   const activeUser = auth.currentUser ?? firebaseUser
   if (!activeUser) {
@@ -217,6 +259,7 @@ export async function completeAccountWithdrawal(firebaseUser) {
   await signOut(auth).catch(() => {})
 }
 
+/** 탈퇴 실패 시 사용자에게 보여줄 한글 메시지를 반환합니다. */
 export function getWithdrawalErrorMessage(error) {
   const code = error?.code
   if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
@@ -248,6 +291,7 @@ export function getWithdrawalErrorMessage(error) {
   return '탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.'
 }
 
+/** 탈퇴 실패 후 강제 로그아웃이 필요한 오류인지 판별합니다. */
 export function shouldLogoutAfterWithdrawalFailure(error) {
   const code = error?.code
   if (
@@ -262,6 +306,7 @@ export function shouldLogoutAfterWithdrawalFailure(error) {
   return status === 401 || status === 403
 }
 
+/** 회원가입 폼 문자열 필드 앞뒤 공백을 제거합니다. */
 export function trimSignupForm({ name, email, phoneNumber }) {
   return {
     name: name.trim(),
@@ -270,6 +315,10 @@ export function trimSignupForm({ name, email, phoneNumber }) {
   }
 }
 
+/**
+ * 회원가입 폼 유효성 검사. 통과 시 빈 문자열, 실패 시 오류 메시지 반환.
+ * @returns {string}
+ */
 export function validateSignupForm({ name, email, phoneNumber }) {
   const nameMessage = getNameValidationMessage(name)
   if (nameMessage) {

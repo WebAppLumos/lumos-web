@@ -1,3 +1,7 @@
+/**
+ * 전역 검색 모달.
+ * 페이지·과제·장학금·시설·수업·일정을 통합 검색하고 ↑/↓·Enter·ESC로 내비게이션합니다.
+ */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { groupSearchResults, searchGlobal } from '../../lib/globalSearch'
@@ -16,6 +20,7 @@ export default function GlobalSearchModal({ open, onClose }) {
     [groupedResults],
   )
 
+  /** 모달 열릴 때 입력 포커스·ESC 닫기·body 스크롤 잠금 */
   useEffect(() => {
     if (!open) return undefined
 
@@ -42,17 +47,20 @@ export default function GlobalSearchModal({ open, onClose }) {
     }
   }, [open, onClose])
 
+  /** 검색어 변경 시 하이라이트 인덱스를 첫 결과로 리셋 */
   useEffect(() => {
     setActiveIndex(0)
   }, [query])
 
   if (!open) return null
 
+  /** 검색 결과 항목 선택 → 모달 닫고 해당 경로로 이동 */
   const handleSelect = (item) => {
     onClose()
     navigate(item.path)
   }
 
+  /** Enter 키로 현재 하이라이트된 검색 결과로 이동 */
   const handleSubmit = (event) => {
     event.preventDefault()
     if (flatResults[activeIndex]) {
@@ -60,7 +68,9 @@ export default function GlobalSearchModal({ open, onClose }) {
     }
   }
 
+  /** 입력창에서 ↑/↓ 키로 결과 목록 순환 */
   const handleInputKeyDown = (event) => {
+    // ↑/↓ 로 flatResults 인덱스 순환
     if (!flatResults.length) return
 
     if (event.key === 'ArrowDown') {

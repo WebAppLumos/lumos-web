@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom'
 import './DashboardLoginCard.css'
 
+/**
+ * 비로그인 사용자용 로그인 유도 카드.
+ * 대시보드·기타 페이지에서 맞춤 기능 이용 전 로그인/회원가입으로 안내합니다.
+ */
 export default function DashboardLoginCard({
   description = '대시보드의 시간표와 맞춤 정보를 확인하려면 로그인해주세요.',
 }) {

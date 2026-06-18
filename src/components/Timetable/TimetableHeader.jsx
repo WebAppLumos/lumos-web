@@ -1,5 +1,6 @@
 import './TimetableHeader.css'
 
+/** 시간표 페이지 상단 제목·설명 영역 */
 export default function TimetableHeader() {
   return (
     // 시간표 페이지 상단 제목 영역

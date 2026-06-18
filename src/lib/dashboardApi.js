@@ -1,3 +1,6 @@
+/**
+ * 대시보드 위젯 설정 API + localStorage 캐시.
+ */
 import api from './api'
 
 export const DEFAULT_DASHBOARD_WIDGETS = [
@@ -39,6 +42,10 @@ const WIDGET_CATALOG = Object.fromEntries(
 
 export const DASHBOARD_WIDGETS_CACHE_KEY = 'lumos_dashboard_widgets'
 
+/**
+ * API 응답(id, visible, sortOrder)을 프론트 위젯 카탈로그와 병합합니다.
+ * @param {Array<{id: string, visible: boolean, sortOrder: number}>} apiWidgets
+ */
 export function mergeDashboardWidgets(apiWidgets) {
   return [...apiWidgets]
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -50,6 +57,7 @@ export function mergeDashboardWidgets(apiWidgets) {
     .filter((widget) => widget.type)
 }
 
+/** localStorage 에 캐시된 위젯 설정을 읽습니다. 없거나 파싱 실패 시 null. */
 export function getCachedDashboardWidgets() {
   try {
     const raw = localStorage.getItem(DASHBOARD_WIDGETS_CACHE_KEY)
@@ -68,6 +76,7 @@ export function getCachedDashboardWidgets() {
   }
 }
 
+/** 위젯 표시/순서를 localStorage 에 캐시합니다. */
 export function setCachedDashboardWidgets(widgets) {
   localStorage.setItem(
     DASHBOARD_WIDGETS_CACHE_KEY,
@@ -75,10 +84,12 @@ export function setCachedDashboardWidgets(widgets) {
   )
 }
 
+/** 위젯 localStorage 캐시를 제거합니다. */
 export function clearCachedDashboardWidgets() {
   localStorage.removeItem(DASHBOARD_WIDGETS_CACHE_KEY)
 }
 
+/** GET /api/users/me/dashboard/widgets — 서버에서 위젯 설정을 조회합니다. */
 export async function fetchDashboardWidgets() {
   const { data } = await api.get('/api/users/me/dashboard/widgets', {
     skipSessionExpired: true,
@@ -86,6 +97,7 @@ export async function fetchDashboardWidgets() {
   return mergeDashboardWidgets(data)
 }
 
+/** PUT /api/users/me/dashboard/widgets — 위젯 표시/순서를 서버에 저장합니다. */
 export async function saveDashboardWidgets(widgets) {
   const { data } = await api.put('/api/users/me/dashboard/widgets', {
     widgets: widgets.map(({ id, visible }) => ({ id, visible })),

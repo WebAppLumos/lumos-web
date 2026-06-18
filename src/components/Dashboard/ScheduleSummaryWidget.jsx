@@ -2,12 +2,17 @@ import { Link } from 'react-router-dom'
 import { CalendarDays, CalendarOff } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
+/** 일정 우선순위 API 값 → 한글 라벨 */
 const PRIORITY_LABELS = {
   HIGH: '높음',
   MEDIUM: '중간',
   LOW: '낮음',
 }
 
+/**
+ * 오늘의 일정 대시보드 위젯.
+ * calendar/session의 todayEvents를 우선순위·내용과 함께 표시합니다.
+ */
 export default function ScheduleSummaryWidget({ events, isEditing, isLoading }) {
   return (
     <div className={`dashboardCard ${isEditing ? 'editing' : ''}`}>

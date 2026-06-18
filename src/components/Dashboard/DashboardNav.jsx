@@ -1,3 +1,7 @@
+/**
+ * 공통 상단 내비게이션 바.
+ * 페이지 링크, 전역 검색, 마감 임박 과제 알림, 프로필·로그아웃을 제공합니다.
+ */
 import { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
@@ -33,6 +37,7 @@ export default function DashboardNav() {
     (task) => !readNotificationIds.includes(task.notificationId),
   )
 
+  /** 알림 패널에서 본 과제 ID를 localStorage에 저장해 배지 숫자를 줄입니다. */
   const markNotificationsAsRead = (notificationIds) => {
     const nextIds = Array.from(new Set([...readNotificationIds, ...notificationIds]))
     setReadNotificationIds(nextIds)
@@ -41,14 +46,17 @@ export default function DashboardNav() {
     }
   }
 
+  /** Firebase·localStorage 세션 정리 후 홈으로 이동 */
   const handleLogout = async () => {
     setIsDropdownOpen(false)
     await logout()
     navigate('/')
   }
 
+  /** 로고 클릭 시 홈(대시보드)으로 이동. 이미 대시보드면 캐시 초기화를 위해 새로고침 */
   const handleBrandClick = (event) => {
     event.preventDefault()
+    // 대시보드 캐시·위젯 상태를 초기화하려면 전체 새로고침
     if (location.pathname === '/') {
       window.location.reload()
     } else {
@@ -56,6 +64,7 @@ export default function DashboardNav() {
     }
   }
 
+  /** 알림 패널 토글 — 열 때 임박 과제를 읽음 처리 */
   const handleNotificationClick = () => {
     const willOpen = !isNotificationOpen
     setIsNotificationOpen(willOpen)

@@ -1,5 +1,9 @@
 import './TimetableOnlineCourses.css'
 
+/**
+ * 온라인 수업 전용 카드.
+ * 그리드에 배치하지 않고 별도 목록으로 표시하며, 삭제 시 시간표 엔트리도 함께 제거됩니다.
+ */
 export default function TimetableOnlineCourses({ onlineCourses, onDeleteCourse }) {
   if (onlineCourses.length === 0) {
     return null

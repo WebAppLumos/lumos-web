@@ -2,6 +2,10 @@ import { Link } from 'react-router-dom'
 import { CalendarClock, CalendarOff, Coffee } from 'lucide-react'
 import './TodayTimetableWidget.css'
 
+/**
+ * 오늘의 시간표 대시보드 위젯.
+ * timetable/session의 todayCourses를 표시하며, 주말·수업 없음 상태를 구분합니다.
+ */
 export default function TodayTimetableWidget({ DAYS, courses, isEditing, isWeekend, isLoading }) {
   const emptyMessage = isWeekend
     ? '오늘은 주말입니다.'

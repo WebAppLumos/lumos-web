@@ -1,3 +1,7 @@
+/**
+ * 시간표 API 클라이언트 및 UI용 데이터 변환.
+ * 백엔드 dayOfWeek(1=월~7=일) ↔ UI 그리드 인덱스(0=월) 변환을 담당합니다.
+ */
 import api from '../api'
 import { TIMETABLE_GRID_START_HOUR, TIMETABLE_HOUR_HEIGHT_REM } from './constants'
 
@@ -12,30 +16,36 @@ const COURSE_COLORS = [
   '#3b82f6',
 ]
 
+/** API 시간 문자열(HH:mm:ss)을 UI 표시용 HH:mm 으로 자릅니다. */
 export function formatTime(time) {
   if (!time) return ''
   return String(time).slice(0, 5)
 }
 
+/** 백엔드 dayOfWeek(1=월) → UI 그리드 인덱스(0=월) */
 export function apiDayToUi(dayOfWeek) {
   return Number(dayOfWeek) - 1
 }
 
+/** UI 그리드 인덱스(0=월) → 백엔드 dayOfWeek(1=월) */
 export function uiDayToApi(day) {
   return day + 1
 }
 
+/** 오늘 요일을 API 규칙(1=월 … 7=일)로 반환합니다. */
 export function getTodayApiDayOfWeek() {
   const jsDay = new Date().getDay()
   return jsDay === 0 ? 7 : jsDay
 }
 
+/** 오늘이 토·일(주말)인지 여부 */
 export function isWeekendToday() {
   return getTodayApiDayOfWeek() > 5
 }
 
 export const EDWARD_TIMETABLE_TITLE = 'EDWARD 동기화'
 
+/** 대시보드·오늘의 시간표 위젯에 쓸 시간표: EDWARD 동기화 탭 우선 */
 export function pickDashboardTimetable(timetables, entries) {
   if (!timetables.length) return null
 
@@ -59,15 +69,18 @@ export function pickDashboardTimetable(timetables, entries) {
   return withEntries[0] ?? timetables.find((timetable) => timetable.isDefault) ?? timetables[0]
 }
 
+/** 활성 학기 또는 목록의 마지막 학기를 반환합니다. */
 export function pickDashboardSemester(semesters) {
   if (!semesters.length) return null
   return semesters.find((semester) => semester.isActive) ?? semesters[semesters.length - 1]
 }
 
+/** 수업 ID 기반으로 그리드 블록 색상을 결정합니다. */
 export function colorForCourseId(id) {
   return COURSE_COLORS[Number(id) % COURSE_COLORS.length]
 }
 
+/** API 학기 응답을 UI state 형식으로 변환합니다. */
 export function mapSemester(semester, index = 0) {
   const sortOrder = semester.sortOrder ?? index
   return {
@@ -80,6 +93,7 @@ export function mapSemester(semester, index = 0) {
   }
 }
 
+/** API 시간표 응답을 UI state 형식으로 변환합니다. */
 export function mapTimetable(timetable, index = 0) {
   const sortOrder = timetable.sortOrder ?? index
   return {
@@ -91,6 +105,7 @@ export function mapTimetable(timetable, index = 0) {
   }
 }
 
+/** API 수업 응답을 UI state 형식(색상·schedules 빈 배열)으로 변환합니다. */
 export function mapCourse(course) {
   return {
     id: course.id,
@@ -106,6 +121,7 @@ export function mapCourse(course) {
   }
 }
 
+/** API 노트 응답을 UI snake_case 형식으로 변환합니다. */
 export function mapNote(note) {
   return {
     note_id: note.id,
@@ -118,6 +134,7 @@ export function mapNote(note) {
   }
 }
 
+/** 특정 시간표에 배치된 수업 목록과 요일·시간(schedules)을 조합합니다. */
 export function buildCoursesOnBoard(courses, entries, timetableId) {
   const timetableEntries = entries.filter(
     (entry) => (entry.timetableId ?? timetableId) === timetableId,
@@ -137,11 +154,13 @@ export function buildCoursesOnBoard(courses, entries, timetableId) {
     .filter(Boolean)
 }
 
+/** 시간표에서 제거된 수업의 고아 노트를 필터링합니다. */
 export function pruneNotesByEntries(notes, activeEntries) {
   const activeCourseIds = new Set(activeEntries.map((entry) => Number(entry.courseId)))
   return notes.filter((note) => activeCourseIds.has(Number(note.course_id)))
 }
 
+/** 오늘 요일에 해당하는 수업만 시작 시간 순으로 반환합니다. 주말이면 []. */
 export function getTodayCourses(courses, entries, timetableId) {
   const today = getTodayApiDayOfWeek()
   if (today > 5) return []
@@ -159,6 +178,7 @@ export function getTodayCourses(courses, entries, timetableId) {
     )
 }
 
+/** "HH:mm" 문자열을 시간(소수)으로 변환합니다. */
 function timeToNumber(time) {
   const [hours, minutes] = time.split(':').map(Number)
   return hours + minutes / 60
@@ -200,6 +220,7 @@ export function mergeSchedulesByDay(schedules) {
   )
 }
 
+/** 엔트리 목록에서 특정 수업의 요일·시간 배열을 만듭니다. */
 export function buildSchedulesFromEntries(entries, courseId) {
   const normalizedCourseId = Number(courseId)
   const schedules = entries
@@ -215,26 +236,31 @@ export function buildSchedulesFromEntries(entries, courseId) {
   return mergeSchedulesByDay(schedules)
 }
 
+/** GET /api/semesters — 학기 목록 조회 */
 export async function fetchSemesters() {
   const { data } = await api.get('/api/semesters')
   return data.map((semester, index) => mapSemester(semester, index))
 }
 
+/** GET /api/semesters/:id/timetables — 학기별 시간표 목록 */
 export async function fetchTimetables(semesterId) {
   const { data } = await api.get(`/api/semesters/${semesterId}/timetables`)
   return data.map((timetable, index) => mapTimetable(timetable, index))
 }
 
+/** GET /api/semesters/:id/courses — 학기별 수업 목록 */
 export async function fetchCourses(semesterId) {
   const { data } = await api.get(`/api/semesters/${semesterId}/courses`)
   return data
 }
 
+/** GET /api/timetables/:id/entries — 시간표별 수업 배치 목록 */
 export async function fetchEntries(timetableId) {
   const { data } = await api.get(`/api/timetables/${timetableId}/entries`)
   return data
 }
 
+/** 학기 내 모든 시간표의 엔트리를 병렬 조회해 flat 배열로 반환합니다. */
 export async function fetchEntriesForSemester(semesterId, timetables) {
   if (timetables.length === 0) return []
 
@@ -265,6 +291,7 @@ export function sumRegisteredCredits(courses, entries) {
   }, 0)
 }
 
+/** 활성 학기 수업 credit 합산 (마이페이지 신청 학점) */
 export async function fetchActiveSemesterCredits() {
   const semesters = await fetchSemesters()
   const activeSemester = pickDashboardSemester(semesters)
@@ -274,6 +301,7 @@ export async function fetchActiveSemesterCredits() {
   return sumCourseCredits(courses)
 }
 
+/** 대시보드·검색용 스냅샷 (오늘 수업, 주말 여부 포함) */
 export function buildTimetableSessionSnapshot({
   semesterId,
   timetableId,
@@ -309,6 +337,7 @@ export function buildTimetableSessionSnapshot({
   }
 }
 
+/** 로그인 직후·캐시 미스 시 활성 학기 시간표 스냅샷을 API에서 조립합니다. */
 export async function fetchInitialTimetableSession() {
   const semesters = await fetchSemesters()
   const activeSemester = semesters.find((s) => s.isActive) ?? semesters[0]
@@ -359,6 +388,7 @@ export async function fetchInitialTimetableSession() {
   })
 }
 
+/** 여러 수업의 노트를 병렬 조회합니다. */
 export async function fetchNotesForCourses(courseIds) {
   if (courseIds.length === 0) return []
 
@@ -371,30 +401,36 @@ export async function fetchNotesForCourses(courseIds) {
   return results.flat()
 }
 
+/** PATCH /api/semesters/:id — 학기 이름 수정 */
 export async function updateSemester(semesterId, title) {
   const { data } = await api.patch(`/api/semesters/${semesterId}`, { title })
   return mapSemester(data)
 }
 
+/** PUT /api/semesters/reorder — 학기 탭 순서 변경 */
 export async function reorderSemesters(semesterIds) {
   const { data } = await api.put('/api/semesters/reorder', { semesterIds })
   return data.map((semester, index) => mapSemester(semester, index))
 }
 
+/** PATCH /api/timetables/:id — 시간표 이름 수정 */
 export async function updateTimetable(timetableId, title) {
   const { data } = await api.patch(`/api/timetables/${timetableId}`, { title })
   return mapTimetable(data)
 }
 
+/** POST /api/semesters/:id/timetables — 시간표 생성 */
 export async function createTimetable(semesterId, title) {
   const { data } = await api.post(`/api/semesters/${semesterId}/timetables`, { title })
   return mapTimetable(data)
 }
 
+/** DELETE /api/timetables/:id — 시간표 삭제 */
 export async function deleteTimetable(timetableId) {
   await api.delete(`/api/timetables/${timetableId}`)
 }
 
+/** PUT /api/semesters/:id/timetables/reorder — 시간표 탭 순서 변경 */
 export async function reorderTimetables(semesterId, timetableIds) {
   const { data } = await api.put(`/api/semesters/${semesterId}/timetables/reorder`, {
     timetableIds,
@@ -402,6 +438,7 @@ export async function reorderTimetables(semesterId, timetableIds) {
   return data.map((timetable, index) => mapTimetable(timetable, index))
 }
 
+/** POST /api/timetables/:id/entries — 수업을 시간표에 배치 */
 export async function createEntry(timetableId, { courseId, dayOfWeek, startTime, endTime }) {
   const { data } = await api.post(`/api/timetables/${timetableId}/entries`, {
     courseId,
@@ -412,10 +449,12 @@ export async function createEntry(timetableId, { courseId, dayOfWeek, startTime,
   return data
 }
 
+/** DELETE /api/entries/:id — 시간표에서 수업 배치 제거 */
 export async function deleteEntry(entryId) {
   await api.delete(`/api/entries/${entryId}`)
 }
 
+/** POST /api/courses/:id/notes — 수업 노트 생성 (핀 설정 포함) */
 export async function createNote(courseId, { title, content, is_pinned: isPinned }) {
   const { data } = await api.post(`/api/courses/${courseId}/notes`, { title, content })
   if (isPinned) {
@@ -425,6 +464,7 @@ export async function createNote(courseId, { title, content, is_pinned: isPinned
   return mapNote(data)
 }
 
+/** PATCH /api/notes/:id — 노트 수정 및 고정 상태 변경 */
 export async function updateNote(noteId, { title, content, is_pinned: isPinned }, previousPinned) {
   const { data } = await api.patch(`/api/notes/${noteId}`, { title, content })
   if (isPinned !== previousPinned) {
@@ -434,6 +474,7 @@ export async function updateNote(noteId, { title, content, is_pinned: isPinned }
   return mapNote(data)
 }
 
+/** DELETE /api/notes/:id — 노트 삭제 */
 export async function deleteNote(noteId) {
   await api.delete(`/api/notes/${noteId}`)
 }

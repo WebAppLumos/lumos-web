@@ -1,5 +1,9 @@
 import './DashboardHeader.css'
 
+/**
+ * 대시보드 페이지 상단 헤더.
+ * 제목·부제와 위젯 편집 모드 토글 버튼을 제공합니다.
+ */
 export default function DashboardHeader({ isEditing, onToggleEdit }) {
   return (
     // 대시보드 페이지 상단 제목과 편집 버튼

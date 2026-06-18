@@ -1,5 +1,9 @@
 import './TimetableCourseList.css'
 
+/**
+ * 시간표 하단 수업 목록 카드.
+ * view(정보/노트/난이도)에 맞는 메타데이터를 리스트 형태로 표시합니다.
+ */
 export default function TimetableCourseList({
   DAYS,
   coursesOnBoard,
@@ -7,6 +11,7 @@ export default function TimetableCourseList({
   view,
   onDeleteCourse,
 }) {
+  /** 수업별 노트 — 고정 우선, 최근 수정순 */
   const notesForCourse = (courseId) => notes
     .filter((note) => note.course_id === courseId)
     .sort((a, b) => {
